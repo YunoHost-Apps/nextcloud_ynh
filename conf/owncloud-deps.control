@@ -1,0 +1,16 @@
+Section: misc
+Priority: optional
+Homepage: https://mediagoblin.org/
+Standards-Version: 3.9.2
+
+Package: owncloud-deps
+Version: 9.0.0-1
+Depends: acl, php5-cli, php5-apcu, tar, smbclient
+Architecture: all
+Description: meta package for owncloud dependencies
+ ownCloud gives you universal access to your files through a web
+ interface or WebDAV. It also provides a platform to easily view & sync
+ your contacts, calendars and bookmarks across all your devices and
+ enables basic editing right on the web.
+ .
+ This meta-package is only responsible of installing its dependencies.

@@ -1,0 +1,133 @@
+#!/bin/bash
+
+set -e
+set -u
+
+# Retrieve arguments
+domain=$1
+path=${2%/}
+admin=$3
+app=${!#}
+
+# Load common variables
+. ./_common.sh
+
+# Set app specific variables
+dbname=$app
+dbuser=$app
+
+# Source app helpers
+. /usr/share/yunohost/helpers
+
+# TODO: Check domain/path availability with app helper
+sudo yunohost app checkurl $domain$path -a $app \
+  || die "The path ${domain}${path} is not available for app installation."
+
+# Check user parameter
+ynh_user_exists "$admin" \
+  || die "The chosen admin user does not exist."
+ynh_app_setting_set $app admin_user $admin
+
+# Check destination directory
+DESTDIR="/var/www/$app"
+[[ -d $DESTDIR ]] && die \
+"The destination directory '$DESTDIR' already exists.\
+ You should safely delete it before installing this app."
+
+# Install dependencies
+ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
+  || die "Unable to install dependencies"
+
+# Generate random password
+dbpass=$(ynh_string_random)
+ynh_app_setting_set $app mysqlpwd $dbpass
+
+# Initialize database
+ynh_mysql_create_db $dbname $dbuser $dbpass
+
+# Create a system account for ownCloud
+sudo useradd -c "$app system account" \
+    -d /var/lib/$app --system --user-group $app \
+  || die "Unable to create $app system account"
+
+# Create ownCloud destination directory
+sudo mkdir -p "$DESTDIR"
+
+# Copy ownCloud configuration file
+oc_conf="${DESTDIR}/config.json"
+sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
+sudo cp ../conf/config.json "$oc_conf"
+
+# Create and init data folder
+DATADIR="/home/yunohost.app/${app}/data"
+sudo mkdir -p "$DATADIR"
+sudo cp ../conf/mount.json "$DATADIR"
+
+# Set app folders ownership
+sudo chown -R $app: "$DESTDIR" "$DATADIR"
+
+# Copy and set nginx configuration
+nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
+sed -i "s@#APP#@${app}@g"          ../conf/nginx.conf
+sed -i "s@#PATH#@${path}@g"        ../conf/nginx.conf
+sed -i "s@#LOCATION#@${path:-/}@g" ../conf/nginx.conf
+sed -i "s@#DESTDIR#@${DESTDIR}@g"  ../conf/nginx.conf
+sudo cp ../conf/nginx.conf "$nginx_conf"
+
+# Copy and set php-fpm configuration
+phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
+sed -i "s@#POOLNAME#@${app}@g"     ../conf/php-fpm.conf
+sed -i "s@#DESTDIR#@${DESTDIR}/@g" ../conf/php-fpm.conf
+sudo cp ../conf/php-fpm.conf "$phpfpm_conf"
+sudo chown root: $phpfpm_conf
+sudo chmod 644 $phpfpm_conf
+
+# occ helper for the current installation
+_exec_occ() {
+  exec_occ "$DESTDIR" "$app" $@
+}
+
+# Retrieve and install ownCloud using a temporary admin user
+extract_owncloud "$DESTDIR" "$app"
+_exec_occ maintenance:install \
+    --database "mysql" --database-name "$dbname" \
+    --database-user "$dbuser" --database-pass "$dbpass" \
+    --admin-user "admin" --admin-pass "$(ynh_string_random 6)" \
+  || die "Unable to install ownCloud"
+
+# Enable plugins and set ownCloud configuration
+_exec_occ app:enable files_external
+_exec_occ app:enable user_ldap
+_exec_occ ldap:create-empty-config
+_exec_occ config:import "$oc_conf"
+sudo rm -f "$oc_conf"
+
+# Set the user as admin and delete admin user
+ynh_mysql_connect_as $dbuser $dbpass $dbname \
+    <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
+_exec_occ user:delete admin
+
+## Needed for Jessie/PHP5.6 compatibility
+#sudo sed -i "s/;always_populate_raw/always_populate_raw/" /etc/php5/cli/php.ini
+
+# Iterate over users to extend their home folder permissions - for the external
+# storage plugin usage - and create relevant ownCloud directories
+for u in $(ynh_user_list); do
+  sudo mkdir -p "${DATADIR}/${u}"
+  sudo setfacl -m g:$app:rwx "/home/$u" || true
+done
+
+# Fix app folders permissions
+sudo chown -R $app: "$DESTDIR" "$DATADIR"
+sudo chmod 755 /home/yunohost.app
+find ${DESTDIR}/ -type f -print0 | xargs -0 sudo chmod 0644
+find ${DESTDIR}/ -type d -print0 | xargs -0 sudo chmod 0755
+find ${DATADIR}/ -type f -print0 | xargs -0 sudo chmod 0640
+find ${DATADIR}/ -type d -print0 | xargs -0 sudo chmod 0750
+
+# Set SSOwat rules
+ynh_app_setting_set $app unprotected_uris "/"
+
+# Reload services
+sudo service php5-fpm restart || true
+sudo service nginx reload || true

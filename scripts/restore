@@ -1,0 +1,100 @@
+#!/bin/bash
+# This restore script is adapted to Yunohost >=2.4
+APP=${!#}
+
+# The parameter $1 is the backup directory location dedicated to the app
+backup_dir=$1
+
+
+# Get old parameter of the app
+domain=$(sudo yunohost app setting $APP domain)
+path=$(sudo yunohost app setting $APP path)
+user=$(sudo yunohost app setting $APP admin_user)
+
+# Check domain/path availability
+sudo yunohost app checkurl $domain$path -a $APP
+if [[ ! $? -eq 0 ]]; then
+    echo "There is already an app on this URL : $domain$path" | sudo tee /dev/stderr
+    exit 1
+fi
+
+final_path=/var/www/$APP
+if [ -d $final_path ]; then
+    echo "There is already a directory: $final_path " | sudo tee /dev/stderr
+    exit 1
+fi
+data_path=/home/yunohost.app/$APP/data
+if [ -d $data_path ]; then
+    echo "There is already a directory: $data_path " | sudo tee /dev/stderr
+    exit 1
+fi
+
+conf_nginx=/etc/nginx/conf.d/$domain.d/$APP.conf
+if [ -f $conf_nginx ]; then
+    echo "There is already a nginx conf file at this path: $conf_nginx " | sudo tee /dev/stderr
+    exit 1
+fi
+
+conf_fpm=/etc/php5/fpm/pool.d/$APP.conf
+if [ -f $conf_fpm ]; then
+    echo "There is already a nginx conf file at this path: $conf_fpm " | sudo tee /dev/stderr
+    exit 1
+fi
+
+# Install dependencies
+sudo apt-get update -qq
+sudo DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" -y --force-yes -qq install acl smbclient php5-cli php-apc coreutils gnupg tar
+
+# Create user if not exists
+sudo useradd -d /var/www/$APP $APP  || echo "User $APP"
+
+# Restore sources & data
+sudo cp -a "${backup_dir}/www" $final_path
+sudo mkdir -p $data_path
+sudo cp -a "${backup_dir}/data/." $data_path
+
+db_pwd=$(sudo yunohost app setting $APP mysqlpwd)
+db_user=$APP
+sudo yunohost app initdb $db_user -p $db_pwd
+sudo su -c "mysql -u $db_user -p$db_pwd $APP < ${backup_dir}/db.sql"
+# TODO Change config.php with potential new database name
+
+# Set permissions
+sudo chown -hR $APP:www-data $final_path
+sudo chown -hR $APP:www-data $data_path
+sudo chown $APP:www-data /home/yunohost.app/$APP
+sudo chmod 755 /home/yunohost.app
+sudo chmod -R u=rwX,g=rwX,o=rX $final_path
+sudo chmod -R u=rwX,g=rwX,o= $data_path
+sudo chmod -R 665 $final_path
+sudo find $final_path -type d -print0 | xargs -0 sudo chmod 775 \
+	|| echo "No file to modify"
+sudo chmod -R 770 $data_path
+
+# Set permissions to owncloud directories and /home directories + add Home external storage
+for i in $(ls /home)
+do
+    sudo yunohost user list --json | grep -q "\"username\": \"$i\"" && (
+	    sudo setfacl -m g:$APP:rwx /home/$i || echo "ACL not available"
+	) || true
+done
+
+# Needed for Jessie/PHP5.6 compatibility
+sudo sed -i "s/;always_populate_raw/always_populate_raw/" /etc/php5/cli/php.ini
+
+# Restore conf files
+sudo cp -a "${backup_dir}/conf/nginx.conf" $conf_nginx
+sudo cp -a "${backup_dir}/conf/php-fpm.conf" $conf_fpm
+sudo cp -a "${backup_dir}/conf/20-apc.ini" /etc/php5/cli/conf.d/ \
+    || sudo cp -a "${backup_dir}/conf/20-apcu.ini" /etc/php5/cli/conf.d/
+
+# Reload Services
+sudo killall php5-fpm
+sudo service php5-fpm start
+sudo service nginx reload
+sudo yunohost app setting $APP unprotected_uris -v "/"
+sudo yunohost app ssowatconf
+
+# Set ssowat config
+sudo yunohost app setting $APP unprotected_uris -v "/"
+sudo yunohost app ssowatconf

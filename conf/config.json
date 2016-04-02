@@ -1,0 +1,27 @@
+{
+  "system": {
+    "trusted_domains": [
+      "localhost",
+      "#DOMAIN#"
+    ],
+    "updatechecker": false,
+    "memcache.local": "\\OC\\Memcache\\APCu"
+  },
+  "apps": {
+    "user_ldap": {
+      "ldap_host": "localhost",
+      "ldap_port": "389",
+      "ldap_base": "dc=yunohost,dc=org",
+      "ldap_base_groups": "dc=yunohost,dc=org",
+      "ldap_base_users": "dc=yunohost,dc=org",
+      "ldap_email_attribute": "mail",
+      "ldap_expert_username_attr": "uid",
+      "ldap_quota_attr": "mailQuota",
+      "ldap_user_display_name": "cn",
+      "ldap_user_filter": "objectClass=mailAccount",
+      "ldap_login_filter": "(&(|(objectclass=mailAccount))(uid=%uid))",
+      "ldap_group_filter": "objectClass=posixGroup",
+      "ldap_configuration_active": "1"
+    }
+  }
+}

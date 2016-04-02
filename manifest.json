@@ -1,0 +1,51 @@
+{
+    "name": "OwnCloud",
+    "id": "owncloud",
+    "description": {
+        "en": "Sync & share your files, pictures, music, contacts, calendars, and much more !",
+        "fr": "Synchronisez et partagez vos fichiers, images, musiques, contacts, calendriers, et bien plus !"
+    },
+    "url": "http://owncloud.org",
+    "maintainer": {
+        "name": "kload",
+        "email": "kload@kload.fr"
+    },
+    "multi_instance": "true",
+    "services": [
+        "nginx",
+        "php5-fpm",
+        "mysql"
+    ],
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "type": "domain",
+                "ask": {
+                    "en": "Choose a domain for Owncloud",
+                    "fr": "Choisissez un domaine pour Owncloud"
+                },
+                "example": "domain.org"
+            },
+            {
+                "name": "path",
+                "type": "path",
+                "ask": {
+                    "en": "Choose a path for Owncloud",
+                    "fr": "Choisissez un chemin pour Owncloud"
+                },
+                "example": "/owncloud",
+                "default": "/owncloud"
+            },
+            {
+                "name": "admin",
+                "type": "user",
+                "ask": {
+                    "en": "Choose the Owncloud administrator (must be an existing YunoHost user)",
+                    "fr": "Choisissez l'administrateur d'Owncloud (doit être un utilisateur YunoHost déjà existant)"
+                },
+                "example": "homer"
+            }
+        ]
+    }
+}

@@ -120,10 +120,10 @@ done
 # Fix app folders permissions
 sudo chown -R $app: "$DESTDIR" "$DATADIR"
 sudo chmod 755 /home/yunohost.app
-find ${DESTDIR}/ -type f -print0 | xargs -0 sudo chmod 0644
-find ${DESTDIR}/ -type d -print0 | xargs -0 sudo chmod 0755
-find ${DATADIR}/ -type f -print0 | xargs -0 sudo chmod 0640
-find ${DATADIR}/ -type d -print0 | xargs -0 sudo chmod 0750
+sudo find ${DESTDIR}/ -type f -print0 | sudo xargs -0 chmod 0644
+sudo find ${DESTDIR}/ -type d -print0 | sudo xargs -0 chmod 0755
+sudo find ${DATADIR}/ -type f -print0 | sudo xargs -0 chmod 0640
+sudo find ${DATADIR}/ -type d -print0 | sudo xargs -0 chmod 0750
 
 # Set SSOwat rules
 ynh_app_setting_set $app unprotected_uris "/"

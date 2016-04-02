@@ -1,10 +1,39 @@
-# owncloud_ynh
-Owncloud package for YunoHost.
+ownCloud for YunoHost
+---------------------
 
-OwnCloud gives you freedom and control over your own data. A personal cloud which run on your own server. With Owncloud you can synchronize your files over your devices.
+*This is a work-in-progress package rework to update ownCloud to 9.x
+and make use of new YunoHost facilities - e.g. helpers - coming with 2.3.x.*
 
-The current version in this package is Owncloud 8.1.3 from owncloud.org. The files have been checked with the sha256 sum.
+ownCloud gives you freedom and control over your own data. A personal cloud
+which run on your own server. With owncloud you can synchronize your files
+over your devices.
 
-<img src="https://github.com/owncloud/owncloud.org/blob/9519c21f0bdc1a590053aa78bf1c0efe9a7ee9ec/assets/img/screenshots/serverwebui.png" style="max-width:100%;" alt="Screen of owncloud webui"/>
+**Shipped version:** 9.0.0
 
-### Official Website: https://owncloud.org ###
+![](https://github.com/owncloud/screenshots/blob/master/files/sidebar_1.png)
+
+## Installation
+
+While it's merged to the official application list, you can install it in order
+to try - or use it with caution! - either from the command line:
+
+    $ sudo yunohost app install https://github.com/jeromelebleu/owncloud_ynh/tree/testing
+
+or from the Web administration:
+
+  * Go to *Applications*
+  * Click on *Install*
+  * Scroll to the bottom of the page and put `https://github.com/jeromelebleu/owncloud_ynh/tree/testing`
+    under **Install custom app**.
+
+## TODO
+
+ * Rewrite the upgrade script and update backup/restore too
+ * Test the upgrade from the current official package
+ * ...
+
+## Links ##
+
+**ownCloud**: https://owncloud.org/
+
+**YunoHost**: https://yunohost.org/

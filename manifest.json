@@ -2,10 +2,10 @@
     "name": "OwnCloud",
     "id": "owncloud",
     "description": {
-        "en": "Sync & share your files, pictures, music, contacts, calendars, and much more !",
+        "en": "Sync & share your files, pictures, music, contacts, calendars, and much more!",
         "fr": "Synchronisez et partagez vos fichiers, images, musiques, contacts, calendriers, et bien plus !"
     },
-    "url": "http://owncloud.org",
+    "url": "https://owncloud.org",
     "maintainer": {
         "name": "kload",
         "email": "kload@kload.fr"
@@ -16,6 +16,9 @@
         "php5-fpm",
         "mysql"
     ],
+    "requirements": {
+        "yunohost": ">= 2.3.12"
+    },
     "arguments": {
         "install" : [
             {

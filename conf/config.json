@@ -1,5 +1,6 @@
 {
   "system": {
+    "datadirectory": "#DATADIR#",
     "trusted_domains": [
       "localhost",
       "#DOMAIN#"

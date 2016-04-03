@@ -34,6 +34,9 @@ DESTDIR="/var/www/$app"
 "The destination directory '$DESTDIR' already exists.\
  You should safely delete it before installing this app."
 
+# Define app's data directory
+DATADIR="/home/yunohost.app/${app}/data"
+
 # Install dependencies
 ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
   || die "Unable to install dependencies"
@@ -50,21 +53,17 @@ sudo useradd -c "$app system account" \
     -d /var/lib/$app --system --user-group $app \
   || die "Unable to create $app system account"
 
-# Create ownCloud destination directory
-sudo mkdir -p "$DESTDIR"
+# Create app folders
+sudo mkdir -p "$DESTDIR" "$DATADIR"
 
 # Copy ownCloud configuration file
 oc_conf="${DESTDIR}/config.json"
 sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
+sed -i "s@#DATADIR#@${DATADIR}@g" ../conf/config.json
 sudo cp ../conf/config.json "$oc_conf"
 
-# Create and init data folder
-DATADIR="/home/yunohost.app/${app}/data"
-sudo mkdir -p "$DATADIR"
+# Copy configuration for external storage plugin
 sudo cp ../conf/mount.json "$DATADIR"
-
-# Set app folders ownership
-sudo chown -R $app: "$DESTDIR" "$DATADIR"
 
 # Copy and set nginx configuration
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
@@ -87,12 +86,18 @@ _exec_occ() {
   exec_occ "$DESTDIR" "$app" $@
 }
 
-# Retrieve and install ownCloud using a temporary admin user
+# Set app folders ownership
+sudo chown -R $app: "$DESTDIR" "$DATADIR"
+
+# Retrieve ownCloud sources
 extract_owncloud "$DESTDIR" "$app"
+
+# Install ownCloud using a temporary admin user
 _exec_occ maintenance:install \
     --database "mysql" --database-name "$dbname" \
     --database-user "$dbuser" --database-pass "$dbpass" \
     --admin-user "admin" --admin-pass "$(ynh_string_random 6)" \
+    --data-dir "$DATADIR" \
   || die "Unable to install ownCloud"
 
 # Enable plugins and set ownCloud configuration
@@ -117,13 +122,14 @@ for u in $(ynh_user_list); do
   sudo setfacl -m g:$app:rwx "/home/$u" || true
 done
 
-# Fix app folders permissions
+# Fix app ownerships & permissions
 sudo chown -R $app: "$DESTDIR" "$DATADIR"
-sudo chmod 755 /home/yunohost.app
 sudo find ${DESTDIR}/ -type f -print0 | sudo xargs -0 chmod 0644
 sudo find ${DESTDIR}/ -type d -print0 | sudo xargs -0 chmod 0755
 sudo find ${DATADIR}/ -type f -print0 | sudo xargs -0 chmod 0640
 sudo find ${DATADIR}/ -type d -print0 | sudo xargs -0 chmod 0750
+sudo chmod 640 "${DESTDIR}/config/config.php"
+sudo chmod 755 /home/yunohost.app
 
 # Set SSOwat rules
 ynh_app_setting_set $app unprotected_uris "/"

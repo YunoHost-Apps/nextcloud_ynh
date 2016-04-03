@@ -28,8 +28,8 @@ or from the Web administration:
 
 ## TODO
 
- * Rewrite the upgrade script and update backup/restore too
  * Test the upgrade from the current official package
+ * Update backup and restore scripts
  * Develop an app to integrate SSOwat logout - see
    [here](https://doc.owncloud.org/server/9.0/developer_manual/app/hooks.html#session)
  * Check the external storage plugin

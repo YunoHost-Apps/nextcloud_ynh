@@ -1,147 +1,128 @@
 #!/bin/bash
-APP=${!#}
 
 set -e
+set -u
 
-APPNAME=`echo -n own;echo 'cloud'`
-SOURCES=`echo -n $APPNAME;echo '-8.2.2'`
+# Load common variables and helpers
+. ./_common.sh
 
 # Retrieve arguments
-domain=$(sudo yunohost app setting owncloud domain)
-path=$(sudo yunohost app setting owncloud path)
-#user=$(sudo yunohost app setting owncloud admin_user)
-db_pwd=$(sudo yunohost app setting owncloud mysqlpwd)
+app=${!#}
+dbname=$app
+dbuser=$app
 
-# Install dependencies
-sudo apt-get update -qq
-sudo apt-get install acl smbclient php5-cli php-apc coreutils gnupg tar -y -qq
+# Source app helpers
+. /usr/share/yunohost/helpers
 
-# Remove trailing "/" for next commands
-path=${path%/}
+# Retrieve app settings
+domain=$(ynh_app_setting_get $app domain)
+path=$(ynh_app_setting_get $app path)
+dbpass=$(ynh_app_setting_get $app mysqlpwd)
 
-# Use 'owncloud' as database name and user \
-db_user=owncloud
+# Check - and fix as needed - path setting
+[[ "${path: -1}" = / ]] \
+  && path=${path%/} && ynh_app_setting_set $app path $path
 
-# Verify sources and extract it
-sha256sum --strict --quiet -c ../sources/$SOURCES.tar.bz2.sha256sum < ../sources/$SOURCES.tar.bz2
-gpg --import ../sources/$APPNAME.asc
-gpg --verify ../sources/$SOURCES.tar.bz2.asc ../sources/$SOURCES.tar.bz2
-sudo mkdir -p ../tmp/
-sudo tar -jxf ../sources/$SOURCES.tar.bz2 -C ../tmp/
+# Check destination directory
+DESTDIR="/var/www/$app"
+[[ ! -d $DESTDIR ]] && die \
+"The destination directory '$DESTDIR' does not exist.\
+ The app is not correctly installed, you should remove it first."
 
-# Copy files to the right place
-final_path=/var/www/owncloud
-data_path=/home/yunohost.app/owncloud/data
-sudo mkdir -p $final_path
-sudo mkdir -p $data_path
-old_pwd=$(pwd)
-sudo chmod -R u=rwX,g=rwX,o=rX $final_path
-sudo chmod -R u=rwX,g=rwX,o= $data_path
-cd $final_path
-sudo mkdir -p old_apps
-sudo rm -Rf old_apps/*
-sudo mv apps/* old_apps \
-    || echo "No app to backup"
-shopt -s extglob
-sudo rm -Rf !(old_apps|data|config|themes)
-shopt -u extglob
-cd $old_pwd
-sudo cp -a ../tmp/$APPNAME/. $final_path/
-cd $final_path/old_apps
-sudo rm -Rf $(ls $final_path/apps)
-cd $old_pwd
-sudo cp -a $final_path/old_apps/* $final_path/apps/ \
-    || echo "No app to restore"
+# Check app's data directory
+DATADIR="/home/yunohost.app/${app}/data"
+[[ ! -d $DATADIR ]] && die \
+"The data directory '$DATADIR' does not exist.\
+ The app is not correctly installed, you should remove it first."
 
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/owncloud.conf
-sudo cp ../conf/php-fpm.conf /etc/php5/fpm/pool.d/owncloud.conf
-sudo ls /usr/lib/php5/2*/ | grep apc.so \
-  && sudo cp ../conf/20-apc.ini /etc/php5/cli/conf.d/20-apc.ini \
-  || sudo cp ../conf/20-apcu.ini /etc/php5/cli/conf.d/20-apcu.ini
-sudo cp ../conf/mount.json $data_path
-sudo chown -hR owncloud:www-data $final_path
-sudo chown -hR owncloud:www-data $data_path
-sudo chmod 755 /home/yunohost.app
-sudo chmod -R u=rwX,g=rwX,o=rX $final_path
-sudo chmod -R u=rwX,g=rwX,o= $data_path
-sudo chmod -R 770 $data_path
+# Upgrade dependencies
+ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
+  || die "Unable to upgrade dependencies"
 
-# Needed for Jessie/PHP5.6 compatibility
-sudo sed -i "s/;always_populate_raw/always_populate_raw/" /etc/php5/cli/php.ini
+# Copy and set nginx configuration
+nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
+sed -i "s@#APP#@${app}@g"          ../conf/nginx.conf
+sed -i "s@#PATH#@${path}@g"        ../conf/nginx.conf
+sed -i "s@#LOCATION#@${path:-/}@g" ../conf/nginx.conf
+sed -i "s@#DESTDIR#@${DESTDIR}@g"  ../conf/nginx.conf
+sudo cp ../conf/nginx.conf "$nginx_conf"
 
-# Change variables in Owncloud configuration
-if [[ "$path" == "" ]]; then
-    sudo sed -i "s@LOCATIONTOCHANGE@/@g" /etc/nginx/conf.d/$domain.d/owncloud.conf
-else
-	sudo sed -i "s@LOCATIONTOCHANGE@$path@g" /etc/nginx/conf.d/$domain.d/owncloud.conf
-fi
-sudo sed -i "s@PATHTOCHANGE@$path@g" /etc/nginx/conf.d/$domain.d/owncloud.conf
-sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" /etc/nginx/conf.d/$domain.d/owncloud.conf
-sudo sed -i "s@NAMETOCHANGE@owncloud@g" /etc/nginx/conf.d/$domain.d/owncloud.conf
-sudo sed -i "s@NAMETOCHANGE@owncloud@g" /etc/php5/fpm/pool.d/owncloud.conf
-if ! grep -Fq "memcache" $final_path/config/config.php
-then
-    sudo bash -c "echo \"\\\$CONFIG['memcache.local']= '\OC\Memcache\APC';\" >> $final_path/config/config.php"
-fi
-if ! grep -Fq "memcache.locking" $final_path/config/config.php
-then
-    sudo bash -c "echo \"\\\$CONFIG['memcache.locking']= '\OC\Memcache\APC';\" >> $final_path/config/config.php"
-fi
-# Set permissions to owncloud directories and /home directories + add Home external storage
-for i in $(ls /home)
-do
-    sudo yunohost user list --json | grep -q "\"username\": \"$i\"" && (
-	    sudo mkdir -p $data_path/$i
-	    sudo setfacl -m g:owncloud:rwx /home/$i || echo "ACL not available"
-	) || true
+# Copy and set php-fpm configuration
+phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
+sed -i "s@#POOLNAME#@${app}@g"     ../conf/php-fpm.conf
+sed -i "s@#DESTDIR#@${DESTDIR}/@g" ../conf/php-fpm.conf
+sudo cp ../conf/php-fpm.conf "$phpfpm_conf"
+sudo chown root: $phpfpm_conf
+sudo chmod 644 $phpfpm_conf
+
+# occ helper for the current installation
+_exec_occ() {
+  exec_occ "$DESTDIR" "$app" $@
+}
+
+# Retrieve new ownCloud sources in a temporary directory
+TMPDIR=$(ynh_mkdir_tmp)
+extract_owncloud "$TMPDIR"
+
+# Copy ownCloud configuration file
+oc_conf="${DESTDIR}/config.json"
+sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
+sed -i "s@#DATADIR#@${DATADIR}@g" ../conf/config.json
+sudo cp ../conf/config.json "${TMPDIR}/config.json"
+
+# Copy configuration for external storage plugin
+sudo cp ../conf/mount.json "$DATADIR"
+
+# Enable maintenance mode
+_exec_occ maintenance:mode --on
+
+# Copy config and 3rd party applications from current directory
+sudo cp -a "${DESTDIR}/config/config.php" "${TMPDIR}/config/config.php"
+for a in $(sudo ls "${DESTDIR}/apps"); do
+  [[ ! -d "${TMPDIR}/apps/$a" ]] \
+    && sudo cp -a "${DESTDIR}/apps/$a" "${TMPDIR}/apps/$a"
 done
 
-# Reload Nginx and regenerate SSOwat conf
-sudo killall php5-fpm
-sudo service php5-fpm start
-sudo service nginx reload
-sudo yunohost app setting owncloud unprotected_uris -v "/"
-sudo yunohost app setting owncloud skipped_uris -d
-sudo yunohost app ssowatconf
+# Rename current directory and move new one
+sudo rm -rf "${DESTDIR}-old"
+sudo mv "$DESTDIR" "${DESTDIR}-old"
+sudo mv "$TMPDIR" "$DESTDIR"
 
+# Set app folders ownership
+sudo chown -R $app: "$DESTDIR" "$DATADIR"
 
-sudo chown -hR owncloud:owncloud $final_path
-sudo chown -hR owncloud:owncloud $data_path
+# Upgrade ownCloud (SUCCESS = 0, UP_TO_DATE = 3)
+# TODO: Restore old directory in case of failure?
+_exec_occ maintenance:mode --off
+_exec_occ upgrade \
+  || ([[ $? -eq 3 ]] || die "Unable to upgrade ownCloud")
+
+# Enable plugins and set ownCloud configuration
+_exec_occ app:enable files_external
+_exec_occ app:enable user_ldap
+_exec_occ ldap:create-empty-config
+_exec_occ config:import "$oc_conf"
+sudo rm -f "$oc_conf"
+
+# Iterate over users to extend their home folder permissions - for the external
+# storage plugin usage - and create relevant ownCloud directories
+for u in $(ynh_user_list); do
+  sudo mkdir -p "${DATADIR}/${u}"
+  sudo setfacl -m g:$app:rwx "/home/$u" || true
+done
+
+# Fix app ownerships & permissions
+sudo find ${DESTDIR}/ -type f -print0 | sudo xargs -0 chmod 0644
+sudo find ${DESTDIR}/ -type d -print0 | sudo xargs -0 chmod 0755
+sudo find ${DATADIR}/ -type f -print0 | sudo xargs -0 chmod 0640
+sudo find ${DATADIR}/ -type d -print0 | sudo xargs -0 chmod 0750
+sudo chmod 640 "${DESTDIR}/config/config.php"
 sudo chmod 755 /home/yunohost.app
-sudo chmod -R u=rwX,g=rwX,o=rX $final_path
-sudo chmod -R u=rwX,g=rwX,o= $data_path
 
-#Run owncloud upgrade script to avoid to have to do this in the browser
-cd $final_path
+# Set SSOwat rules
+ynh_app_setting_set $app unprotected_uris "/"
+ynh_app_setting_delete $app skipped_uris
 
-#sudo su -c "php occ app:disable gallery -n -q --no-ansi" owncloud
-sudo su -c "php occ upgrade -n -q --no-ansi || echo 'Owncloud upgrade already done'" owncloud
-
-# Configure LDAP plugin
-sudo su -c "php occ ldap:set-config '' ldapBase dc=yunohost,dc=org -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapBaseGroups dc=yunohost,dc=org -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapBaseUsers dc=yunohost,dc=org -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapCacheTTL 600 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapConfigurationActive 1 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapEmailAttribute mail -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapExperiencedAdmin 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapExpertUsernameAttr uid -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapGroupDisplayName cn -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapGroupFilter objectClass=posixGroup -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapGroupFilterMode 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapGroupMemberAssocAttr uniqueMember -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapHost localhost -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapLoginFilter '(&(|(objectclass=mailAccount))(uid=%uid))' -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapLoginFilterEmail 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapLoginFilterMode 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapLoginFilterUsername 1 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapNestedGroups 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapPagingSize 500 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapPort 389 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapQuotaAttribute mailQuota -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapTLS 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapUserDisplayName cn -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapUserFilter objectClass=mailAccount -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapUserFilterMode 0 -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapUuidGroupAttribute auto -n -q --no-ansi" owncloud
-sudo su -c "php occ ldap:set-config '' ldapUuidUserAttribute auto -n -q --no-ansi" owncloud
+# Reload services
+sudo service php5-fpm restart || true
+sudo service nginx reload || true

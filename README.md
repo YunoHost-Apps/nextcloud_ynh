@@ -28,7 +28,6 @@ or from the Web administration:
 
 ## TODO
 
- * Update NGINX configuration to fix security issues
  * Rewrite the upgrade script and update backup/restore too
  * Test the upgrade from the current official package
  * Develop an app to integrate SSOwat logout - see

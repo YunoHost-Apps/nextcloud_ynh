@@ -33,6 +33,9 @@ or from the Web administration:
    [here](https://doc.owncloud.org/server/9.0/developer_manual/app/hooks.html#session)
  * Update the external storage plugin configuration - see
    [here](https://doc.owncloud.org/server/9.0/admin_manual/configuration_server/occ_command.html#files-external-label)
+ * Rescan filesystem at upgrade and restoration - see
+   [here](https://doc.owncloud.org/server/9.0/admin_manual/configuration_server/occ_command.html#file-operations)
+ * Add a *clean* argument to the remove script to delete data folder?
  * ...
 
 ## Links ##

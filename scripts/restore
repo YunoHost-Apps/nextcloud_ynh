@@ -1,100 +1,89 @@
 #!/bin/bash
-# This restore script is adapted to Yunohost >=2.4
-APP=${!#}
 
-# The parameter $1 is the backup directory location dedicated to the app
+# Retrieve arguments
 backup_dir=$1
+app=${!#}
 
+# TODO: Put a simple die function in app helpers, redeclare it since
+# _common.sh cannot be easily sourced
+die() {
+  printf "%s" "$1" 1>&2
+  exit "${2:-1}"
+}
 
-# Get old parameter of the app
-domain=$(sudo yunohost app setting $APP domain)
-path=$(sudo yunohost app setting $APP path)
-user=$(sudo yunohost app setting $APP admin_user)
+# Set app specific variables
+dbname=$app
+dbuser=$app
 
-# Check domain/path availability
-sudo yunohost app checkurl $domain$path -a $APP
-if [[ ! $? -eq 0 ]]; then
-    echo "There is already an app on this URL : $domain$path" | sudo tee /dev/stderr
-    exit 1
-fi
+# Source app helpers
+. /usr/share/yunohost/helpers
 
-final_path=/var/www/$APP
-if [ -d $final_path ]; then
-    echo "There is already a directory: $final_path " | sudo tee /dev/stderr
-    exit 1
-fi
-data_path=/home/yunohost.app/$APP/data
-if [ -d $data_path ]; then
-    echo "There is already a directory: $data_path " | sudo tee /dev/stderr
-    exit 1
-fi
+# Retrieve old app settings
+domain=$(ynh_app_setting_get $app domain)
+path=$(ynh_app_setting_get $app path)
+dbpass=$(ynh_app_setting_get $app mysqlpwd)
 
-conf_nginx=/etc/nginx/conf.d/$domain.d/$APP.conf
-if [ -f $conf_nginx ]; then
-    echo "There is already a nginx conf file at this path: $conf_nginx " | sudo tee /dev/stderr
-    exit 1
-fi
+# TODO: Check domain/path availability with app helper
+sudo yunohost app checkurl $domain$path -a $app \
+  || die "The path ${domain}${path} is not available for app installation."
 
-conf_fpm=/etc/php5/fpm/pool.d/$APP.conf
-if [ -f $conf_fpm ]; then
-    echo "There is already a nginx conf file at this path: $conf_fpm " | sudo tee /dev/stderr
-    exit 1
-fi
+# Check destination directory
+DESTDIR="/var/www/$app"
+[[ -d $DESTDIR ]] && die \
+"The destination directory '$DESTDIR' already exists.\
+ You should safely delete it before restoring this app."
+
+# Define app's data directory
+DATADIR="/home/yunohost.app/${app}/data"
+
+# Check configuration files
+nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
+[[ -f $nginx_conf ]] && die \
+"The NGINX configuration already exists at '${nginx_conf}'.
+ You should safely delete it before restoring this app."
+phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
+[[ -f $phpfpm_conf ]] && die \
+"The PHP FPM configuration already exists at '${phpfpm_conf}'.
+ You should safely delete it before restoring this app."
 
 # Install dependencies
-sudo apt-get update -qq
-sudo DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" -y --force-yes -qq install acl smbclient php5-cli php-apc coreutils gnupg tar
+ynh_package_install_from_equivs ./owncloud-deps.control \
+  || die "Unable to install dependencies"
 
-# Create user if not exists
-sudo useradd -d /var/www/$APP $APP  || echo "User $APP"
+# Create a system account for ownCloud
+sudo useradd -c "$app system account" \
+    -d /var/lib/$app --system --user-group $app \
+  || die "Unable to create $app system account"
 
-# Restore sources & data
-sudo cp -a "${backup_dir}/www" $final_path
-sudo mkdir -p $data_path
-sudo cp -a "${backup_dir}/data/." $data_path
+# Restore the app files
+sudo cp -a ./www "$DESTDIR"
+sudo mkdir -p "$DATADIR"
+sudo cp -a ./data/. "$DATADIR"
 
-db_pwd=$(sudo yunohost app setting $APP mysqlpwd)
-db_user=$APP
-sudo yunohost app initdb $db_user -p $db_pwd
-sudo su -c "mysql -u $db_user -p$db_pwd $APP < ${backup_dir}/db.sql"
-# TODO Change config.php with potential new database name
+# Create and restore the database
+ynh_mysql_create_db $dbname $dbuser $dbpass
+ynh_mysql_connect_as $dbuser $dbpass $dbname < ./db.sql
 
-# Set permissions
-sudo chown -hR $APP:www-data $final_path
-sudo chown -hR $APP:www-data $data_path
-sudo chown $APP:www-data /home/yunohost.app/$APP
-sudo chmod 755 /home/yunohost.app
-sudo chmod -R u=rwX,g=rwX,o=rX $final_path
-sudo chmod -R u=rwX,g=rwX,o= $data_path
-sudo chmod -R 665 $final_path
-sudo find $final_path -type d -print0 | xargs -0 sudo chmod 775 \
-	|| echo "No file to modify"
-sudo chmod -R 770 $data_path
-
-# Set permissions to owncloud directories and /home directories + add Home external storage
-for i in $(ls /home)
-do
-    sudo yunohost user list --json | grep -q "\"username\": \"$i\"" && (
-	    sudo setfacl -m g:$APP:rwx /home/$i || echo "ACL not available"
-	) || true
+# Iterate over users to extend their home folder permissions - for the external
+# storage plugin usage - and create relevant ownCloud directories
+for u in $(ynh_user_list); do
+  sudo mkdir -p "${DATADIR}/${u}"
+  sudo setfacl -m g:$app:rwx "/home/$u" || true
 done
 
-# Needed for Jessie/PHP5.6 compatibility
-sudo sed -i "s/;always_populate_raw/always_populate_raw/" /etc/php5/cli/php.ini
+# Fix app ownerships & permissions
+sudo chown -R $app: "$DESTDIR" "$DATADIR"
+sudo find ${DESTDIR}/ -type f -print0 | sudo xargs -0 chmod 0644
+sudo find ${DESTDIR}/ -type d -print0 | sudo xargs -0 chmod 0755
+sudo find ${DATADIR}/ -type f -print0 | sudo xargs -0 chmod 0640
+sudo find ${DATADIR}/ -type d -print0 | sudo xargs -0 chmod 0750
+sudo chmod 640 "${DESTDIR}/config/config.php"
+sudo chmod 755 /home/yunohost.app
 
-# Restore conf files
-sudo cp -a "${backup_dir}/conf/nginx.conf" $conf_nginx
-sudo cp -a "${backup_dir}/conf/php-fpm.conf" $conf_fpm
-sudo cp -a "${backup_dir}/conf/20-apc.ini" /etc/php5/cli/conf.d/ \
-    || sudo cp -a "${backup_dir}/conf/20-apcu.ini" /etc/php5/cli/conf.d/
+# Restore configuration files
+sudo cp -a ./conf/nginx.conf   "$nginx_conf"
+sudo cp -a ./conf/php-fpm.conf "$phpfpm_conf"
 
-# Reload Services
-sudo killall php5-fpm
-sudo service php5-fpm start
-sudo service nginx reload
-sudo yunohost app setting $APP unprotected_uris -v "/"
-sudo yunohost app ssowatconf
-
-# Set ssowat config
-sudo yunohost app setting $APP unprotected_uris -v "/"
-sudo yunohost app ssowatconf
+# Reload services
+sudo service php5-fpm restart || true
+sudo service nginx reload || true

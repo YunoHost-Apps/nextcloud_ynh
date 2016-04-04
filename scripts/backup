@@ -1,31 +1,37 @@
 #!/bin/bash
-APP=${!#}
 
-
-CAN_BIND=1
-
-# The parameter $1 is the backup directory location dedicated to the app
+# Retrieve arguments
 backup_dir=$1
+app=${!#}
 
+# Set app specific variables
+dbname=$app
+dbuser=$app
 
+# Source app helpers
+. /usr/share/yunohost/helpers
 
+# Retrieve app settings
+domain=$(ynh_app_setting_get $app domain)
+path=$(ynh_app_setting_get $app path)
+dbpass=$(ynh_app_setting_get $app mysqlpwd)
 
-domain=$(sudo yunohost app setting $APP domain)
-path=$(sudo yunohost app setting $APP path)
-user=$(sudo yunohost app setting $APP admin_user)
+# Copy the app source files
+DESTDIR="/var/www/$app"
+sudo cp -a "$DESTDIR" ./www
 
-# Backup sources & data
-sudo cp -a /var/www/$APP $backup_dir/www
-# TODO Shallow copy because data could be very big
-sudo cp -a /home/yunohost.app/$APP/data $backup_dir/data
+# Copy the data directory
+DATADIR="/home/yunohost.app/${app}/data"
+ynh_bind_or_cp "$DATADIR" "${backup_dir}/data" 1
 
-# Copy Conf
-sudo mkdir -p "${backup_dir}/conf"
-sudo cp -a /etc/nginx/conf.d/$domain.d/$APP.conf $backup_dir/conf/nginx.conf
-sudo cp -a /etc/php5/fpm/pool.d/$APP.conf "${backup_dir}/conf/php-fpm.conf"
-sudo cp -a /etc/php5/cli/conf.d/20-apc.ini $backup_dir/conf/ \
-    || sudo cp -a /etc/php5/cli/conf.d/20-apcu.ini $backup_dir/conf/
+# Copy the conf files
+mkdir ./conf
+sudo cp -a "/etc/nginx/conf.d/${domain}.d/${app}.conf" ./conf/nginx.conf
+sudo cp -a "/etc/php5/fpm/pool.d/${app}.conf" ./conf/php-fpm.conf
 
-# Backup db
-db_pwd=$(sudo yunohost app setting $APP mysqlpwd)
-sudo su -c "mysqldump -u $APP -p"$db_pwd" --no-create-db $APP > ${backup_dir}/db.sql"
+# Dump the database
+mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql
+
+# Copy the control file of the dependency package
+# FIXME: find a way to retrieve package name from _common.sh?
+dpkg-query -s owncloud-deps > ./owncloud-deps.control

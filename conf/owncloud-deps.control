@@ -1,6 +1,6 @@
 Section: misc
 Priority: optional
-Homepage: https://mediagoblin.org/
+Homepage: https://owncloud.org/
 Standards-Version: 3.9.2
 
 Package: owncloud-deps

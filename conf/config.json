@@ -15,7 +15,7 @@
       "ldap_base": "dc=yunohost,dc=org",
       "ldap_base_groups": "dc=yunohost,dc=org",
       "ldap_base_users": "dc=yunohost,dc=org",
-      "ldap_email_attribute": "mail",
+      "ldap_email_attr": "mail",
       "ldap_expert_username_attr": "uid",
       "ldap_quota_attr": "mailQuota",
       "ldap_user_display_name": "cn",

@@ -55,10 +55,10 @@ exec_as() {
   shift 1
 
   if [[ $USER = $(whoami) ]]; then
-    eval $@
+    eval "$@"
   else
     # use sudo twice to be root and be allowed to use another user
-    sudo sudo -u "$USER" $@
+    sudo sudo -u "$USER" "$@"
   fi
 }
 
@@ -70,5 +70,5 @@ exec_occ() {
   shift 2
 
   (cd "$WORKDIR" && exec_as "$AS_USER" \
-      php occ --no-interaction --quiet --no-ansi $@)
+      php occ --no-interaction --quiet --no-ansi "$@")
 }

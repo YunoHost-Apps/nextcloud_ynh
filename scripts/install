@@ -107,13 +107,14 @@ _exec_occ ldap:create-empty-config
 _exec_occ config:import "$oc_conf"
 sudo rm -f "$oc_conf"
 
+# Check LDAP configuratio to see if everything worked well
+_exec_occ ldap:test-config \'\' \
+  || die "An error occured during LDAP configuration"
+
 # Set the user as admin and delete admin user
 ynh_mysql_connect_as $dbuser $dbpass $dbname \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 _exec_occ user:delete admin
-
-## Needed for Jessie/PHP5.6 compatibility
-#sudo sed -i "s/;always_populate_raw/always_populate_raw/" /etc/php5/cli/php.ini
 
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant ownCloud directories

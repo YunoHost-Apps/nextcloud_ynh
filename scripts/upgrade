@@ -103,6 +103,17 @@ _exec_occ app:enable user_ldap
 _exec_occ config:import "$oc_conf"
 sudo rm -f "$oc_conf"
 
+# Add dynamic logout URL to the config
+# TODO: if changes are made to this section, replace it with new one.
+_exec_occ config:system:get logout_url >/dev/null 2>&1 \
+  || sudo su -c "echo \"
+//-YunoHost-
+// set logout_url according to main domain
+\\\$main_domain = exec('cat /etc/yunohost/current_host');
+\\\$CONFIG['logout_url'] = 'https://'.\\\$main_domain.'/yunohost/sso/?action=logout';
+//-YunoHost-
+\" >> ${DESTDIR}/config/config.php" -- $app
+
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant ownCloud directories
 for u in $(ynh_user_list); do

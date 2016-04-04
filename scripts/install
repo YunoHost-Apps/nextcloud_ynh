@@ -111,6 +111,16 @@ sudo rm -f "$oc_conf"
 _exec_occ ldap:test-config \'\' \
   || die "An error occured during LDAP configuration"
 
+# Add dynamic logout URL to the config
+_exec_occ config:system:get logout_url >/dev/null 2>&1 \
+  || sudo su -c "echo \"
+//-YunoHost-
+// set logout_url according to main domain
+\\\$main_domain = exec('cat /etc/yunohost/current_host');
+\\\$CONFIG['logout_url'] = 'https://'.\\\$main_domain.'/yunohost/sso/?action=logout';
+//-YunoHost-
+\" >> ${DESTDIR}/config/config.php" -- $app
+
 # Set the user as admin and delete admin user
 ynh_mysql_connect_as $dbuser $dbpass $dbname \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"

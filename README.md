@@ -29,8 +29,6 @@ or from the Web administration:
 ## TODO
 
  * Test the upgrade from the current official package
- * Develop an app to integrate SSOwat logout - see
-   [here](https://doc.owncloud.org/server/9.0/developer_manual/app/hooks.html#session)
  * Update the external storage plugin configuration - see
    [here](https://doc.owncloud.org/server/9.0/admin_manual/configuration_server/occ_command.html#files-external-label)
  * Rescan filesystem at upgrade and restoration - see

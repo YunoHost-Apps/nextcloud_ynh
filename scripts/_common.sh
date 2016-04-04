@@ -46,6 +46,12 @@ extract_owncloud() {
   exec_as "$AS_USER" tar xjf "$oc_tarball" -C "$DESTDIR" --strip-components 1 \
     || die "Unable to extract ownCloud tarball"
   rm -f "$oc_tarball"
+
+  # apply patches
+  (cd "$DESTDIR" \
+   && for p in ${PKGDIR}/patches/*.patch; do \
+        exec_as "$AS_USER" patch -p1 < $p; done) \
+    || die "Unable to apply patches to ownCloud"
 }
 
 # Execute a command as another user

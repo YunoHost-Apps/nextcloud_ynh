@@ -100,7 +100,6 @@ _exec_occ upgrade \
 # Enable plugins and set ownCloud configuration
 _exec_occ app:enable files_external
 _exec_occ app:enable user_ldap
-_exec_occ ldap:create-empty-config
 _exec_occ config:import "$oc_conf"
 sudo rm -f "$oc_conf"
 

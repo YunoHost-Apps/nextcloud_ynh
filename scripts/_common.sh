@@ -39,8 +39,7 @@ extract_owncloud() {
   # retrieve and extract Roundcube tarball
   oc_tarball="/tmp/owncloud.tar.bz2"
   rm -f "$oc_tarball"
-#  wget -q -O "$oc_tarball" "$OWNCLOUD_SOURCE_URL" \
-  cp /home/admin/owncloud.tar.bz2 "$oc_tarball" \
+  wget -q -O "$oc_tarball" "$OWNCLOUD_SOURCE_URL" \
     || die "Unable to download ownCloud tarball"
   echo "$OWNCLOUD_SOUCE_SHA256 $oc_tarball" | sha256sum -c >/dev/null \
     || die "Invalid checksum of downloaded tarball"

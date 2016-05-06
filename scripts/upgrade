@@ -55,6 +55,9 @@ sudo cp ../conf/php-fpm.conf "$phpfpm_conf"
 sudo chown root: $phpfpm_conf
 sudo chmod 644 $phpfpm_conf
 
+# Set system group in hooks
+sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create
+
 # occ helper for the current installation
 _exec_occ() {
   exec_occ "$DESTDIR" "$app" $@

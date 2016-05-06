@@ -53,6 +53,9 @@ sudo useradd -c "$app system account" \
     -d /var/lib/$app --system --user-group $app \
   || die "Unable to create $app system account"
 
+# Set system group in hooks
+sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create
+
 # Create app folders
 sudo mkdir -p "$DESTDIR" "$DATADIR"
 

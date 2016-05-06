@@ -1,6 +1,6 @@
 #!/bin/bash
-APP=${!#}
 
 user=$1
+
 sudo mkdir -p /home/$user
-sudo setfacl -m g:$APP:rwx /home/$user
+sudo setfacl -m g:#GROUP#:rwx /home/$user

@@ -33,4 +33,4 @@ for i in $(ls /home); do
   [[ ! $i == yunohost.* ]] \
     && sudo setfacl -x g:$app:rwx > /dev/null 2>&1
 done
-sudo deluser --quiet --remove-home --system $app > /dev/null
+sudo deluser --quiet --remove-home $app > /dev/null

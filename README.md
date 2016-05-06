@@ -33,11 +33,11 @@ The upgrade from the current official package seems works, BUT:
  * ownCloud 9.0 comes with a rewrite **Calendar** application, which doesn't seem to import your
    calendar(s). **Take care of exporting them first before doing the upgrade to not lose them!**
 
-You can only upgrade to this package from the command line, using:
+You can upgrade to this package from the command line, using:
 
     $ sudo yunohost app upgrade -u https://github.com/jeromelebleu/owncloud_ynh/tree/testing owncloud
 
-Again, upgrading from the current official packahe should be used only for testing or with care!
+Again, upgrading from the current official package should be used for testing only - or with care!
 
 ## TODO
 

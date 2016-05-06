@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Retrieve arguments
 backup_dir=$1
 app=${!#}
@@ -18,16 +20,16 @@ dbpass=$(ynh_app_setting_get $app mysqlpwd)
 
 # Copy the app source files
 DESTDIR="/var/www/$app"
-sudo cp -a "$DESTDIR" ./www
+ynh_backup "$DESTDIR" "www"
 
 # Copy the data directory
 DATADIR="/home/yunohost.app/${app}/data"
-ynh_bind_or_cp "$DATADIR" "${backup_dir}/data" 1
+ynh_backup "$DATADIR" "data" 1
 
 # Copy the conf files
 mkdir ./conf
-sudo cp -a "/etc/nginx/conf.d/${domain}.d/${app}.conf" ./conf/nginx.conf
-sudo cp -a "/etc/php5/fpm/pool.d/${app}.conf" ./conf/php-fpm.conf
+ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "conf/nginx.conf"
+ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "conf/php-fpm.conf"
 
 # Dump the database
 mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql

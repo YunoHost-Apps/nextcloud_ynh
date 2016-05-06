@@ -26,13 +26,23 @@ or from the Web administration:
   * Scroll to the bottom of the page and put `https://github.com/jeromelebleu/owncloud_ynh/tree/testing`
     under **Install custom app**.
 
+## Upgrade
+
+The upgrade from the current official package seems works, BUT:
+
+ * ownCloud 9.0 comes with a rewrite **Calendar** application, which doesn't seem to import your
+   calendar(s). **Take care of exporting them first before doing the upgrade to not lose them!**
+
+You can only upgrade to this package from the command line, using:
+
+    $ sudo yunohost app upgrade -u https://github.com/jeromelebleu/owncloud_ynh/tree/testing owncloud
+
+Again, upgrading from the current official packahe should be used only for testing or with care!
+
 ## TODO
 
- * Test the upgrade from the current official package
  * Update the external storage plugin configuration - see
    [here](https://doc.owncloud.org/server/9.0/admin_manual/configuration_server/occ_command.html#files-external-label)
- * Rescan filesystem at upgrade and restoration - see
-   [here](https://doc.owncloud.org/server/9.0/admin_manual/configuration_server/occ_command.html#file-operations)
  * Add a *clean* argument to the remove script to delete data folder?
  * ...
 

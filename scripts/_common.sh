@@ -5,7 +5,7 @@
 APPNAME="owncloud"
 
 # ownCloud version
-VERSION=9.0.0
+VERSION="9.0.2"
 
 # Package name for MediaGoblin dependencies
 DEPS_PKG_NAME="owncloud-deps"
@@ -14,7 +14,7 @@ DEPS_PKG_NAME="owncloud-deps"
 OWNCLOUD_SOURCE_URL="https://download.owncloud.org/community/owncloud-${VERSION}.tar.bz2"
 
 # Remote URL to fetch ownCloud tarball checksum
-OWNCLOUD_SOUCE_SHA256="d16737510a77a81489f7c4d5e19b0756fa2ea1c5081ba174b0fec0f00da3a77c"
+OWNCLOUD_SOUCE_SHA256="845c43fe981fa0fd07fc3708f41f1ea15ecb11c2a15c65a4de191fc85b237c74"
 
 # App package root directory should be the parent folder
 PKGDIR=$(cd ../; pwd)

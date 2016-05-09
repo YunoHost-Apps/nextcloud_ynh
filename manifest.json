@@ -1,11 +1,14 @@
 {
-    "name": "OwnCloud",
+    "package_format": 1,
     "id": "owncloud",
+    "name": "OwnCloud",
     "description": {
         "en": "Sync & share your files, pictures, music, contacts, calendars, and much more!",
         "fr": "Synchronisez et partagez vos fichiers, images, musiques, contacts, calendriers, et bien plus !"
     },
     "url": "https://owncloud.org",
+    "license": "AGPL-3",
+    "version": "9.0.0",
     "maintainer": {
         "name": "kload",
         "email": "kload@kload.fr"

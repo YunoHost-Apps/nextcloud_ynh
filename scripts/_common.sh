@@ -76,5 +76,5 @@ exec_occ() {
   shift 2
 
   (cd "$WORKDIR" && exec_as "$AS_USER" \
-      php occ --no-interaction --quiet --no-ansi "$@")
+      php occ --no-interaction --no-ansi "$@")
 }

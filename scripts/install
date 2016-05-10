@@ -104,7 +104,6 @@ _exec_occ maintenance:install \
   || die "Unable to install ownCloud"
 
 # Enable plugins and set ownCloud configuration
-_exec_occ app:enable files_external
 _exec_occ app:enable user_ldap
 _exec_occ ldap:create-empty-config
 _exec_occ config:import "$oc_conf"
@@ -113,6 +112,11 @@ sudo rm -f "$oc_conf"
 # Check LDAP configuratio to see if everything worked well
 _exec_occ ldap:test-config \'\' \
   || die "An error occured during LDAP configuration"
+
+# Enable External Storage and create local mount
+_exec_occ app:enable files_external
+_exec_occ files_external:create \
+    'Home' 'local' 'null::null' -c 'datadir=/home/$user'
 
 # Add dynamic logout URL to the config
 _exec_occ config:system:get logout_url >/dev/null 2>&1 \

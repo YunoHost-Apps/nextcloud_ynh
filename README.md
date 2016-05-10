@@ -41,8 +41,6 @@ Again, upgrading from the current official package should be used for testing on
 
 ## TODO
 
- * Update the external storage plugin configuration - see
-   [here](https://doc.owncloud.org/server/9.0/admin_manual/configuration_server/occ_command.html#files-external-label)
  * Add a *clean* argument to the remove script to delete data folder?
  * ...
 

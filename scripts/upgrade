@@ -98,10 +98,16 @@ _exec_occ upgrade \
   || ([[ $? -eq 3 ]] || die "Unable to upgrade ownCloud")
 
 # Enable plugins and set ownCloud configuration
-_exec_occ app:enable files_external
 _exec_occ app:enable user_ldap
 _exec_occ config:import "$oc_conf"
 sudo rm -f "$oc_conf"
+
+# Enable External Storage and create local mount as needed
+_exec_occ app:enable files_external
+_exec_occ files_external:list --output=json \
+    | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
+  || _exec_occ files_external:create \
+      'Home' 'local' 'null::null' -c 'datadir=/home/$user'
 
 # Add dynamic logout URL to the config
 # TODO: if changes are made to this section, replace it with new one.

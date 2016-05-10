@@ -17,11 +17,8 @@ dbuser=$app
 # Retrieve app settings
 domain=$(ynh_app_setting_get $app domain)
 path=$(ynh_app_setting_get $app path)
+path=${path%/}
 dbpass=$(ynh_app_setting_get $app mysqlpwd)
-
-# Check - and fix as needed - path setting
-[[ "${path: -1}" = / ]] \
-  && path=${path%/} && ynh_app_setting_set $app path $path
 
 # Check destination directory
 DESTDIR="/var/www/$app"

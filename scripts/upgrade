@@ -136,8 +136,8 @@ sudo chmod 640 "${DESTDIR}/config/config.php"
 sudo chmod 755 /home/yunohost.app
 
 # Set SSOwat rules
-ynh_app_setting_set $app unprotected_uris "/"
-ynh_app_setting_delete $app skipped_uris
+ynh_app_setting_set "$app" unprotected_uris "/remote.php"
+ynh_app_setting_set "$app" skipped_uris "/.well-known"
 
 # Reload services
 sudo service php5-fpm restart || true

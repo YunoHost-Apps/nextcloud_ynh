@@ -144,3 +144,7 @@ ynh_app_setting_set "$app" skipped_uris "/.well-known"
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
+
+# Warn about possible disabled apps
+echo "Note that if you've installed some third-parties ownCloud applications, \
+they are probably disabled and you'll have to manually upgrade them."

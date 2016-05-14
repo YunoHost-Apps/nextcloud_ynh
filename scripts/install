@@ -78,6 +78,8 @@ sudo cp ../conf/nginx.conf "$nginx_conf"
 
 # Copy and set php-fpm configuration
 phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
+sed -i "s@#USER#@${app}@g"         ../conf/php-fpm.conf
+sed -i "s@#GROUP#@${app}@g"        ../conf/php-fpm.conf
 sed -i "s@#POOLNAME#@${app}@g"     ../conf/php-fpm.conf
 sed -i "s@#DESTDIR#@${DESTDIR}/@g" ../conf/php-fpm.conf
 sudo cp ../conf/php-fpm.conf "$phpfpm_conf"

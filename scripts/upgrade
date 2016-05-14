@@ -147,4 +147,4 @@ sudo service nginx reload || true
 
 # Warn about possible disabled apps
 echo "Note that if you've installed some third-parties ownCloud applications, \
-they are probably disabled and you'll have to manually upgrade them."
+they are probably disabled and you'll have to manually activate them again." >&2

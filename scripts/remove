@@ -1,7 +1,9 @@
 #!/bin/bash
 
+# Get multi-instances specific variables
+app=$YNH_APP_INSTANCE_NAME
+
 # Set app specific variables
-app=${!#}
 dbname=$app
 dbuser=$app
 

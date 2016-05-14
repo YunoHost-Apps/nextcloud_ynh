@@ -1,13 +1,14 @@
 #!/bin/bash
 
-set -e
-set -u
+set -eu
+
+# Get multi-instances specific variables
+app=$YNH_APP_INSTANCE_NAME
 
 # Retrieve arguments
 domain=$1
 path=${2%/}
 admin=$3
-app=${!#}
 
 # Load common variables
 . ./_common.sh
@@ -21,16 +22,16 @@ dbuser=$app
 
 # TODO: Check domain/path availability with app helper
 sudo yunohost app checkurl $domain$path -a $app \
-  || die "The path ${domain}${path} is not available for app installation."
+  || ynh_die "The path ${domain}${path} is not available for app installation."
 
 # Check user parameter
 ynh_user_exists "$admin" \
-  || die "The chosen admin user does not exist."
+  || ynh_die "The chosen admin user does not exist."
 ynh_app_setting_set $app admin_user $admin
 
 # Check destination directory
 DESTDIR="/var/www/$app"
-[[ -d $DESTDIR ]] && die \
+[[ -d $DESTDIR ]] && ynh_die \
 "The destination directory '$DESTDIR' already exists.\
  You should safely delete it before installing this app."
 
@@ -39,7 +40,7 @@ DATADIR="/home/yunohost.app/${app}/data"
 
 # Install dependencies
 ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
-  || die "Unable to install dependencies"
+  || ynh_die "Unable to install dependencies"
 
 # Generate random password
 dbpass=$(ynh_string_random)
@@ -51,7 +52,7 @@ ynh_mysql_create_db $dbname $dbuser $dbpass
 # Create a system account for ownCloud
 sudo useradd -c "$app system account" \
     -d /var/lib/$app --system --user-group $app \
-  || die "Unable to create $app system account"
+  || ynh_die "Unable to create $app system account"
 
 # Set system group in hooks
 sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create
@@ -103,7 +104,7 @@ _exec_occ maintenance:install \
     --database-user "$dbuser" --database-pass "$dbpass" \
     --admin-user "admin" --admin-pass "$(ynh_string_random 6)" \
     --data-dir "$DATADIR" \
-  || die "Unable to install ownCloud"
+  || ynh_die "Unable to install ownCloud"
 
 # Enable plugins and set ownCloud configuration
 _exec_occ app:enable user_ldap
@@ -113,7 +114,7 @@ sudo rm -f "$oc_conf"
 
 # Check LDAP configuratio to see if everything worked well
 _exec_occ ldap:test-config \'\' \
-  || die "An error occured during LDAP configuration"
+  || ynh_die "An error occured during LDAP configuration"
 
 # Enable External Storage and create local mount
 _exec_occ app:enable files_external

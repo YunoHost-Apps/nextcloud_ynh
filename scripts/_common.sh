@@ -23,13 +23,6 @@ PKGDIR=$(cd ../; pwd)
 # Common helpers
 #
 
-# Print a message to stderr and exit
-# usage: die msg [retcode]
-die() {
-  printf "%s" "$1" 1>&2
-  exit "${2:-1}"
-}
-
 # Download and extract ownCloud sources to the given directory
 # usage: extract_owncloud DESTDIR [AS_USER]
 extract_owncloud() {
@@ -40,18 +33,18 @@ extract_owncloud() {
   oc_tarball="/tmp/owncloud.tar.bz2"
   rm -f "$oc_tarball"
   wget -q -O "$oc_tarball" "$OWNCLOUD_SOURCE_URL" \
-    || die "Unable to download ownCloud tarball"
+    || ynh_die "Unable to download ownCloud tarball"
   echo "$OWNCLOUD_SOUCE_SHA256 $oc_tarball" | sha256sum -c >/dev/null \
-    || die "Invalid checksum of downloaded tarball"
+    || ynh_die "Invalid checksum of downloaded tarball"
   exec_as "$AS_USER" tar xjf "$oc_tarball" -C "$DESTDIR" --strip-components 1 \
-    || die "Unable to extract ownCloud tarball"
+    || ynh_die "Unable to extract ownCloud tarball"
   rm -f "$oc_tarball"
 
   # apply patches
   (cd "$DESTDIR" \
    && for p in ${PKGDIR}/patches/*.patch; do \
         exec_as "$AS_USER" patch -p1 < $p; done) \
-    || die "Unable to apply patches to ownCloud"
+    || ynh_die "Unable to apply patches to ownCloud"
 }
 
 # Execute a command as another user

@@ -1,15 +1,9 @@
 #!/bin/bash
 
-# Retrieve arguments
-backup_dir=$1
-app=${!#}
+set -eu
 
-# TODO: Put a simple die function in app helpers, redeclare it since
-# _common.sh cannot be easily sourced
-die() {
-  printf "%s" "$1" 1>&2
-  exit "${2:-1}"
-}
+# Get multi-instances specific variables
+app=$YNH_APP_INSTANCE_NAME
 
 # Set app specific variables
 dbname=$app
@@ -25,11 +19,11 @@ dbpass=$(ynh_app_setting_get $app mysqlpwd)
 
 # TODO: Check domain/path availability with app helper
 sudo yunohost app checkurl $domain$path -a $app \
-  || die "The path ${domain}${path} is not available for app installation."
+  || ynh_die "The path ${domain}${path} is not available for app installation."
 
 # Check destination directory
 DESTDIR="/var/www/$app"
-[[ -d $DESTDIR ]] && die \
+[[ -d $DESTDIR ]] && ynh_die \
 "The destination directory '$DESTDIR' already exists.\
  You should safely delete it before restoring this app."
 
@@ -38,22 +32,22 @@ DATADIR="/home/yunohost.app/${app}/data"
 
 # Check configuration files
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
-[[ -f $nginx_conf ]] && die \
+[[ -f $nginx_conf ]] && ynh_die \
 "The NGINX configuration already exists at '${nginx_conf}'.
  You should safely delete it before restoring this app."
 phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
-[[ -f $phpfpm_conf ]] && die \
+[[ -f $phpfpm_conf ]] && ynh_die \
 "The PHP FPM configuration already exists at '${phpfpm_conf}'.
  You should safely delete it before restoring this app."
 
 # Install dependencies
 ynh_package_install_from_equivs ./owncloud-deps.control \
-  || die "Unable to install dependencies"
+  || ynh_die "Unable to install dependencies"
 
 # Create a system account for ownCloud
 sudo useradd -c "$app system account" \
     -d /var/lib/$app --system --user-group $app \
-  || die "Unable to create $app system account"
+  || ynh_die "Unable to create $app system account"
 
 # Restore the app files
 sudo cp -a ./www "$DESTDIR"

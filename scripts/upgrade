@@ -1,13 +1,14 @@
 #!/bin/bash
 
-set -e
-set -u
+set -eu
+
+# Get multi-instances specific variables
+app=$YNH_APP_INSTANCE_NAME
 
 # Load common variables and helpers
 . ./_common.sh
 
-# Retrieve arguments
-app=${!#}
+# Set app specific variables
 dbname=$app
 dbuser=$app
 
@@ -22,19 +23,19 @@ dbpass=$(ynh_app_setting_get $app mysqlpwd)
 
 # Check destination directory
 DESTDIR="/var/www/$app"
-[[ ! -d $DESTDIR ]] && die \
+[[ ! -d $DESTDIR ]] && ynh_die \
 "The destination directory '$DESTDIR' does not exist.\
  The app is not correctly installed, you should remove it first."
 
 # Check app's data directory
 DATADIR="/home/yunohost.app/${app}/data"
-[[ ! -d $DATADIR ]] && die \
+[[ ! -d $DATADIR ]] && ynh_die \
 "The data directory '$DATADIR' does not exist.\
  The app is not correctly installed, you should remove it first."
 
 # Upgrade dependencies
 ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
-  || die "Unable to upgrade dependencies"
+  || ynh_die "Unable to upgrade dependencies"
 
 # Copy and set nginx configuration
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
@@ -96,7 +97,7 @@ sudo chown -R $app: "$DESTDIR" "$DATADIR"
 # TODO: Restore old directory in case of failure?
 _exec_occ maintenance:mode --off
 _exec_occ upgrade \
-  || ([[ $? -eq 3 ]] || die "Unable to upgrade ownCloud")
+  || ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade ownCloud")
 
 # Enable plugins and set ownCloud configuration
 _exec_occ app:enable user_ldap

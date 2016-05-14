@@ -9,6 +9,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$1
 path=${2%/}
 admin=$3
+user_home=$4
 
 # Load common variables
 . ./_common.sh
@@ -44,7 +45,6 @@ ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
 
 # Generate random password
 dbpass=$(ynh_string_random)
-ynh_app_setting_set $app mysqlpwd $dbpass
 
 # Initialize database
 ynh_mysql_create_db $dbname $dbuser $dbpass
@@ -65,9 +65,6 @@ oc_conf="${DESTDIR}/config.json"
 sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
 sed -i "s@#DATADIR#@${DATADIR}@g" ../conf/config.json
 sudo cp ../conf/config.json "$oc_conf"
-
-# Copy configuration for external storage plugin
-sudo cp ../conf/mount.json "$DATADIR"
 
 # Copy and set nginx configuration
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
@@ -116,10 +113,12 @@ sudo rm -f "$oc_conf"
 _exec_occ ldap:test-config \'\' \
   || ynh_die "An error occured during LDAP configuration"
 
-# Enable External Storage and create local mount
-_exec_occ app:enable files_external
-_exec_occ files_external:create \
-    'Home' 'local' 'null::null' -c 'datadir=/home/$user'
+# Enable External Storage and create local mount to home folder
+if [[ $user_home -eq 1 ]]; then
+  _exec_occ app:enable files_external
+  _exec_occ files_external:create \
+      'Home' 'local' 'null::null' -c 'datadir=/home/$user'
+fi
 
 # Add dynamic logout URL to the config
 _exec_occ config:system:get logout_url >/dev/null 2>&1 \
@@ -151,6 +150,10 @@ sudo find ${DATADIR}/ -type f -print0 | sudo xargs -0 chmod 0640
 sudo find ${DATADIR}/ -type d -print0 | sudo xargs -0 chmod 0750
 sudo chmod 640 "${DESTDIR}/config/config.php"
 sudo chmod 755 /home/yunohost.app
+
+# Store app settings
+ynh_app_setting_set "$app" user_home "$user_home"
+ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 
 # Set SSOwat rules
 ynh_app_setting_set "$app" unprotected_uris "/remote.php"

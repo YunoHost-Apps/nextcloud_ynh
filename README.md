@@ -1,43 +1,35 @@
 ownCloud for YunoHost
 ---------------------
 
-*This is a work-in-progress package rework to update ownCloud to 9.x
-and make use of new YunoHost facilities - e.g. helpers - coming with 2.3.x.*
+[ownCloud](https://owncloud.org) gives you freedom and control over your
+own data. A personal cloud which run on your own server. With owncloud
+you can synchronize your files over your devices.
 
-ownCloud gives you freedom and control over your own data. A personal cloud
-which run on your own server. With owncloud you can synchronize your files
-over your devices.
-
-**Shipped version:** 9.0.0
+**Shipped version:** 9.0.2
 
 ![](https://github.com/owncloud/screenshots/blob/master/files/sidebar_1.png)
 
-## Installation
+## Features
 
-While it's merged to the official application list, you can install it in order
-to try - or use it with caution! - either from the command line:
+In addition to ownCloud core features, the following are made available with
+this package:
 
-    $ sudo yunohost app install https://github.com/jeromelebleu/owncloud_ynh/tree/testing
+ * Integrate with YunoHost users and SSO - i.e. logout button
+ * Allow one user to be the administrator (set at the installation)
+ * Optionally access the user home folder from ownCloud files (set at the installation)
+ * Serve `.well-known` paths for CalDAV and CardDAV - note that they are relative to the installation path
 
-or from the Web administration:
+## Limitations
 
-  * Go to *Applications*
-  * Click on *Install*
-  * Scroll to the bottom of the page and put `https://github.com/jeromelebleu/owncloud_ynh/tree/testing`
-    under **Install custom app**.
+To integrate the logout button to the SSO, we have to patch ownCloud sources
+until this [feature](https://github.com/owncloud/core/pull/24642) is integrated.
+That is going to give you an alert about invalid integrity core code...
 
-## Upgrade
+Also, note we made the choice to disable third-parties applications at the
+upgrade. It allows to prevent an unstable - and sometimes broken - ownCloud
+installation. You will just have to manually activate them after the upgrade.
 
-You can upgrade to this package from the command line for testing purpose with:
-
-    $ sudo yunohost app upgrade -u https://github.com/jeromelebleu/owncloud_ynh/tree/testing owncloud
-
-## TODO
-
- * Add a *clean* argument to the remove script to delete data folder?
- * ...
-
-## Links ##
+## Links
 
 **ownCloud**: https://owncloud.org/
 

@@ -156,8 +156,7 @@ ynh_app_setting_set "$app" user_home "$user_home"
 ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 
 # Set SSOwat rules
-ynh_app_setting_set "$app" unprotected_uris "/remote.php"
-ynh_app_setting_set "$app" skipped_uris "/.well-known"
+ynh_app_setting_set "$app" unprotected_uris "/"
 
 # Reload services
 sudo service php5-fpm restart || true

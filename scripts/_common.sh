@@ -7,7 +7,7 @@ APPNAME="owncloud"
 # ownCloud version
 VERSION="9.0.2"
 
-# Package name for MediaGoblin dependencies
+# Package name for ownCloud dependencies
 DEPS_PKG_NAME="owncloud-deps"
 
 # Remote URL to fetch ownCloud tarball

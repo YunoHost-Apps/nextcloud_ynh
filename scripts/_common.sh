@@ -14,7 +14,7 @@ DEPS_PKG_NAME="owncloud-deps"
 OWNCLOUD_SOURCE_URL="https://download.owncloud.org/community/owncloud-${VERSION}.tar.bz2"
 
 # Remote URL to fetch ownCloud tarball checksum
-OWNCLOUD_SOUCE_SHA256="845c43fe981fa0fd07fc3708f41f1ea15ecb11c2a15c65a4de191fc85b237c74"
+OWNCLOUD_SOURCE_SHA256="845c43fe981fa0fd07fc3708f41f1ea15ecb11c2a15c65a4de191fc85b237c74"
 
 # App package root directory should be the parent folder
 PKGDIR=$(cd ../; pwd)
@@ -34,7 +34,7 @@ extract_owncloud() {
   rm -f "$oc_tarball"
   wget -q -O "$oc_tarball" "$OWNCLOUD_SOURCE_URL" \
     || ynh_die "Unable to download ownCloud tarball"
-  echo "$OWNCLOUD_SOUCE_SHA256 $oc_tarball" | sha256sum -c >/dev/null \
+  echo "$OWNCLOUD_SOURCE_SHA256 $oc_tarball" | sha256sum -c >/dev/null \
     || ynh_die "Invalid checksum of downloaded tarball"
   exec_as "$AS_USER" tar xjf "$oc_tarball" -C "$DESTDIR" --strip-components 1 \
     || ynh_die "Unable to extract ownCloud tarball"

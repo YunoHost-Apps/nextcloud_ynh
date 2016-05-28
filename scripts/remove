@@ -14,8 +14,8 @@ dbuser=$app
 . /usr/share/yunohost/helpers
 
 # Drop MySQL database and user
-ynh_mysql_drop_db $dbname || true
-ynh_mysql_drop_user $dbuser || true
+ynh_mysql_drop_db "$dbname" 2>/dev/null || true
+ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
 
 # Retrieve domain from app settings
 domain=$(ynh_app_setting_get $app domain)
@@ -29,10 +29,16 @@ sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
 
-# Remove app dependencies and system user
+# Remove app dependencies
 ynh_package_autoremove "$DEPS_PKG_NAME" || true
+
+# Clean home folders ACLs
 for i in $(ls /home); do
   [[ ! $i == yunohost.* ]] \
-    && sudo setfacl -x g:$app:rwx > /dev/null 2>&1
+    && sudo setfacl -x g:$app:rwx >/dev/null 2>&1
 done
-sudo deluser --quiet --remove-home $app > /dev/null
+
+# Remove the user account
+id "$app" >/dev/null 2>&1 \
+  && sudo deluser --quiet --remove-home "$app" >/dev/null \
+  || true

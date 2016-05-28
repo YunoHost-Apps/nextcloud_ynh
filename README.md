@@ -17,7 +17,7 @@ this package:
  * Integrate with YunoHost users and SSO - i.e. logout button
  * Allow one user to be the administrator (set at the installation)
  * Optionally access the user home folder from ownCloud files (set at the installation)
- * Serve `.well-known` paths for CalDAV and CardDAV - note that they are relative to the installation path
+ * Serve `/.well-known` paths for CalDAV and CardDAV on the domain
 
 ## Limitations
 

@@ -10,8 +10,8 @@
     "license": "AGPL-3",
     "version": "9.0.2",
     "maintainer": {
-        "name": "kload",
-        "email": "kload@kload.fr"
+        "name": "jerome",
+        "email": "jerome@yunohost.org"
     },
     "multi_instance": "true",
     "services": [

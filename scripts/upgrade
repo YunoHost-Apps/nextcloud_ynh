@@ -154,6 +154,14 @@ ynh_app_setting_set "$app" skipped_regex \
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
 
+# Add cron job
+cron_path="/etc/cron.d/$app"
+sed -i "s@#USER#@${app}@g"        ../conf/owncloud.cron
+sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/owncloud.cron
+sudo cp ../conf/owncloud.cron "$cron_path"
+sudo chmod 644 "$cron_path"
+_exec_occ background:cron
+
 # Warn about possible disabled apps
 echo "Note that if you've installed some third-parties ownCloud applications, \
 they are probably disabled and you'll have to manually activate them again." >&2

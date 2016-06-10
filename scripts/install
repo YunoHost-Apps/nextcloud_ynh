@@ -163,3 +163,11 @@ ynh_app_setting_set "$app" skipped_regex \
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
+
+# Add cron job
+cron_path="/etc/cron.d/$app"
+sed -i "s@#USER#@${app}@g"        ../conf/owncloud.cron
+sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/owncloud.cron
+sudo cp ../conf/owncloud.cron "$cron_path"
+sudo chmod 644 "$cron_path"
+_exec_occ background:cron

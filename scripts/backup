@@ -29,6 +29,7 @@ ynh_backup "$DATADIR" "data" 1
 mkdir ./conf
 ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "conf/nginx.conf"
 ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "conf/php-fpm.conf"
+ynh_backup "/etc/cron.d/${app}" "conf/cron"
 
 # Dump the database
 mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql

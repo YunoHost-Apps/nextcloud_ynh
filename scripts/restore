@@ -78,6 +78,9 @@ sudo chmod 755 /home/yunohost.app
 sudo cp -a ./conf/nginx.conf   "$nginx_conf"
 sudo cp -a ./conf/php-fpm.conf "$phpfpm_conf"
 
+# Restore cron job
+sudo cp -a ./config/cron "/etc/cron.d/${app}"
+
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true

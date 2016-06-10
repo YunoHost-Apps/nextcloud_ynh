@@ -13,6 +13,10 @@ dbuser=$app
 # Source app helpers
 . /usr/share/yunohost/helpers
 
+# Remove cron job
+# TODO: Ensure that cron job is not running
+sudo rm -f "/etc/cron.d/${app}"
+
 # Drop MySQL database and user
 ynh_mysql_drop_db "$dbname" 2>/dev/null || true
 ynh_mysql_drop_user "$dbuser" 2>/dev/null || true

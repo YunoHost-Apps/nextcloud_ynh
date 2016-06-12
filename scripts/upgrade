@@ -38,12 +38,24 @@ DATADIR="/home/yunohost.app/${app}/data"
 ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
   || ynh_die "Unable to upgrade dependencies"
 
-# Copy and set nginx configuration
+# FIXME: Delete current nginx configuration to be able to check if
+# .well-known is already served. See https://dev.yunohost.org/issues/400
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
+sudo rm -f "$nginx_conf"
+sudo service nginx reload
+
+# Copy and set nginx configuration
 sed -i "s@#APP#@${app}@g"          ../conf/nginx.conf
 sed -i "s@#PATH#@${path}@g"        ../conf/nginx.conf
 sed -i "s@#LOCATION#@${path:-/}@g" ../conf/nginx.conf
 sed -i "s@#DESTDIR#@${DESTDIR}@g"  ../conf/nginx.conf
+# check if .well-known is already served on the domain
+if [[ $(curl -s -o /dev/null -w '%{http_code}' \
+          "https://${domain}/.well-known/caldav") =~ ^[23] ]] ; then
+  # ... and delete it from nginx configuration
+  sed -ri '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' \
+    ../conf/nginx.conf
+fi
 sudo cp ../conf/nginx.conf "$nginx_conf"
 
 # Copy and set php-fpm configuration

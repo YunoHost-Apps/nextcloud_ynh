@@ -22,9 +22,10 @@ this package:
 
 ## Limitations
 
-To integrate the logout button to the SSO, we have to patch ownCloud sources
-until this [feature](https://github.com/owncloud/core/pull/24642) is integrated.
-That is going to give you an alert about invalid integrity core code...
+To integrate the logout button to the SSO, we have to patch ownCloud sources.
+Since this upstream [pull-request](https://github.com/owncloud/core/pull/24642)
+will not be integrated, the code source integrity checking has been disabled to
+prevent the warning message.
 
 Also, note we made the choice to disable third-parties applications at the
 upgrade. It allows to prevent an unstable - and sometimes broken - ownCloud

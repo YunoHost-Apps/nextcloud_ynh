@@ -6,7 +6,8 @@
       "#DOMAIN#"
     ],
     "updatechecker": false,
-    "memcache.local": "\\OC\\Memcache\\APCu"
+    "memcache.local": "\\OC\\Memcache\\APCu",
+    "integrity.check.disabled": true
   },
   "apps": {
     "user_ldap": {

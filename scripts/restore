@@ -10,15 +10,15 @@ dbname=$app
 dbuser=$app
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+source /usr/share/yunohost/helpers
 
 # Retrieve old app settings
-domain=$(ynh_app_setting_get $app domain)
-path=$(ynh_app_setting_get $app path)
-dbpass=$(ynh_app_setting_get $app mysqlpwd)
+domain=$(ynh_app_setting_get "$app" domain)
+path=$(ynh_app_setting_get "$app" path)
+dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 
 # TODO: Check domain/path availability with app helper
-sudo yunohost app checkurl $domain$path -a $app \
+sudo yunohost app checkurl "${domain}${path}" -a "$app" \
   || ynh_die "The path ${domain}${path} is not available for app installation."
 
 # Check destination directory
@@ -41,10 +41,10 @@ phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
  You should safely delete it before restoring this app."
 
 # Install dependencies
-ynh_package_install_from_equivs ./owncloud-deps.control \
+ynh_package_install_from_equivs ./nextcloud-deps.control \
   || ynh_die "Unable to install dependencies"
 
-# Create a system account for ownCloud
+# Create a system account for Nextcloud
 sudo useradd -c "$app system account" \
     -d /var/lib/$app --system --user-group $app \
   || ynh_die "Unable to create $app system account"
@@ -55,11 +55,11 @@ sudo mkdir -p "$DATADIR"
 sudo cp -a ./data/. "$DATADIR"
 
 # Create and restore the database
-ynh_mysql_create_db $dbname $dbuser $dbpass
-ynh_mysql_connect_as $dbuser $dbpass $dbname < ./db.sql
+ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
+ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 
 # Iterate over users to extend their home folder permissions - for the external
-# storage plugin usage - and create relevant ownCloud directories
+# storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
   sudo mkdir -p "${DATADIR}/${u}"
   sudo setfacl -m g:$app:rwx "/home/$u" || true

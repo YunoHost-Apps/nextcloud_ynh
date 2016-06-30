@@ -10,7 +10,7 @@ dbname=$app
 dbuser=$app
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+source /usr/share/yunohost/helpers
 
 # Retrieve app settings
 domain=$(ynh_app_setting_get "$app" domain)
@@ -36,4 +36,4 @@ mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql
 
 # Copy the control file of the dependency package
 # FIXME: find a way to retrieve package name from _common.sh?
-dpkg-query -s owncloud-deps > ./owncloud-deps.control
+dpkg-query -s nextcloud-deps > ./nextcloud-deps.control

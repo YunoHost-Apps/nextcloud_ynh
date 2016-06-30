@@ -2,9 +2,6 @@
 
 set -eu
 
-# Get multi-instances specific variables
-app=$YNH_APP_INSTANCE_NAME
-
 # Retrieve arguments
 domain=$1
 path=${2%/}
@@ -12,17 +9,18 @@ admin=$3
 user_home=$4
 
 # Load common variables
-. ./_common.sh
+source ./_common.sh
 
 # Set app specific variables
+app=$APPNAME
 dbname=$app
 dbuser=$app
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+source /usr/share/yunohost/helpers
 
 # TODO: Check domain/path availability with app helper
-sudo yunohost app checkurl $domain$path -a $app \
+sudo yunohost app checkurl "${domain}${path}" -a "$app" \
   || ynh_die "The path ${domain}${path} is not available for app installation."
 
 # Check user parameter
@@ -47,9 +45,9 @@ ynh_package_install_from_equivs ../conf/${DEPS_PKG_NAME}.control \
 dbpass=$(ynh_string_random)
 
 # Initialize database
-ynh_mysql_create_db $dbname $dbuser $dbpass
+ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 
-# Create a system account for ownCloud
+# Create a system account for Nextcloud
 sudo useradd -c "$app system account" \
     -d /var/lib/$app --system --user-group $app \
   || ynh_die "Unable to create $app system account"
@@ -60,11 +58,11 @@ sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create
 # Create app folders
 sudo mkdir -p "$DESTDIR" "$DATADIR"
 
-# Copy ownCloud configuration file
-oc_conf="${DESTDIR}/config.json"
+# Copy Nextcloud configuration file
+nc_conf="${DESTDIR}/config.json"
 sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
 sed -i "s@#DATADIR#@${DATADIR}@g" ../conf/config.json
-sudo cp ../conf/config.json "$oc_conf"
+sudo cp ../conf/config.json "$nc_conf"
 
 # Copy and set nginx configuration
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
@@ -99,22 +97,22 @@ _exec_occ() {
 # Set app folders ownership
 sudo chown -R $app: "$DESTDIR" "$DATADIR"
 
-# Retrieve ownCloud sources
-extract_owncloud "$DESTDIR" "$app"
+# Retrieve Nextcloud sources
+extract_nextcloud "$DESTDIR" "$app"
 
-# Install ownCloud using a temporary admin user
+# Install Nextcloud using a temporary admin user
 _exec_occ maintenance:install \
     --database "mysql" --database-name "$dbname" \
     --database-user "$dbuser" --database-pass "$dbpass" \
     --admin-user "admin" --admin-pass "$(ynh_string_random 6)" \
     --data-dir "$DATADIR" \
-  || ynh_die "Unable to install ownCloud"
+  || ynh_die "Unable to install Nextcloud"
 
-# Enable plugins and set ownCloud configuration
+# Enable plugins and set Nextcloud configuration
 _exec_occ app:enable user_ldap
 _exec_occ ldap:create-empty-config
-_exec_occ config:import "$oc_conf"
-sudo rm -f "$oc_conf"
+_exec_occ config:import "$nc_conf"
+sudo rm -f "$nc_conf"
 
 # Check LDAP configuratio to see if everything worked well
 _exec_occ ldap:test-config \'\' \
@@ -138,12 +136,12 @@ _exec_occ config:system:get logout_url >/dev/null 2>&1 \
 \" >> ${DESTDIR}/config/config.php" -- $app
 
 # Set the user as admin and delete admin user
-ynh_mysql_connect_as $dbuser $dbpass $dbname \
+ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 _exec_occ user:delete admin
 
 # Iterate over users to extend their home folder permissions - for the external
-# storage plugin usage - and create relevant ownCloud directories
+# storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
   sudo mkdir -p "${DATADIR}/${u}"
   sudo setfacl -m g:$app:rwx "/home/$u" || true
@@ -173,8 +171,8 @@ sudo service nginx reload || true
 
 # Add cron job
 cron_path="/etc/cron.d/$app"
-sed -i "s@#USER#@${app}@g"        ../conf/owncloud.cron
-sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/owncloud.cron
-sudo cp ../conf/owncloud.cron "$cron_path"
+sed -i "s@#USER#@${app}@g"        ../conf/nextcloud.cron
+sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/nextcloud.cron
+sudo cp ../conf/nextcloud.cron "$cron_path"
 sudo chmod 644 "$cron_path"
 _exec_occ background:cron

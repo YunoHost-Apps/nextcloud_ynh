@@ -2,18 +2,21 @@
 
 set -eu
 
-# Get multi-instances specific variables
-app=$YNH_APP_INSTANCE_NAME
-
 # Load common variables and helpers
-. ./_common.sh
+source ./_common.sh
 
 # Set app specific variables
+app=$APPNAME
 dbname=$app
 dbuser=$app
 
+# FIXME: Upgrading from ownCloud is not supported yet,
+# see http://blog.jospoortvliet.com/2016/06/migrating-to-nextcloud-9.html
+[[ $YNH_APP_INSTANCE_NAME == $app ]] || ynh_die \
+"Upgrading from ownCloud to Nextcloud is not supported yet."
+
 # Source app helpers
-. /usr/share/yunohost/helpers
+source /usr/share/yunohost/helpers
 
 # Retrieve app settings
 domain=$(ynh_app_setting_get "$app" domain)
@@ -76,12 +79,12 @@ _exec_occ() {
   exec_occ "$DESTDIR" "$app" $@
 }
 
-# Retrieve new ownCloud sources in a temporary directory
+# Retrieve new Nextcloud sources in a temporary directory
 TMPDIR=$(ynh_mkdir_tmp)
-extract_owncloud "$TMPDIR"
+extract_nextcloud "$TMPDIR"
 
-# Copy ownCloud configuration file
-oc_conf="${DESTDIR}/config.json"
+# Copy Nextcloud configuration file
+nc_conf="${DESTDIR}/config.json"
 sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
 sed -i "s@#DATADIR#@${DATADIR}@g" ../conf/config.json
 sudo cp ../conf/config.json "${TMPDIR}/config.json"
@@ -103,16 +106,16 @@ sudo mv "$TMPDIR" "$DESTDIR"
 # Set app folders ownership
 sudo chown -R $app: "$DESTDIR" "$DATADIR"
 
-# Upgrade ownCloud (SUCCESS = 0, UP_TO_DATE = 3)
+# Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
 # TODO: Restore old directory in case of failure?
 _exec_occ maintenance:mode --off
 _exec_occ upgrade \
-  || ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade ownCloud")
+  || ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade Nextcloud")
 
-# Enable plugins and set ownCloud configuration
+# Enable plugins and set Nextcloud configuration
 _exec_occ app:enable user_ldap
-_exec_occ config:import "$oc_conf"
-sudo rm -f "$oc_conf"
+_exec_occ config:import "$nc_conf"
+sudo rm -f "$nc_conf"
 
 # Guess user_home value if empty
 if [[ -z "${user_home:-}" ]]; then
@@ -143,7 +146,7 @@ _exec_occ config:system:get logout_url >/dev/null 2>&1 \
 \" >> ${DESTDIR}/config/config.php" -- $app
 
 # Iterate over users to extend their home folder permissions - for the external
-# storage plugin usage - and create relevant ownCloud directories
+# storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
   sudo mkdir -p "${DATADIR}/${u}"
   sudo setfacl -m g:$app:rwx "/home/$u" || true
@@ -168,12 +171,12 @@ sudo service nginx reload || true
 
 # Add cron job
 cron_path="/etc/cron.d/$app"
-sed -i "s@#USER#@${app}@g"        ../conf/owncloud.cron
-sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/owncloud.cron
-sudo cp ../conf/owncloud.cron "$cron_path"
+sed -i "s@#USER#@${app}@g"        ../conf/nextcloud.cron
+sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/nextcloud.cron
+sudo cp ../conf/nextcloud.cron "$cron_path"
 sudo chmod 644 "$cron_path"
 _exec_occ background:cron
 
 # Warn about possible disabled apps
-echo "Note that if you've installed some third-parties ownCloud applications, \
+echo "Note that if you've installed some third-parties Nextcloud applications, \
 they are probably disabled and you'll have to manually activate them again." >&2

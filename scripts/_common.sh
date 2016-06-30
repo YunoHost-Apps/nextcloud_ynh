@@ -2,19 +2,19 @@
 # Common variables
 #
 
-APPNAME="owncloud"
+APPNAME="nextcloud"
 
-# ownCloud version
-VERSION="9.0.2"
+# Nextcloud version
+VERSION="9.0.51"
 
-# Package name for ownCloud dependencies
-DEPS_PKG_NAME="owncloud-deps"
+# Package name for Nextcloud dependencies
+DEPS_PKG_NAME="nextcloud-deps"
 
-# Remote URL to fetch ownCloud tarball
-OWNCLOUD_SOURCE_URL="https://download.owncloud.org/community/owncloud-${VERSION}.tar.bz2"
+# Remote URL to fetch Nextcloud tarball
+NEXTCLOUD_SOURCE_URL="https://download.nextcloud.com/server/releases/nextcloud-${VERSION}.tar.bz2"
 
-# Remote URL to fetch ownCloud tarball checksum
-OWNCLOUD_SOURCE_SHA256="845c43fe981fa0fd07fc3708f41f1ea15ecb11c2a15c65a4de191fc85b237c74"
+# Remote URL to fetch Nextcloud tarball checksum
+NEXTCLOUD_SOURCE_SHA256="e085a20e9d85d238239e7e9f714325aee1f0fe949dcace2dbc2e7abaf3041e78"
 
 # App package root directory should be the parent folder
 PKGDIR=$(cd ../; pwd)
@@ -23,28 +23,28 @@ PKGDIR=$(cd ../; pwd)
 # Common helpers
 #
 
-# Download and extract ownCloud sources to the given directory
-# usage: extract_owncloud DESTDIR [AS_USER]
-extract_owncloud() {
+# Download and extract Nextcloud sources to the given directory
+# usage: extract_nextcloud DESTDIR [AS_USER]
+extract_nextcloud() {
   local DESTDIR=$1
   local AS_USER=${2:-admin}
 
   # retrieve and extract Roundcube tarball
-  oc_tarball="/tmp/owncloud.tar.bz2"
-  rm -f "$oc_tarball"
-  wget -q -O "$oc_tarball" "$OWNCLOUD_SOURCE_URL" \
-    || ynh_die "Unable to download ownCloud tarball"
-  echo "$OWNCLOUD_SOURCE_SHA256 $oc_tarball" | sha256sum -c >/dev/null \
+  nc_tarball="/tmp/nextcloud.tar.bz2"
+  rm -f "$nc_tarball"
+  wget -q -O "$nc_tarball" "$NEXTCLOUD_SOURCE_URL" \
+    || ynh_die "Unable to download Nextcloud tarball"
+  echo "$NEXTCLOUD_SOURCE_SHA256 $nc_tarball" | sha256sum -c >/dev/null \
     || ynh_die "Invalid checksum of downloaded tarball"
-  exec_as "$AS_USER" tar xjf "$oc_tarball" -C "$DESTDIR" --strip-components 1 \
-    || ynh_die "Unable to extract ownCloud tarball"
-  rm -f "$oc_tarball"
+  exec_as "$AS_USER" tar xjf "$nc_tarball" -C "$DESTDIR" --strip-components 1 \
+    || ynh_die "Unable to extract Nextcloud tarball"
+  rm -f "$nc_tarball"
 
   # apply patches
   (cd "$DESTDIR" \
    && for p in ${PKGDIR}/patches/*.patch; do \
         exec_as "$AS_USER" patch -p1 < $p; done) \
-    || ynh_die "Unable to apply patches to ownCloud"
+    || ynh_die "Unable to apply patches to Nextcloud"
 }
 
 # Execute a command as another user

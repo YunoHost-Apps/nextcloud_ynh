@@ -1,17 +1,15 @@
 #!/bin/bash
 
-# Get multi-instances specific variables
-app=$YNH_APP_INSTANCE_NAME
+# Load common variables and helpers
+source ./_common.sh
 
 # Set app specific variables
+app=$APPNAME
 dbname=$app
 dbuser=$app
 
-# Load common variables and helpers
-. ./_common.sh
-
 # Source app helpers
-. /usr/share/yunohost/helpers
+source /usr/share/yunohost/helpers
 
 # Remove cron job
 # TODO: Ensure that cron job is not running
@@ -22,7 +20,7 @@ ynh_mysql_drop_db "$dbname" 2>/dev/null || true
 ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
 
 # Retrieve domain from app settings
-domain=$(ynh_app_setting_get $app domain)
+domain=$(ynh_app_setting_get "$app" domain)
 
 # Delete app directory and configurations
 sudo rm -rf "/var/www/${app}"

@@ -11,10 +11,6 @@ you can synchronize your files over your devices.
 
 ![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)
 
-## TODO
-
- * Manage the upgrade from ownCloud
-
 ## Features
 
 In addition to Nextcloud core features, the following are made available with
@@ -35,6 +31,38 @@ disabled to prevent the warning message.
 Also, note we made the choice to disable third-parties applications at the
 upgrade. It allows to prevent an unstable - and sometimes broken - Nextcloud
 installation. You will just have to manually activate them after the upgrade.
+
+## Migrate from ownCloud
+
+**This is not considered as stable yet, please do it with care and only for
+testing!**
+
+This package handle the migration from ownCloud to Nextcloud. For that, your
+ownCloud application must be **up-to-date** in YunoHost.
+
+You will then have to upgrade your ownCloud application with this repository.
+This can only be done from the command-line interface - e.g. through SSH. Once
+you're connected, you simply have to execute the following:
+
+```bash
+sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --verbose
+```
+
+The `--verbose` option will let you see the full output. If you encounter any
+issue, please paste it.
+
+Note that a cron job will be executed at some time after the end of this
+command. You must wait that before doing any other application operations!
+You should see that Nextcloud is installed after that.
+
+Note that it does not change the application label nor the URL. To rename
+the label, you can execute the following - replace `Nextcloud` with whatever
+you want:
+
+```bash
+sudo yunohost app setting nextcloud label -v "Nextcloud"
+sudo yunohost app ssowatconf
+```
 
 ## Links
 

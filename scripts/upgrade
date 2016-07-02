@@ -10,20 +10,59 @@ app=$APPNAME
 dbname=$app
 dbuser=$app
 
-# FIXME: Upgrading from ownCloud is not supported yet,
-# see http://blog.jospoortvliet.com/2016/06/migrating-to-nextcloud-9.html
-[[ $YNH_APP_INSTANCE_NAME == $app ]] || ynh_die \
-"Upgrading from ownCloud to Nextcloud is not supported yet."
-
 # Source app helpers
 source /usr/share/yunohost/helpers
 
+# Migrate from ownCloud to Nextcloud
+if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
+  [[ $YNH_APP_ID == owncloud ]] \
+    || ynh_die "Incompatible application to migrate to Nextcloud"
+
+  # check that Nextcloud is not already installed
+  (sudo yunohost app list --installed -f "$app" | grep -q id) \
+    && ynh_die "Nextcloud is already installed"
+
+  # retrieve ownCloud domain setting
+  real_app=$YNH_APP_INSTANCE_NAME
+  domain=$(ynh_app_setting_get "$real_app" domain)
+
+  # remove nginx and php-fpm configuration files
+  sudo rm -f \
+      "/etc/nginx/conf.d/${domain}.d/${real_app}.conf" \
+      "/etc/php5/fpm/pool.d/${real_app}.conf" \
+      "/etc/cron.d/${real_app}"
+
+  # reload services to disable ownCloud
+  sudo service php5-fpm reload || true
+  sudo service nginx reload || true
+
+  # remove dependencies package
+  ynh_package_remove owncloud-deps || true
+
+  # clean new destination and data directories
+  DESTDIR="/var/www/$app"
+  DATADIR="/home/yunohost.app/${app}/data"
+  sudo rm -rf "$DESTDIR" "/home/yunohost.app/$app"
+
+  # rename ownCloud folders
+  sudo mv "/var/www/$real_app" "$DESTDIR"
+  sudo mv "/home/yunohost.app/$real_app" "/home/yunohost.app/$app"
+  sudo sed -ri "s#^(\s*'datadirectory' =>).*,#\1 '${DATADIR}',#" \
+      "/var/www/${app}/config/config.php"
+
+  # rename ownCloud system group and account
+  sudo groupmod -n "$app" "$real_app"
+  sudo usermod -l "$app" "$real_app"
+else
+  real_app=$app
+fi
+
 # Retrieve app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path=$(ynh_app_setting_get "$app" path)
+domain=$(ynh_app_setting_get "$real_app" domain)
+path=$(ynh_app_setting_get "$real_app" path)
 path=${path%/}
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-user_home=$(ynh_app_setting_get "$app" user_home)
+dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
+user_home=$(ynh_app_setting_get "$real_app" user_home)
 
 # Check destination directory
 DESTDIR="/var/www/$app"
@@ -122,7 +161,7 @@ if [[ -z "${user_home:-}" ]]; then
   sudo cat "${DATADIR}/mount.json" >/dev/null 2>&1 \
     && user_home=1 \
     || user_home=0
-  ynh_app_setting_set "$app" user_home "$user_home"
+  ynh_app_setting_set "$real_app" user_home "$user_home"
 fi
 
 # Enable External Storage and create local mount to home folder as needed
@@ -161,8 +200,8 @@ sudo chmod 640 "${DESTDIR}/config/config.php"
 sudo chmod 755 /home/yunohost.app
 
 # Set SSOwat rules
-ynh_app_setting_set "$app" unprotected_uris "/"
-ynh_app_setting_set "$app" skipped_regex \
+ynh_app_setting_set "$real_app" unprotected_uris "/"
+ynh_app_setting_set "$real_app" skipped_regex \
     "$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
 
 # Reload services
@@ -176,6 +215,23 @@ sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/nextcloud.cron
 sudo cp ../conf/nextcloud.cron "$cron_path"
 sudo chmod 644 "$cron_path"
 _exec_occ background:cron
+
+# Finish ownCloud migration
+if [[ $real_app != $app ]]; then
+  echo "ownCloud has been successfully migrated to Nextcloud! \
+A last scheduled operation will run in a couple of minutes to finish the \
+migration in YunoHost side. Do not proceed any application operation while \
+you don't see Nextcloud as installed." >&2
+
+  # install cron job and script for final migration step
+  script_path="/usr/local/sbin/owncloud-migration.sh"
+  sed -i "s@#APP#@${real_app}@g" ../conf/owncloud-migration.sh
+  sudo cp ../conf/owncloud-migration.sh "$script_path"
+  sudo chmod 755 "$script_path"
+  cron_path="/etc/cron.d/owncloud-migration"
+  echo "*/1 * * * * root $script_path" | sudo tee "$cron_path" >/dev/null
+  sudo chmod 644 "$cron_path"
+fi
 
 # Warn about possible disabled apps
 echo "Note that if you've installed some third-parties Nextcloud applications, \

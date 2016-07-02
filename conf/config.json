@@ -17,6 +17,7 @@
       "ldap_cache_ttl": "600",
       "ldap_configuration_active": "1",
       "ldap_display_name": "displayname",
+      "ldap_email_attr": "mail",
       "ldap_expert_username_attr": "uid",
       "ldap_group_display_name": "cn",
       "ldap_group_filter": "objectClass=posixGroup",

@@ -7,7 +7,7 @@ Nextcloud for YunoHost
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
-**Shipped version:** 9.0.51
+**Shipped version:** 9.0.52
 
 ![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)
 

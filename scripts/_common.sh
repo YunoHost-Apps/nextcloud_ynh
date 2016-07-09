@@ -5,7 +5,7 @@
 APPNAME="nextcloud"
 
 # Nextcloud version
-VERSION="9.0.51"
+VERSION="9.0.52"
 
 # Package name for Nextcloud dependencies
 DEPS_PKG_NAME="nextcloud-deps"
@@ -14,7 +14,7 @@ DEPS_PKG_NAME="nextcloud-deps"
 NEXTCLOUD_SOURCE_URL="https://download.nextcloud.com/server/releases/nextcloud-${VERSION}.tar.bz2"
 
 # Remote URL to fetch Nextcloud tarball checksum
-NEXTCLOUD_SOURCE_SHA256="e085a20e9d85d238239e7e9f714325aee1f0fe949dcace2dbc2e7abaf3041e78"
+NEXTCLOUD_SOURCE_SHA256="70429565bb010e3a3d7bd16b43980fe7c08bfeffaa88ebaf528b96e4b2fe16c0"
 
 # App package root directory should be the parent folder
 PKGDIR=$(cd ../; pwd)

@@ -1,8 +1,6 @@
 Nextcloud for YunoHost
 ---------------------
 
-**This is a work-in-progress Nextcloud package for YunoHost.**
-
 [Nextcloud](https://nextcloud.com) gives you freedom and control over your
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.

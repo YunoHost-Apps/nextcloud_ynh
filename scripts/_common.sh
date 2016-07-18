@@ -71,3 +71,12 @@ exec_occ() {
   (cd "$WORKDIR" && exec_as "$AS_USER" \
       php occ --no-interaction --no-ansi "$@")
 }
+
+# Check if an URL is already handled
+# usage: is_url_handled URL
+is_url_handled() {
+  local OUTPUT=($(curl -k -s -o /dev/null \
+      -w 'x%{redirect_url} %{http_code}' "$1"))
+  # it's handled if it does not redirect to the SSO nor return 404
+  [[ ! ${OUTPUT[0]} =~ \/yunohost\/sso\/ && ${OUTPUT[1]} != 404 ]]
+}

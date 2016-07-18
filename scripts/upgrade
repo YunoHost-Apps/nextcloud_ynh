@@ -91,12 +91,10 @@ sed -i "s@#APP#@${app}@g"          ../conf/nginx.conf
 sed -i "s@#PATH#@${path}@g"        ../conf/nginx.conf
 sed -i "s@#LOCATION#@${path:-/}@g" ../conf/nginx.conf
 sed -i "s@#DESTDIR#@${DESTDIR}@g"  ../conf/nginx.conf
-# check if .well-known is already served on the domain
-if [[ $(curl -s -o /dev/null -w '%{http_code}' \
-          "https://${domain}/.well-known/caldav") =~ ^[23] ]] ; then
-  # ... and delete it from nginx configuration
+# do not serve .well-known if it's already served on the domain
+if is_url_handled "https://${domain}/.well-known/caldav" ; then
   sed -ri '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' \
-    ../conf/nginx.conf
+      ../conf/nginx.conf
 fi
 sudo cp ../conf/nginx.conf "$nginx_conf"
 

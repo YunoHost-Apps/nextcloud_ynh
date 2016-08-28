@@ -1,15 +1,14 @@
---- a/lib/base.php	2016-04-04 21:26:47.281448433 +0200
-+++ b/lib/base.php	2016-04-04 21:27:16.034283534 +0200
-@@ -920,8 +920,10 @@
- 					\OC::$server->getConfig()->deleteUserValue(OC_User::getUser(), 'login_token', $_COOKIE['oc_token']);
- 				}
- 				OC_User::logout();
--				// redirect to webroot and add slash if webroot is empty
--				header("Location: " . \OC::$server->getURLGenerator()->getAbsoluteURL('/'));
-+				// Use system config or redirect to webroot and add slash if webroot is empty
-+				$redirect_url = $systemConfig->getValue('logout_url',
-+					\OC::$server->getURLGenerator()->getAbsoluteURL('/'));
-+				header("Location: " . $redirect_url);
- 			} else {
- 				// Redirect to default application
- 				OC_Util::redirectToDefaultPage();
+--- a/core/Controller/LoginController.php
++++ b/core/Controller/LoginController.php
+@@ -100,7 +100,10 @@ class LoginController extends Controller {
+ 		}
+ 		$this->userSession->logout();
+ 
+-		return new RedirectResponse($this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm'));
++		$redirectUrl = $this->config->getSystemValue('logout_url',
++			$this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm')
++		);
++		return new RedirectResponse($redirectUrl);
+ 	}
+ 
+ 	/**

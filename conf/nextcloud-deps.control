@@ -4,8 +4,10 @@ Homepage: https://owncloud.org/
 Standards-Version: 3.9.2
 
 Package: nextcloud-deps
-Version: 9.0-1
-Depends: acl, php5-cli, php5-apcu, tar, smbclient
+Version: 10.0-1
+Depends: php5-gd, php5-json, php5-intl, php5-mcrypt
+ , php5-curl, php5-apcu, php5-imagick
+ , acl, tar, smbclient
 Architecture: all
 Description: meta package for nextcloud dependencies
  Nextcloud gives you universal access to your files through a web

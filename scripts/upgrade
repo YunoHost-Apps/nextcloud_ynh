@@ -149,6 +149,9 @@ _exec_occ maintenance:mode --off
 _exec_occ upgrade \
   || ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade Nextcloud")
 
+# Ensure that UpdateNotification app is disabled
+_exec_occ app:disable updatenotification
+
 # Enable plugins and set Nextcloud configuration
 _exec_occ app:enable user_ldap
 _exec_occ config:import "$nc_conf"

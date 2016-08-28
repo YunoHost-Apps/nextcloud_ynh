@@ -106,6 +106,9 @@ _exec_occ maintenance:install \
     --data-dir "$DATADIR" \
   || ynh_die "Unable to install Nextcloud"
 
+# Ensure that UpdateNotification app is disabled
+_exec_occ app:disable updatenotification
+
 # Enable plugins and set Nextcloud configuration
 _exec_occ app:enable user_ldap
 _exec_occ ldap:create-empty-config

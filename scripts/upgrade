@@ -22,9 +22,12 @@ if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
   (sudo yunohost app list --installed -f "$app" | grep -q id) \
     && ynh_die "Nextcloud is already installed"
 
-  # retrieve ownCloud domain setting
+  # retrieve ownCloud app settings
   real_app=$YNH_APP_INSTANCE_NAME
   domain=$(ynh_app_setting_get "$real_app" domain)
+  oc_dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
+  oc_dbname=$real_app
+  oc_dbuser=$real_app
 
   # remove nginx and php-fpm configuration files
   sudo rm -f \
@@ -50,11 +53,34 @@ if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
   sudo sed -ri "s#^(\s*'datadirectory' =>).*,#\1 '${DATADIR}',#" \
       "/var/www/${app}/config/config.php"
 
+  # rename the MySQL database
+  rename_mysql_db "$oc_dbname" "$oc_dbuser" "$oc_dbpass" "$dbname" "$dbuser"
+  sudo sed -ri "s#^(\s*'dbname' =>).*,#\1 '${dbname}',#" \
+      "/var/www/${app}/config/config.php"
+  sudo sed -ri "s#^(\s*'dbuser' =>).*,#\1 '${dbuser}',#" \
+      "/var/www/${app}/config/config.php"
+
   # rename ownCloud system group and account
   sudo groupmod -n "$app" "$real_app"
   sudo usermod -l "$app" "$real_app"
 else
   real_app=$app
+
+  # handle old migrations from ownCloud
+  curr_dbname=$(sudo cat "/var/www/${app}/config/config.php" \
+      | grep dbname | sed "s|.*=> '\(.*\)'.*|\1|g")
+  if [[ $curr_dbname != $dbname ]]; then
+    curr_dbuser=$(sudo cat "/var/www/${app}/config/config.php" \
+        | grep dbuser | sed "s|.*=> '\(.*\)'.*|\1|g")
+    dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
+
+    # rename the MySQL database
+    rename_mysql_db "$curr_dbname" "$curr_dbuser" "$dbpass" "$dbname" "$dbuser"
+    sudo sed -ri "s#^(\s*'dbname' =>).*,#\1 '${dbname}',#" \
+        "/var/www/${app}/config/config.php"
+    sudo sed -ri "s#^(\s*'dbuser' =>).*,#\1 '${dbuser}',#" \
+        "/var/www/${app}/config/config.php"
+  fi
 fi
 
 # Retrieve app settings

@@ -80,3 +80,20 @@ is_url_handled() {
   # it's handled if it does not redirect to the SSO nor return 404
   [[ ! ${OUTPUT[0]} =~ \/yunohost\/sso\/ && ${OUTPUT[1]} != 404 ]]
 }
+
+# Rename a MySQL database and user
+# usage: rename_mysql_db DBNAME DBUSER DBPASS NEW_DBNAME NEW_DBUSER
+rename_mysql_db() {
+  local DBNAME=$1 DBUSER=$2 DBPASS=$3 NEW_DBNAME=$4 NEW_DBUSER=$5
+  local SQLPATH="/tmp/${DBNAME}-$(date '+%s').sql"
+
+  # dump the old database
+  mysqldump -u "$DBUSER" -p"$DBPASS" --no-create-db "$DBNAME" > "$SQLPATH"
+  # create the new database and user
+  ynh_mysql_create_db "$NEW_DBNAME" "$NEW_DBUSER" "$DBPASS"
+  ynh_mysql_connect_as "$NEW_DBUSER" "$DBPASS" "$NEW_DBNAME" < "$SQLPATH"
+  # remove the old database
+  ynh_mysql_drop_db "$DBNAME"
+  ynh_mysql_drop_user "$DBUSER"
+  rm "$SQLPATH"
+}

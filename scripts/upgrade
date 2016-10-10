@@ -196,8 +196,7 @@ if [[ ${user_home} -eq 1 ]]; then
   _exec_occ app:enable files_external
   _exec_occ files_external:list --output=json \
       | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
-    || _exec_occ files_external:create \
-        'Home' 'local' 'null::null' -c 'datadir=/home/$user'
+    || create_home_external_storage '_exec_occ'
 fi
 
 # Add dynamic logout URL to the config

@@ -72,6 +72,17 @@ exec_occ() {
       php occ --no-interaction --no-ansi "$@")
 }
 
+# Create the external storage for the home folders and enable sharing
+# usage: create_home_external_storage OCC_COMMAND
+create_home_external_storage() {
+  local OCC=$1
+  local mount_id=`$OCC files_external:create --output=json \
+      'Home' 'local' 'null::null' -c 'datadir=/home/$user' || true`
+  ! [[ $mount_id =~ ^[0-9]+$ ]] \
+    && echo "Unable to create external storage" 1>&2 \
+    || $OCC files_external:option "$mount_id" enable_sharing true
+}
+
 # Check if an URL is already handled
 # usage: is_url_handled URL
 is_url_handled() {

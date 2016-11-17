@@ -19,6 +19,14 @@ dbuser=$app
 # Source app helpers
 source /usr/share/yunohost/helpers
 
+# Comments of this code was deleted, because it were in french...
+if [ "${path:0:1}" != "/" ] && [ ${#path} -gt 0 ]; then
+       path="/$path"
+fi
+if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
+       path="${path:0:${#path}-1}"
+fi
+
 # TODO: Check domain/path availability with app helper
 sudo yunohost app checkurl "${domain}${path}" -a "$app" \
   || ynh_die "The path ${domain}${path} is not available for app installation."

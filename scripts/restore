@@ -18,9 +18,11 @@ path=$(ynh_app_setting_get "$app" path)
 dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 
 # TODO: Check domain/path availability with app helper
-# Temporarily commented, see https://dev.yunohost.org/issues/593
-#sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-#  || ynh_die "The path ${domain}${path} is not available for app installation."
+# Temporarily conditioned, see https://dev.yunohost.org/issues/593
+if [ ${#path} -gt 1 ]; then
+  sudo yunohost app checkurl "${domain}${path}" -a "$app" \
+    || ynh_die "The path ${domain}${path} is not available for app installation."
+fi
 
 # Check destination directory
 DESTDIR="/var/www/$app"

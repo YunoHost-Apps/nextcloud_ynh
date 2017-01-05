@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eu
-
 # Load common variables and helpers
 source ./_common.sh
 
@@ -9,6 +7,23 @@ source ./_common.sh
 app=$APPNAME
 dbname=$app
 dbuser=$app
+
+# Backup the current version of the app, restore it if the upgrade fails
+sudo yunohost backup delete $app-before-upgrade
+sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade
+EXIT_PROPERLY () {
+	exit_code=$?
+	if [ "$exit_code" -eq 0 ]; then
+		exit 0	# Quitte sans erreur si le script se termine correctement.
+	fi
+	trap '' EXIT
+	set +eu
+	sudo yunohost app remove $app	# Supprime l'application avant de la restaurer.
+	sudo yunohost backup restore --ignore-hooks $app-before-upgrade --apps $app --force	# Restore the backup if upgrade failed
+	ynh_die "Upgrade failed. The app was restored to the way it was before the failed upgrade."
+}
+set -eu
+trap EXIT_PROPERLY EXIT
 
 # Source app helpers
 source /usr/share/yunohost/helpers

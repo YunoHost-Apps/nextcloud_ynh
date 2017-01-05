@@ -4,7 +4,7 @@ Homepage: https://owncloud.org/
 Standards-Version: 3.9.2
 
 Package: nextcloud-deps
-Version: 10.0-1
+Version: 11.0-1
 Depends: php5-gd, php5-json, php5-intl, php5-mcrypt
  , php5-curl, php5-apcu, php5-imagick
  , acl, tar, smbclient

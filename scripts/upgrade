@@ -9,7 +9,9 @@ dbname=$app
 dbuser=$app
 
 # Backup the current version of the app, restore it if the upgrade fails
-sudo yunohost backup delete $app-before-upgrade
+if sudo yunohost backup list | grep -q $app-before-upgrade > /dev/null 2>&1; then	# Supprime l'ancienne archive seulement si elle existe
+	sudo yunohost backup delete $app-before-upgrade
+fi
 sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade
 EXIT_PROPERLY () {
 	exit_code=$?

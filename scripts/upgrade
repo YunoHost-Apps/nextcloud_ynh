@@ -3,6 +3,9 @@
 # Load common variables and helpers
 source ./_common.sh
 
+# Source app helpers
+source /usr/share/yunohost/helpers
+
 # Set app specific variables
 app=$APPNAME
 dbname=$app
@@ -33,7 +36,6 @@ EXIT_PROPERLY () {
 	set +eu
 	echo "Upgrade failed." >&2
 	if sudo yunohost backup list | grep -q $app-before-upgrade$backup_number > /dev/null 2>&1; then	# Vérifie l'existence de l'archive avant de supprimer l'application et de restaurer
-	then
 		sudo yunohost app remove $app	# Supprime l'application avant de la restaurer.
 		sudo yunohost backup restore --ignore-hooks $app-before-upgrade$backup_number --apps $app --force	# Restore the backup if upgrade failed
 		ynh_die "The app was restored to the way it was before the failed upgrade."
@@ -41,9 +43,6 @@ EXIT_PROPERLY () {
 }
 set -eu
 trap EXIT_PROPERLY EXIT
-
-# Source app helpers
-source /usr/share/yunohost/helpers
 
 # Migrate from ownCloud to Nextcloud
 if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then

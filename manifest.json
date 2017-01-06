@@ -10,8 +10,8 @@
     "license": "AGPL-3",
     "version": "11.0.0",
     "maintainer": {
-        "name": "jerome",
-        "email": "jerome@yunohost.org"
+        "name": "-",
+        "email": "-"
     },
     "multi_instance": false,
     "services": [

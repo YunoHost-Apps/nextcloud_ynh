@@ -31,7 +31,7 @@ trap EXIT_PROPERLY EXIT
 source /usr/share/yunohost/helpers
 
 # Migrate from ownCloud to Nextcloud
-if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
+if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then	# Si le nom de l'app donné lors de la commande n'est pas nextcloud, vérifie si c'est owncloud pour lancer la migration.
   [[ $YNH_APP_ID == owncloud ]] \
     || ynh_die "Incompatible application to migrate to Nextcloud"
 
@@ -40,7 +40,7 @@ if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
     && ynh_die "Nextcloud is already installed"
 
   # retrieve ownCloud app settings
-  real_app=$YNH_APP_INSTANCE_NAME
+  real_app=$YNH_APP_INSTANCE_NAME	# real_app prend le nom de owncloud.
   domain=$(ynh_app_setting_get "$real_app" domain)
   oc_dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
   oc_dbname=$real_app
@@ -52,7 +52,7 @@ if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
       "/etc/php5/fpm/pool.d/${real_app}.conf" \
       "/etc/cron.d/${real_app}"
 
-  # reload services to disable ownCloud
+  # reload services to disable php-fpm and nginx config for ownCloud
   sudo service php5-fpm reload || true
   sudo service nginx reload || true
 
@@ -62,13 +62,14 @@ if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
   # clean new destination and data directories
   DESTDIR="/var/www/$app"
   DATADIR="/home/yunohost.app/${app}/data"
-  sudo rm -rf "$DESTDIR" "/home/yunohost.app/$app"
+  SECURE_REMOVE '$DESTDIR'	# Supprime le dossier de nextcloud dans /var/www le cas échéant
+  SECURE_REMOVE '/home/yunohost.app/$app'	# Et dans yunohost.app
 
   # rename ownCloud folders
-  sudo mv "/var/www/$real_app" "$DESTDIR"
+  sudo mv "/var/www/$real_app" "$DESTDIR"	# Puis renomme les dossiers de owncloud en nextcloud
   sudo mv "/home/yunohost.app/$real_app" "/home/yunohost.app/$app"
   sudo sed -ri "s#^(\s*'datadirectory' =>).*,#\1 '${DATADIR}',#" \
-      "/var/www/${app}/config/config.php"
+      "/var/www/${app}/config/config.php"	# Change l'emplacement du dossier de data dans le fichier de config
 
   # rename the MySQL database
   rename_mysql_db "$oc_dbname" "$oc_dbuser" "$oc_dbpass" "$dbname" "$dbuser"
@@ -85,10 +86,10 @@ else
 
   # handle old migrations from ownCloud
   curr_dbname=$(sudo cat "/var/www/${app}/config/config.php" \
-      | grep dbname | sed "s|.*=> '\(.*\)'.*|\1|g")
-  if [[ $curr_dbname != $dbname ]]; then
+      | grep dbname | sed "s|.*=> '\(.*\)'.*|\1|g")	 # Prend le nom de la bdd dans le fichier de config
+  if [[ $curr_dbname != $dbname ]]; then	# Si le nom de la base de donnée n'est pas nextcloud, renomme la base de donnée.
     curr_dbuser=$(sudo cat "/var/www/${app}/config/config.php" \
-        | grep dbuser | sed "s|.*=> '\(.*\)'.*|\1|g")
+        | grep dbuser | sed "s|.*=> '\(.*\)'.*|\1|g")	 # Prend le nom d'utilisateur de la bdd
     dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
 
     # rename the MySQL database
@@ -156,12 +157,12 @@ sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create
 
 # occ helper for the current installation
 _exec_occ() {
-  exec_occ "$DESTDIR" "$app" $@
+  exec_occ "$DESTDIR" "$app" $@	# Appel de php occ avec les droits de l'user nextcloud. A noter que ce n'est là que la déclaration de la fonction qui sera appelée plus tard.
 }
 
 # Retrieve new Nextcloud sources in a temporary directory
-TMPDIR=$(ynh_mkdir_tmp)
-extract_nextcloud "$TMPDIR"
+TMPDIR=$(mktemp -d)
+extract_nextcloud "$TMPDIR"	# Télécharge nextcloud, vérifie sa somme de contrôle et le décompresse.
 
 # Copy Nextcloud configuration file
 nc_conf="${DESTDIR}/config.json"
@@ -180,8 +181,8 @@ for a in $(sudo ls "${DESTDIR}/apps"); do
 done
 
 # Rename existing app directory and move new one
-sudo rm -rf "${DESTDIR}"
-sudo mv "$TMPDIR" "$DESTDIR"
+SECURE_REMOVE '${DESTDIR}'	# Supprime le dossier actuel de nextcloud
+sudo mv "$TMPDIR" "$DESTDIR"	# Et le remplace par la nouvelle version du dossier temporaire
 
 # Set app folders ownership
 sudo chown -R $app: "$DESTDIR" "$DATADIR"
@@ -201,10 +202,10 @@ _exec_occ config:import "$nc_conf"
 sudo rm -f "$nc_conf"
 
 # Guess user_home value if empty
-if [[ -z "${user_home:-}" ]]; then
+if [[ -z "${user_home:-}" ]]; then	# user_home correspond au champs "Access the users home folder from Nextcloud?" du manifest
   sudo cat "${DATADIR}/mount.json" >/dev/null 2>&1 \
     && user_home=1 \
-    || user_home=0
+    || user_home=0	# Test l'existence du fichier mount.json pour connaître la valeur de user_home, dans le cas où la valeur ne serait pas renseignée. (Mais ce fichier semble ne plus exister...)
   ynh_app_setting_set "$real_app" user_home "$user_home"
 fi
 

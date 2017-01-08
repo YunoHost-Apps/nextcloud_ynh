@@ -18,6 +18,7 @@ if sudo yunohost backup list | grep -q $app-before-upgrade1 > /dev/null 2>&1; th
 	backup_number=2	# Et passe le numéro de l'archive à 2
 	old_backup_number=1
 fi
+ynh_app_setting_set $app backup_core_only 1	# Indique au backup/restore de ne pas sauvegarder le dossier de data, uniquement le core de nextcloud.
 sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade$backup_number	# Créer un backup différent de celui existant.
 if [ "$?" -eq 0 ]; then	# Si le backup est un succès, supprime l'archive précédente.
 	if sudo yunohost backup list | grep -q $app-before-upgrade$old_backup_number > /dev/null 2>&1; then	# Vérifie l'existence de l'ancienne archive avant de la supprimer, pour éviter une erreur.
@@ -30,6 +31,7 @@ fi
 EXIT_PROPERLY () {
 	exit_code=$?
 	if [ "$exit_code" -eq 0 ]; then
+		ynh_app_setting_delete $app backup_core_only
 		exit 0	# Quitte sans erreur si le script se termine correctement.
 	fi
 	trap '' EXIT

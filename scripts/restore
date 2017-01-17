@@ -5,10 +5,6 @@ set -eu
 # Get multi-instances specific variables
 app=$YNH_APP_INSTANCE_NAME
 
-# Set app specific variables
-dbname=$app
-dbuser=$app
-
 # Source app helpers
 source /usr/share/yunohost/helpers
 
@@ -56,6 +52,10 @@ sudo useradd -c "$app system account" \
 sudo cp -a ./www "$DESTDIR"
 sudo mkdir -p "$DATADIR"
 sudo cp -a ./data/. "$DATADIR"
+
+# Set app specific variables
+dbname=`sudo cat /var/www/$app/config/config.php  |grep dbname|sed "s|.*=> '\(.*\)'.*|\1|g"`
+dbuser=$dbname
 
 # Create and restore the database
 ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"

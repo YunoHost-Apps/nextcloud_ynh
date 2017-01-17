@@ -5,8 +5,8 @@ source ./_common.sh
 
 # Set app specific variables
 app=$APPNAME
-dbname=$app
-dbuser=$app
+dbname=`sudo cat /var/www/$app/config/config.php  |grep dbname|sed "s|.*=> '\(.*\)'.*|\1|g"`
+dbuser=$dbname
 
 # Source app helpers
 source /usr/share/yunohost/helpers

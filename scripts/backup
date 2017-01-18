@@ -22,8 +22,14 @@ DESTDIR="/var/www/$app"
 ynh_backup "$DESTDIR" "www"
 
 # Copy the data directory
-DATADIR="/home/yunohost.app/${app}/data"
-ynh_backup "$DATADIR" "data" 1
+backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
+if [ -z $backup_core_only ]	# Si backup_core_only a une valeur dans le fichier settings.yml, ne sauvegarde pas le dossier data
+then
+	DATADIR="/home/yunohost.app/${app}/data"
+	ynh_backup "$DATADIR" "data" 1
+else
+	echo "Data dir will not saved, because backup_core_only is set." >&2
+fi
 
 # Copy the conf files
 mkdir ./conf

@@ -5,8 +5,8 @@
 APPNAME="nextcloud"
 
 # Nextcloud version
-LAST_VERSION="$(grep "VERSION=" "upgrade.d/upgrade.last.sh" | cut -d= -f2)"
-NEXTCLOUD_SOURCE_SHA256="$(grep "NEXTCLOUD_SOURCE_SHA256=" "upgrade.d/upgrade.last.sh" | cut -d= -f2)"
+LAST_VERSION=$(grep "VERSION=" "upgrade.d/upgrade.last.sh" | cut -d= -f2)
+NEXTCLOUD_SOURCE_SHA256=$(grep "NEXTCLOUD_SOURCE_SHA256=" "upgrade.d/upgrade.last.sh" | cut -d= -f2)
 
 
 # Package name for Nextcloud dependencies

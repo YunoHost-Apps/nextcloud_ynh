@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Version cible de la mise à jour de Nextcloud
-VERSION="11.0.0"
+VERSION="11.0.1"
 
-# Nextcloud tarball checksum
-NEXTCLOUD_SOURCE_SHA256="5bdfcb36c5cf470b9a6679034cabf88bf1e50a9f3e47c08d189cc2280b621429"
+# Nextcloud tarball checksum sha256
+NEXTCLOUD_SOURCE_SHA256="00162bf454914a2acbe6a9ac47c9db9f411b99064f0736b43e73cabbd87f4629"
 
 # Load common variables and helpers
 source ./_common.sh

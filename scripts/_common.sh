@@ -5,16 +5,13 @@
 APPNAME="nextcloud"
 
 # Nextcloud version
-VERSION="11.0.0"
+LAST_VERSION="11.0.0"
 
 # Package name for Nextcloud dependencies
 DEPS_PKG_NAME="nextcloud-deps"
 
 # Remote URL to fetch Nextcloud tarball
 NEXTCLOUD_SOURCE_URL="https://download.nextcloud.com/server/releases/nextcloud-${VERSION}.tar.bz2"
-
-# Remote URL to fetch Nextcloud tarball checksum
-NEXTCLOUD_SOURCE_SHA256="5bdfcb36c5cf470b9a6679034cabf88bf1e50a9f3e47c08d189cc2280b621429"
 
 # App package root directory should be the parent folder
 PKGDIR=$(cd ../; pwd)
@@ -107,4 +104,32 @@ rename_mysql_db() {
   ynh_mysql_drop_db "$DBNAME"
   ynh_mysql_drop_user "$DBUSER"
   rm "$SQLPATH"
+}
+
+SECURE_REMOVE () {      # Suppression de dossier avec vérification des variables
+	chaine="$1"	# L'argument doit être donné entre quotes simple '', pour éviter d'interpréter les variables.
+	no_var=0
+	while (echo "$chaine" | grep -q '\$')	# Boucle tant qu'il y a des $ dans la chaine
+	do
+		no_var=1
+		global_var=$(echo "$chaine" | cut -d '$' -f 2)	# Isole la première variable trouvée.
+		only_var=\$$(expr "$global_var" : '\([A-Za-z0-9_]*\)')	# Isole complètement la variable en ajoutant le $ au début et en gardant uniquement le nom de la variable. Se débarrasse surtout du / et d'un éventuel chemin derrière.
+		real_var=$(eval "echo ${only_var}")		# `eval "echo ${var}` permet d'interpréter une variable contenue dans une variable.
+		if test -z "$real_var" || [ "$real_var" = "/" ]; then
+			echo "Variable $only_var is empty, suppression of $chaine cancelled." >&2
+			return 1
+		fi
+		chaine=$(echo "$chaine" | sed "s@$only_var@$real_var@")	# remplace la variable par sa valeur dans la chaine.
+	done
+	if [ "$no_var" -eq 1 ]
+	then
+		if [ -e "$chaine" ]; then
+			echo "Delete directory $chaine"
+			sudo rm -rf "$chaine"
+		fi
+		return 0
+	else
+		echo "No detected variable." >&2
+		return 1
+	fi
 }

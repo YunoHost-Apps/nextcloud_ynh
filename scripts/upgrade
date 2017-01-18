@@ -5,14 +5,15 @@ source ./_common.sh
 
 # Set app specific variables
 app=$APPNAME
+real_app=$YNH_APP_INSTANCE_NAME	# real_app prendra la valeur nextcloud ou owncloud dans le cas d'une migration
 dbname=$app
 dbuser=$app
 
 # Backup the current version of the app, restore it if the upgrade fails
-if sudo yunohost backup list | grep -q $app-before-upgrade > /dev/null 2>&1; then	# Supprime l'ancienne archive seulement si elle existe
-	sudo yunohost backup delete $app-before-upgrade
+if sudo yunohost backup list | grep -q $real_app-before-upgrade > /dev/null 2>&1; then	# Supprime l'ancienne archive seulement si elle existe
+	sudo yunohost backup delete $real_app-before-upgrade
 fi
-sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade
+sudo yunohost backup create --ignore-hooks --apps $real_app --name $real_app-before-upgrade
 EXIT_PROPERLY () {
 	exit_code=$?
 	if [ "$exit_code" -eq 0 ]; then
@@ -20,8 +21,8 @@ EXIT_PROPERLY () {
 	fi
 	trap '' EXIT
 	set +eu
-	sudo yunohost app remove $app	# Supprime l'application avant de la restaurer.
-	sudo yunohost backup restore --ignore-hooks $app-before-upgrade --apps $app --force	# Restore the backup if upgrade failed
+	sudo yunohost app remove $real_app	# Supprime l'application avant de la restaurer.
+	sudo yunohost backup restore --ignore-hooks $real_app-before-upgrade --apps $real_app --force	# Restore the backup if upgrade failed
 	ynh_die "Upgrade failed. The app was restored to the way it was before the failed upgrade."
 }
 set -eu
@@ -31,64 +32,20 @@ trap EXIT_PROPERLY EXIT
 source /usr/share/yunohost/helpers
 
 # Migrate from ownCloud to Nextcloud
-if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then
+if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then	# Si le nom de l'app donné lors de la commande n'est pas nextcloud, vérifie si c'est owncloud pour lancer la migration.
   [[ $YNH_APP_ID == owncloud ]] \
     || ynh_die "Incompatible application to migrate to Nextcloud"
-
-  # check that Nextcloud is not already installed
-  (sudo yunohost app list --installed -f "$app" | grep -q id) \
-    && ynh_die "Nextcloud is already installed"
-
-  # retrieve ownCloud app settings
-  real_app=$YNH_APP_INSTANCE_NAME
-  domain=$(ynh_app_setting_get "$real_app" domain)
-  oc_dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
-  oc_dbname=$real_app
-  oc_dbuser=$real_app
-
-  # remove nginx and php-fpm configuration files
-  sudo rm -f \
-      "/etc/nginx/conf.d/${domain}.d/${real_app}.conf" \
-      "/etc/php5/fpm/pool.d/${real_app}.conf" \
-      "/etc/cron.d/${real_app}"
-
-  # reload services to disable ownCloud
-  sudo service php5-fpm reload || true
-  sudo service nginx reload || true
-
-  # remove dependencies package
-  ynh_package_remove owncloud-deps || true
-
-  # clean new destination and data directories
-  DESTDIR="/var/www/$app"
-  DATADIR="/home/yunohost.app/${app}/data"
-  sudo rm -rf "$DESTDIR" "/home/yunohost.app/$app"
-
-  # rename ownCloud folders
-  sudo mv "/var/www/$real_app" "$DESTDIR"
-  sudo mv "/home/yunohost.app/$real_app" "/home/yunohost.app/$app"
-  sudo sed -ri "s#^(\s*'datadirectory' =>).*,#\1 '${DATADIR}',#" \
-      "/var/www/${app}/config/config.php"
-
-  # rename the MySQL database
-  rename_mysql_db "$oc_dbname" "$oc_dbuser" "$oc_dbpass" "$dbname" "$dbuser"
-  sudo sed -ri "s#^(\s*'dbname' =>).*,#\1 '${dbname}',#" \
-      "/var/www/${app}/config/config.php"
-  sudo sed -ri "s#^(\s*'dbuser' =>).*,#\1 '${dbuser}',#" \
-      "/var/www/${app}/config/config.php"
-
-  # rename ownCloud system group and account
-  sudo groupmod -n "$app" "$real_app"
-  sudo usermod -l "$app" "$real_app"
+  real_app=$YNH_APP_INSTANCE_NAME	# real_app prend le nom de owncloud.
+  ./upgrade.d/owncloud.sh	# Prépare la migration de owncloud vers nextcloud.
 else
   real_app=$app
 
   # handle old migrations from ownCloud
   curr_dbname=$(sudo cat "/var/www/${app}/config/config.php" \
-      | grep dbname | sed "s|.*=> '\(.*\)'.*|\1|g")
-  if [[ $curr_dbname != $dbname ]]; then
+      | grep dbname | sed "s|.*=> '\(.*\)'.*|\1|g")	 # Prend le nom de la bdd dans le fichier de config
+  if [[ $curr_dbname != $dbname ]]; then	# Si le nom de la base de donnée n'est pas nextcloud, renomme la base de donnée.
     curr_dbuser=$(sudo cat "/var/www/${app}/config/config.php" \
-        | grep dbuser | sed "s|.*=> '\(.*\)'.*|\1|g")
+        | grep dbuser | sed "s|.*=> '\(.*\)'.*|\1|g")	 # Prend le nom d'utilisateur de la bdd
     dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
 
     # rename the MySQL database
@@ -156,55 +113,39 @@ sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create
 
 # occ helper for the current installation
 _exec_occ() {
-  exec_occ "$DESTDIR" "$app" $@
+  exec_occ "$DESTDIR" "$app" $@	# Appel de php occ avec les droits de l'user nextcloud. A noter que ce n'est là que la déclaration de la fonction qui sera appelée plus tard.
 }
 
-# Retrieve new Nextcloud sources in a temporary directory
-TMPDIR=$(ynh_mkdir_tmp)
-extract_nextcloud "$TMPDIR"
 
-# Copy Nextcloud configuration file
-nc_conf="${DESTDIR}/config.json"
-sed -i "s@#DOMAIN#@${domain}@g" ../conf/config.json
-sed -i "s@#DATADIR#@${DATADIR}@g" ../conf/config.json
-sudo cp ../conf/config.json "${TMPDIR}/config.json"
-
-# Enable maintenance mode
-_exec_occ maintenance:mode --on
-
-# Copy config and 3rd party applications from current directory
-sudo cp -a "${DESTDIR}/config/config.php" "${TMPDIR}/config/config.php"
-for a in $(sudo ls "${DESTDIR}/apps"); do
-  [[ ! -d "${TMPDIR}/apps/$a" ]] \
-    && sudo cp -a "${DESTDIR}/apps/$a" "${TMPDIR}/apps/$a"
+# Effectue les mises à majeures une à une. Le saut de mise à jour n'étant pas supporté.
+major_version=${LAST_VERSION%%.*}	# La version majeure correspond à la première partie du numéro de version.
+actual_version=$(cat "$DESTDIR/version.php" | grep OC_VersionString | cut -d\' -f2)	# Relève le numéro de version de l'instance nextcloud installée
+actual_major_version=${actual_version%%.*}
+while [ "$major_version" -ne "$actual_major_version" ]; do	# Si la version majeure actuelle ne correspond à la dernière version majeure.
+	./upgrade.d/upgrade.$actual_major_version.sh	# Exécute la mise à jour vers la version majeure suivante
+	actual_version=$(cat "$DESTDIR/version.php" | grep OC_VersionString | cut -d\' -f2)	# Relève le nouveau numéro de version, après mise à jour.
+	actual_major_version=${actual_version%%.*}
 done
+if [ "$LAST_VERSION" != "$actual_version" ]	# Si la version actuelle ne correspond à la dernière version, une mise à jour est nécessaire pour passer à la dernière version mineure.
+then
+	./upgrade.d/upgrade.last.sh	# Exécute la mise à jour vers la dernière version prise en charge.
+fi
 
-# Rename existing app directory and move new one
-sudo rm -rf "${DESTDIR}"
-sudo mv "$TMPDIR" "$DESTDIR"
-
-# Set app folders ownership
-sudo chown -R $app: "$DESTDIR" "$DATADIR"
-
-# Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
-# TODO: Restore old directory in case of failure?
-_exec_occ maintenance:mode --off
-_exec_occ upgrade \
-  || ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade Nextcloud")
 
 # Ensure that UpdateNotification app is disabled
 _exec_occ app:disable updatenotification
 
 # Enable plugins and set Nextcloud configuration
 _exec_occ app:enable user_ldap
+nc_conf="${DESTDIR}/config.json"
 _exec_occ config:import "$nc_conf"
 sudo rm -f "$nc_conf"
 
 # Guess user_home value if empty
-if [[ -z "${user_home:-}" ]]; then
+if [[ -z "${user_home:-}" ]]; then	# user_home correspond au champs "Access the users home folder from Nextcloud?" du manifest
   sudo cat "${DATADIR}/mount.json" >/dev/null 2>&1 \
     && user_home=1 \
-    || user_home=0
+    || user_home=0	# Test l'existence du fichier mount.json pour connaître la valeur de user_home, dans le cas où la valeur ne serait pas renseignée. (Mais ce fichier semble ne plus exister...)
   ynh_app_setting_set "$real_app" user_home "$user_home"
 fi
 

@@ -6,14 +6,9 @@ APPNAME="nextcloud"
 
 # Nextcloud version
 LAST_VERSION=$(grep "VERSION=" "upgrade.d/upgrade.last.sh" | cut -d= -f2)
-NEXTCLOUD_SOURCE_SHA256=$(grep "NEXTCLOUD_SOURCE_SHA256=" "upgrade.d/upgrade.last.sh" | cut -d= -f2)
-
 
 # Package name for Nextcloud dependencies
 DEPS_PKG_NAME="nextcloud-deps"
-
-# Remote URL to fetch Nextcloud tarball
-NEXTCLOUD_SOURCE_URL="https://download.nextcloud.com/server/releases/nextcloud-${LAST_VERSION}.tar.bz2"
 
 # App package root directory should be the parent folder
 PKGDIR=$(cd ../; pwd)
@@ -25,6 +20,9 @@ PKGDIR=$(cd ../; pwd)
 # Download and extract Nextcloud sources to the given directory
 # usage: extract_nextcloud DESTDIR [AS_USER]
 extract_nextcloud() {
+  # Remote URL to fetch Nextcloud tarball
+  NEXTCLOUD_SOURCE_URL="https://download.nextcloud.com/server/releases/nextcloud-${VERSION}.tar.bz2"
+
   local DESTDIR=$1
   local AS_USER=${2:-admin}
 

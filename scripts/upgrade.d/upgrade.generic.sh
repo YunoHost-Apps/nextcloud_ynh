@@ -13,6 +13,8 @@ COMMON_UPGRADE () {
 	DATADIR="/home/yunohost.app/$app/data"
 	domain=$(ynh_app_setting_get "$YNH_APP_INSTANCE_NAME" domain)	# Utilise $YNH_APP_INSTANCE_NAME au lieu de $app pour utiliser la config de owncloud en cas de migration
 
+	echo -e "\nUpdate to nextcloud $VERSION" >&2
+
 	# Retrieve new Nextcloud sources in a temporary directory
 	TMPDIR=$(mktemp -d)
 	extract_nextcloud "$TMPDIR"	# Télécharge nextcloud, vérifie sa somme de contrôle et le décompresse.

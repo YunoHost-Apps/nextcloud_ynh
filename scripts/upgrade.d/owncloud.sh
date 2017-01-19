@@ -18,6 +18,8 @@ dbuser=$app
 (sudo yunohost app list --installed -f "$app" | grep -q id) \
 && ynh_die "Nextcloud is already installed"
 
+echo "Migration to nextcloud." >&2
+
 # retrieve ownCloud app settings
 real_app=$YNH_APP_INSTANCE_NAME	# real_app prend le nom de owncloud.
 domain=$(ynh_app_setting_get "$real_app" domain)

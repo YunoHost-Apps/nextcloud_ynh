@@ -15,15 +15,15 @@ dbuser=$app
 # Backup the current version of the app, restore it if the upgrade fails
 backup_number=1
 old_backup_number=2
-if sudo yunohost backup list | grep -q $app-before-upgrade1 > /dev/null 2>&1; then	# Vérifie l'existence d'une archive déjà numéroté à 1.
+if sudo yunohost backup list | grep -q $real_app-before-upgrade1 > /dev/null 2>&1; then	# Vérifie l'existence d'une archive déjà numéroté à 1.
 	backup_number=2	# Et passe le numéro de l'archive à 2
 	old_backup_number=1
 fi
 ynh_app_setting_set $app backup_core_only 1	# Indique au backup/restore de ne pas sauvegarder le dossier de data, uniquement le core de nextcloud.
-sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade$backup_number	# Créer un backup différent de celui existant.
+sudo yunohost backup create --ignore-hooks --apps $real_app --name $real_app-before-upgrade$backup_number	# Créer un backup différent de celui existant.
 if [ "$?" -eq 0 ]; then	# Si le backup est un succès, supprime l'archive précédente.
-	if sudo yunohost backup list | grep -q $app-before-upgrade$old_backup_number > /dev/null 2>&1; then	# Vérifie l'existence de l'ancienne archive avant de la supprimer, pour éviter une erreur.
-		sudo yunohost backup delete $app-before-upgrade$old_backup_number > /dev/null
+	if sudo yunohost backup list | grep -q $real_app-before-upgrade$old_backup_number > /dev/null 2>&1; then	# Vérifie l'existence de l'ancienne archive avant de la supprimer, pour éviter une erreur.
+		sudo yunohost backup delete $real_app-before-upgrade$old_backup_number > /dev/null
 	fi
 else	# Si le backup a échoué
 	ynh_die "Backup failed, the upgrade process was aborted."
@@ -38,9 +38,9 @@ EXIT_PROPERLY () {
 	trap '' EXIT
 	set +eu
 	echo "Upgrade failed." >&2
-	if sudo yunohost backup list | grep -q $app-before-upgrade$backup_number > /dev/null 2>&1; then	# Vérifie l'existence de l'archive avant de supprimer l'application et de restaurer
-		sudo yunohost app remove $app	# Supprime l'application avant de la restaurer.
-		sudo yunohost backup restore --ignore-hooks $app-before-upgrade$backup_number --apps $app --force	# Restore the backup if upgrade failed
+	if sudo yunohost backup list | grep -q $real_app-before-upgrade$backup_number > /dev/null 2>&1; then	# Vérifie l'existence de l'archive avant de supprimer l'application et de restaurer
+		sudo yunohost app remove $real_app	# Supprime l'application avant de la restaurer.
+		sudo yunohost backup restore --ignore-hooks $real_app-before-upgrade$backup_number --apps $real_app --force	# Restore the backup if upgrade failed
 		ynh_die "The app was restored to the way it was before the failed upgrade."
 	fi
 }
@@ -51,7 +51,7 @@ trap EXIT_PROPERLY EXIT
 if [[ $YNH_APP_INSTANCE_NAME != $app ]]; then	# Si le nom de l'app donné lors de la commande n'est pas nextcloud, vérifie si c'est owncloud pour lancer la migration.
   [[ $YNH_APP_ID == owncloud ]] \
     || ynh_die "Incompatible application to migrate to Nextcloud"
-  real_app=$YNH_APP_INSTANCE_NAME	# real_app prend le nom de owncloud.
+#   real_app=$YNH_APP_INSTANCE_NAME	# real_app prend le nom de owncloud.
   ./upgrade.d/owncloud.sh	# Prépare la migration de owncloud vers nextcloud.
 else
   real_app=$app
@@ -137,10 +137,12 @@ _exec_occ() {
 major_version=${LAST_VERSION%%.*}	# La version majeure correspond à la première partie du numéro de version.
 actual_version=$(cat "$DESTDIR/version.php" | grep OC_VersionString | cut -d\' -f2)	# Relève le numéro de version de l'instance nextcloud installée
 actual_major_version=${actual_version%%.*}
+_exec_occ -V	# Affiche la version
 while [ "$major_version" -ne "$actual_major_version" ]; do	# Si la version majeure actuelle ne correspond à la dernière version majeure.
 	./upgrade.d/upgrade.$actual_major_version.sh	# Exécute la mise à jour vers la version majeure suivante
 	actual_version=$(cat "$DESTDIR/version.php" | grep OC_VersionString | cut -d\' -f2)	# Relève le nouveau numéro de version, après mise à jour.
 	actual_major_version=${actual_version%%.*}
+	_exec_occ -V	# Affiche la version
 done
 if [ "$LAST_VERSION" != "$actual_version" ]	# Si la version actuelle ne correspond à la dernière version, une mise à jour est nécessaire pour passer à la dernière version mineure.
 then

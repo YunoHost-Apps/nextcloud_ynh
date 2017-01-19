@@ -32,7 +32,7 @@ fi
 EXIT_PROPERLY () {
 	exit_code=$?
 	if [ "$exit_code" -eq 0 ]; then
-		ynh_app_setting_delete $app backup_core_only
+		ynh_app_setting_delete $real_app backup_core_only
 		exit 0	# Quitte sans erreur si le script se termine correctement.
 	fi
 	trap '' EXIT

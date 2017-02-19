@@ -23,7 +23,9 @@ ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
 domain=$(ynh_app_setting_get "$app" domain)
 
 # Delete app directory and configurations
-sudo rm -rf "/var/www/${app}"
+    [[ "/var/www" =~ "/var/www/${app}" ]] \
+|| (test -n "$app" && sudo rm -r "/var/www/${app}" )
+
 sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
 [[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 

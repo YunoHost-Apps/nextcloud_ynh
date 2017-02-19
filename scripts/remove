@@ -3,21 +3,21 @@
 # Load common variables and helpers
 source ./_common.sh
 
-# Set app specific variables
-app=$APPNAME
-dbname=$app
-dbuser=$app
-
 # Source app helpers
 source /usr/share/yunohost/helpers
+
+# Set app specific variables
+app=$YNH_APP_INSTANCE_NAME
+dbname=$app
+dbuser=$app
 
 # Remove cron job
 # TODO: Ensure that cron job is not running
 sudo rm -f "/etc/cron.d/${app}"
 
 # Drop MySQL database and user
-ynh_mysql_drop_db "$dbname" 2>/dev/null || true
-ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
+ynh_mysql_drop_db "$dbname"
+ynh_mysql_drop_user "$dbuser"
 
 # Retrieve domain from app settings
 domain=$(ynh_app_setting_get "$app" domain)
@@ -30,11 +30,11 @@ sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
 [[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 
 # Reload services
-sudo service php5-fpm restart || true
-sudo service nginx reload || true
+sudo service php5-fpm reload
+sudo service nginx reload
 
 # Remove app dependencies
-ynh_package_autoremove "$DEPS_PKG_NAME" || true
+ynh_package_autoremove "$DEPS_PKG_NAME"
 
 # Clean home folders ACLs
 for i in $(ls /home); do
@@ -44,5 +44,4 @@ done
 
 # Remove the user account
 id "$app" >/dev/null 2>&1 \
-  && sudo deluser --quiet --remove-home "$app" >/dev/null \
-  || true
+  && sudo deluser --quiet --remove-home "$app" >/dev/null

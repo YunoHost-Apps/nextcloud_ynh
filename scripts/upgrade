@@ -239,6 +239,12 @@ you don't see Nextcloud as installed." >&2
   sudo chmod 644 "$cron_path"
 fi
 
+# Setup log rotation
+if [ ! -f "/etc/logrotate.d/$app" ]; then
+  # Don't change the logrotate conf file if already existing
+  # (the helper only appends the log file configuration)
+  ynh_use_logrotate "/home/yunohost.app/nextcloud/data/nextcloud.log"
+fi
 # Warn about possible disabled apps
 echo "Note that if you've installed some third-parties Nextcloud applications, \
 they are probably disabled and you'll have to manually activate them again." >&2

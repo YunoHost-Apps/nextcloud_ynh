@@ -186,3 +186,6 @@ sed -i "s@#DESTDIR#@${DESTDIR}@g" ../conf/nextcloud.cron
 sudo cp ../conf/nextcloud.cron "$cron_path"
 sudo chmod 644 "$cron_path"
 _exec_occ background:cron
+
+# Setup log rotation
+ynh_use_logrotate "/home/yunohost.app/nextcloud/data/nextcloud.log"

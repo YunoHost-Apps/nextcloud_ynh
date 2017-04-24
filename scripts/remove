@@ -45,3 +45,6 @@ done
 # Remove the user account
 id "$app" >/dev/null 2>&1 \
   && sudo deluser --quiet --remove-home "$app" >/dev/null
+
+# Remove logrotate configuration
+ynh_remove_logrotate

@@ -88,6 +88,9 @@ sudo cp -a ./conf/php-fpm.conf "$phpfpm_conf"
 # Restore cron job
 sudo cp -a ./conf/cron "/etc/cron.d/${app}"
 
+# Restore logrotate configuration file
+sudo cp -a ./logrotate /etc/logrotate.d/$app
+
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true

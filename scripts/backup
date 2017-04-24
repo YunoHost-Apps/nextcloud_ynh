@@ -43,3 +43,6 @@ mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql
 # Copy the control file of the dependency package
 # FIXME: find a way to retrieve package name from _common.sh?
 dpkg-query -s nextcloud-deps > ./nextcloud-deps.control
+
+# Backup the logrotate configuration file
+ynh_backup "/etc/logrotate.d/$app" "logrotate"

@@ -211,12 +211,13 @@ ynh_app_setting_set "$real_app" skipped_regex \
     "$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
     
 # Add fail2ban rules
-sudo cp ../conf/nextcloud_fail2ban.conf /etc/fail2ban/filter.d/
-sudo cp ../conf/jail_nextcloud.local /etc/fail2ban/jail.d/
+sudo cp ../conf/nextcloud_fail2ban.conf /etc/fail2ban/filter.d/nextcloud.conf
+sudo cp ../conf/jail_nextcloud.local /etc/fail2ban/jail.d/nextcloud.local
 
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
+sudo fail2ban-client reload
 
 # Add cron job
 cron_path="/etc/cron.d/$app"

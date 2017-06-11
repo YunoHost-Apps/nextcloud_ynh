@@ -175,6 +175,10 @@ ynh_app_setting_set "$app" unprotected_uris "/"
 ynh_app_setting_set "$app" skipped_regex \
     "$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
 
+
+# Set fail2ban rules
+sudo cp ../conf/nextcloud_fail2ban.conf /etc/fail2ban/filter.d/nextcloud.conf
+
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true

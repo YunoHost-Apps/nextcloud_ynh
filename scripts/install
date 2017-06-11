@@ -178,6 +178,7 @@ ynh_app_setting_set "$app" skipped_regex \
 
 # Set fail2ban rules
 sudo cp ../conf/nextcloud_fail2ban.conf /etc/fail2ban/filter.d/nextcloud.conf
+sudo cp ../conf/jail_nextcloud.local /etc/fail2ban/jail.d/nextcloud.local
 
 # Reload services
 sudo service php5-fpm restart || true

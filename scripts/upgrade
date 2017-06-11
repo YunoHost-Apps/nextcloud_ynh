@@ -209,6 +209,10 @@ sudo chmod 755 /home/yunohost.app
 ynh_app_setting_set "$real_app" unprotected_uris "/"
 ynh_app_setting_set "$real_app" skipped_regex \
     "$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
+    
+# Add fail2ban rules
+sudo cp ../conf/nextcloud_fail2ban.conf /etc/fail2ban/filter.d/
+sudo cp ../conf/jail_nextcloud.local /etc/fail2ban/jail.d/
 
 # Reload services
 sudo service php5-fpm restart || true

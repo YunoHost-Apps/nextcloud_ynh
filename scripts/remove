@@ -29,9 +29,14 @@ domain=$(ynh_app_setting_get "$app" domain)
 sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
 [[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 
+# Remove fail2ban rules
+rm /etc/fail2ban/filter.d/nextcloud.conf
+rm /etc/fail2ban/jail.d/nextcloud.local
+
 # Reload services
 sudo service php5-fpm reload
 sudo service nginx reload
+sudo fail2ban-client reload
 
 # Remove app dependencies
 ynh_package_autoremove "$DEPS_PKG_NAME"
@@ -45,6 +50,7 @@ done
 # Remove the user account
 id "$app" >/dev/null 2>&1 \
   && sudo deluser --quiet --remove-home "$app" >/dev/null
+
 
 # Remove logrotate configuration
 ynh_remove_logrotate

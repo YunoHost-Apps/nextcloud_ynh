@@ -183,6 +183,7 @@ sudo cp ../conf/jail_nextcloud.local /etc/fail2ban/jail.d/nextcloud.local
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
+sudo fail2ban-client reload
 
 # Add cron job
 cron_path="/etc/cron.d/$app"

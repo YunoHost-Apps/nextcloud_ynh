@@ -177,7 +177,7 @@ ynh_app_setting_set "$app" skipped_regex \
 
 
 # Set-up fail2ban
-ynh_add_fail2ban_config "/var/log/${app}FailedLogins.log" "ip=<HOST>" 4
+ynh_add_fail2ban_config "/home/yunohost.app/nextcloud/data/nextcloud.log" "^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$"
 
 # Reload services
 sudo service php5-fpm restart || true

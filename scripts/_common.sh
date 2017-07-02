@@ -208,6 +208,7 @@ ynh_add_fpm_config () {
 	if [ -e "../conf/php-fpm.ini" ]
 	then
 		finalphpini="/etc/php5/fpm/conf.d/20-$app.ini"
+		ynh_compare_checksum_config "$finalphpini" 1
 		sudo cp ../conf/php-fpm.ini "$finalphpini"
 		sudo chown root: "$finalphpini"
 		ynh_store_checksum_config "$finalphpini"

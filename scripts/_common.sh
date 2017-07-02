@@ -193,7 +193,7 @@ ynh_remove_logrotate () {
 }
 
 # Create a dedicated php-fpm config
-#
+final_path=$DESTDIR
 # usage: ynh_add_fpm_config
 ynh_add_fpm_config () {
 	finalphpconf="/etc/php5/fpm/pool.d/$app.conf"

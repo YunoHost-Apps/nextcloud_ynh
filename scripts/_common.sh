@@ -228,7 +228,7 @@ ynh_backup_if_checksum_is_different () {
 
 
 # Create a dedicated php-fpm config
-final_path=$DESTDIR
+final_path=$1
 # usage: ynh_add_fpm_config
 ynh_add_fpm_config () {
 	finalphpconf="/etc/php5/fpm/pool.d/$app.conf"

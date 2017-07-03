@@ -191,6 +191,18 @@ ynh_remove_logrotate () {
 		sudo rm "/etc/logrotate.d/$app"
 	fi
 }
+
+# Calculate and store a file checksum into the app settings
+#
+# $app should be defined when calling this helper
+#
+# usage: ynh_store_file_checksum file
+# | arg: file - The file on which the checksum will performed, then stored.
+ynh_store_file_checksum () {
+	local checksum_setting_name=checksum_${1//[\/ ]/_}	# Replace all '/' and ' ' by '_'
+	ynh_app_setting_set $app $checksum_setting_name $(sudo md5sum "$1" | cut -d' ' -f1)
+}
+
 # Verify the checksum and backup the file if it's different
 # This helper is primarily meant to allow to easily backup personalised/manually 
 # modified config files.
@@ -246,7 +258,7 @@ ynh_add_fpm_config () {
 		ynh_backup_if_checksum_is_different "$finalphpini" 1
 		sudo cp ../conf/php-fpm.ini "$finalphpini"
 		sudo chown root: "$finalphpini"
-		ynh_store_checksum_config "$finalphpini"
+		ynh_store_file_checksum "$finalphpini"
 	fi
 
 	sudo systemctl reload php5-fpm

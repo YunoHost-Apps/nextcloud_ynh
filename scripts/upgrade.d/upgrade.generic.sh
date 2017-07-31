@@ -17,6 +17,7 @@ COMMON_UPGRADE () {
 
 	# Retrieve new Nextcloud sources in a temporary directory
 	TMPDIR=$(mktemp -d)
+
 	# Set temp folder ownership
 	sudo chown -R $app: "$TMPDIR"
 	extract_nextcloud "$TMPDIR"	"$app" # Télécharge nextcloud, vérifie sa somme de contrôle et le décompresse.

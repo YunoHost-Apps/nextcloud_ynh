@@ -4,7 +4,7 @@
 VERSION=12.0.0
 
 # Nextcloud tarball checksum sha256
-NEXTCLOUD_SOURCE_SHA256=5288f645348eddc1a7768825678bd19f110cec585a16f98b52c64389358c74bc
+NEXTCLOUD_SOURCE_SHA256=1b9d9cf05e657cd564a552b418fbf42d669ca51e0fd1f1f118fe44cbf93a243f
 
 # Load common variables and helpers
 source ./_common.sh

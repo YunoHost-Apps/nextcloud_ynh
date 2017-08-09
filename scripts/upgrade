@@ -127,6 +127,7 @@ sed -i "s@#DESTDIR#@${DESTDIR}/@g" ../conf/php-fpm.conf
 sudo cp ../conf/php-fpm.conf "$phpfpm_conf"
 sudo chown root: $phpfpm_conf
 sudo chmod 644 $phpfpm_conf
+ynh_add_fpm_config
 
 # Set system group in hooks
 sed -i "s@#GROUP#@${app}@g" ../hooks/post_user_create

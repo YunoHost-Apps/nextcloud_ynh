@@ -8,7 +8,7 @@
     },
     "url": "https://nextcloud.com",
     "license": "AGPL-3",
-    "version": "12.0.0",
+    "version": "12.0.1",
     "maintainer": {
         "name": "-",
         "email": "-"
@@ -20,7 +20,7 @@
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 2.4.0"
+        "yunohost": ">= 2.6.0"
     },
     "arguments": {
         "install" : [

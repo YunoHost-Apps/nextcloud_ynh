@@ -22,6 +22,10 @@ path_url=$(ynh_app_setting_get $app path)
 admin=$(ynh_app_setting_get $app admin)
 final_path=$(ynh_app_setting_get $app final_path)
 db_name=$(ynh_app_setting_get $app db_name)
+user_home=$(ynh_app_setting_get $app user_home)
+
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/data"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -116,13 +120,17 @@ path_url=$(ynh_normalize_url_path $path_url)
 
 # Delete current nginx configuration to be able to check if .well-known is already served.
 ynh_remove_nginx_config
-ynh_app_setting_delete $app "checksum_etc_nginx_conf.d_$domain.d_$app.conf"
-
+ynh_app_setting_delete $app "checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 # Do not serve .well-known if it's already served on the domain
 if is_url_handled "https://${domain}/.well-known/caldav" ; then
     sed -ri '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' \
 	"../conf/nginx.conf"
 fi
+
+# Handle root path, avoid double slash.
+# Temporary fix, in waiting for an upgrade of the helper. (#361)
+path_url_slash_less=${path_url%/}
+ynh_replace_string "__PATH__/" "$path_url_slash_less/" "../conf/nginx.conf"
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -324,7 +332,8 @@ done
 #=================================================
 
 # Finish ownCloud migration
-IF [ $YNH_APP_ID == owncloud ]; then
+if [ $YNH_APP_ID == owncloud ]
+then
     echo "ownCloud has been successfully migrated to Nextcloud! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \

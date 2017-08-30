@@ -1,64 +1,84 @@
 #!/bin/bash
 
-# Préparation à la migration de owncloud 9 vers nextcloud.
-# La migration sera effective lors de la mise à joru qui suivra
+# Prepare the migration from owncloud to nextcloud
 
-# Load common variables and helpers
-source ./_common.sh
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Source app helpers
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Set app specific variables
-app=$APPNAME
-dbname=$app
-dbuser=$app
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+oc_dbpass=$(ynh_app_setting_get $app mysqlpwd)
+oc_dbname=$app
+oc_dbuser=$app
+
+#=================================================
+# CHECK IF THE MIGRATION CAN BE DONE
+#=================================================
 
 # check that Nextcloud is not already installed
-(sudo yunohost app list --installed -f "$app" | grep -q id) \
+(yunohost app list --installed -f "$app" | grep -q id) \
 && ynh_die "Nextcloud is already installed"
 
 echo "Migration to nextcloud." >&2
 
-# retrieve ownCloud app settings
-real_app=$YNH_APP_INSTANCE_NAME	# real_app prend le nom de owncloud.
-domain=$(ynh_app_setting_get "$real_app" domain)
-oc_dbpass=$(ynh_app_setting_get "$real_app" mysqlpwd)
-oc_dbname=$real_app
-oc_dbuser=$real_app
+#=================================================
+# REMOVE NGINX AND PHP-FPM CONFIG FILES
+#=================================================
 
-# remove nginx and php-fpm configuration files
-sudo rm -f \
-	"/etc/nginx/conf.d/${domain}.d/${real_app}.conf" \
-	"/etc/php5/fpm/pool.d/${real_app}.conf" \
-	"/etc/cron.d/${real_app}"
+ynh_remove_nginx_config
+ynh_remove_fpm_config
 
-# reload services to disable php-fpm and nginx config for ownCloud
-sudo service php5-fpm reload || true
-sudo service nginx reload || true
+#=================================================
+# REMOVE OLD DEPENDENCIES
+#=================================================
 
-# remove dependencies package
 ynh_package_remove owncloud-deps || true
 
-# clean new destination and data directories
-DESTDIR="/var/www/$app"
-DATADIR="/home/yunohost.app/${app}/data"
-SECURE_REMOVE '$DESTDIR'	# Supprime le dossier de nextcloud dans /var/www le cas échéant
-SECURE_REMOVE '/home/yunohost.app/$app'	# Et dans yunohost.app
+#=================================================
+# DELETE NEXTCLOUD DIRECTORIES
+#=================================================
 
-# rename ownCloud folders
-sudo mv "/var/www/$real_app" "$DESTDIR"	# Puis renomme les dossiers de owncloud en nextcloud
-sudo mv "/home/yunohost.app/$real_app" "/home/yunohost.app/$app"
-sudo sed -ri "s#^(\s*'datadirectory' =>).*,#\1 '${DATADIR}',#" \
-	"/var/www/${app}/config/config.php"	# Change l'emplacement du dossier de data dans le fichier de config
+# Clean new destination and data directories
+nextcloud_path="/var/www/$migration_name"
+nextcloud_data="/home/yunohost.app/$migration_name/data"
+ynh_secure_remove "$nextcloud_path"
+ynh_secure_remove "/home/yunohost.app/$migration_name"
 
-# rename the MySQL database
-rename_mysql_db "$oc_dbname" "$oc_dbuser" "$oc_dbpass" "$dbname" "$dbuser"
-sudo sed -ri "s#^(\s*'dbname' =>).*,#\1 '${dbname}',#" \
-	"/var/www/${app}/config/config.php"
-sudo sed -ri "s#^(\s*'dbuser' =>).*,#\1 '${dbuser}',#" \
-	"/var/www/${app}/config/config.php"
+#=================================================
+# RENAME OWNCLOUD DIRECTORIES
+#=================================================
 
-# rename ownCloud system group and account
-sudo groupmod -n "$app" "$real_app"
-sudo usermod -l "$app" "$real_app"
+mv "/var/www/$app" "$nextcloud_path"
+mv "/home/yunohost.app/$app" "/home/yunohost.app/$migration_name"
+
+#=================================================
+# CHANGE THE OWNCLOUD CONFIG
+#=================================================
+
+oc_conf=$nextcloud_path/config/config.php
+# Change the path of the data file inf the config
+ynh_replace_string "^(\s*'datadirectory' =>).*," "\1 '${DATADIR}'," "$oc_conf"
+
+# Rename the MySQL database
+db_name=$(ynh_sanitize_dbid $migration_name)
+rename_mysql_db "$oc_dbname" "$oc_dbuser" "$oc_dbpass" "$db_name" "$db_name"
+ynh_replace_string "^(\s*'dbname' =>).*," "\1 '${db_name}'," "$oc_conf"
+ynh_replace_string "^(\s*'dbuser' =>).*," "\1 '${db_name}'," "$oc_conf"
+
+#=================================================
+# RENAME OWNCLOUD USER
+#=================================================
+
+groupmod -n "$migration_name" "$app"
+usermod -l "$migration_name" "$app"

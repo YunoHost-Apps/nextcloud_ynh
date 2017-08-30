@@ -1,96 +1,138 @@
 #!/bin/bash
 
+#=================================================
+# GENERIC START
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit on command errors and treat access to unset variables as an error
 set -eu
 
-# Get multi-instances specific variables
-app=$YNH_APP_INSTANCE_NAME
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Set app specific variables
-dbname=$app
-dbuser=$app
-
-# Source app helpers
+if [ ! -e _common.sh ]; then
+	# Get the _common.sh file if it's not in the current directory
+	cp ../settings/scripts/_common.sh ./_common.sh
+	chmod a+rx _common.sh
+fi
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Retrieve old app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path=$(ynh_app_setting_get "$app" path)
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
+#=================================================
+# LOAD SETTINGS
+#=================================================
 
-# TODO: Check domain/path availability with app helper
-# Temporarily conditioned, see https://dev.yunohost.org/issues/593
-if [ ${#path} -gt 1 ]; then
-  sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-    || ynh_die "The path ${domain}${path} is not available for app installation."
-fi
+app=$YNH_APP_INSTANCE_NAME
 
-# Check destination directory
-DESTDIR="/var/www/$app"
-[[ -d $DESTDIR ]] && ynh_die \
-"The destination directory '$DESTDIR' already exists.\
- You should safely delete it before restoring this app."
+domain=$(ynh_app_setting_get $app domain)
+path_url=$(ynh_app_setting_get $app path)
+final_path=$(ynh_app_setting_get $app final_path)
+db_name=$(ynh_app_setting_get $app db_name)
 
-# Define app's data directory
-DATADIR="/home/yunohost.app/${app}/data"
+#=================================================
+# CHECK IF THE APP CAN BE RESTORED
+#=================================================
 
-# Check configuration files
-nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
-[[ -f $nginx_conf ]] && ynh_die \
-"The NGINX configuration already exists at '${nginx_conf}'.
- You should safely delete it before restoring this app."
-phpfpm_conf="/etc/php5/fpm/pool.d/${app}.conf"
-[[ -f $phpfpm_conf ]] && ynh_die \
-"The PHP FPM configuration already exists at '${phpfpm_conf}'.
- You should safely delete it before restoring this app."
+ynh_webpath_available $domain $path_url \
+	|| ynh_die "Path not available: ${domain}${path_url}"
+test ! -d $final_path \
+	|| ynh_die "There is already a directory: $final_path "
 
-# Install dependencies
-ynh_package_install_from_equivs ./nextcloud-deps.control \
-  || ynh_die "Unable to install dependencies"
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
 
-# Create a system account for Nextcloud
-sudo useradd -c "$app system account" \
-    -d /var/lib/$app --system --user-group $app \
-  || ynh_die "Unable to create $app system account"
+ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Restore the app files
-sudo cp -a ./www "$DESTDIR"
-sudo mkdir -p "$DATADIR"
-if [ -d ./data ]	# Le dossier data est restauré seulement si il existe. Si le backup a été fait avec l'option backup_core_only, ce dossier n'a pas été sauvegardé.
+#=================================================
+# RESTORE THE APP MAIN DIR
+#=================================================
+
+ynh_restore_file "$final_path"
+
+#=================================================
+# RESTORE THE MYSQL DATABASE
+#=================================================
+
+db_pwd=$(ynh_app_setting_get $app mysqlpwd)
+ynh_mysql_setup_db $db_name $db_name $db_pwd
+ynh_mysql_connect_as $db_name $db_pwd $db_name < ./db.sql
+
+#=================================================
+# RECREATE THE DEDICATED USER
+#=================================================
+
+# Create the dedicated user (if not existing)
+ynh_system_user_create $app
+
+#=================================================
+# RESTORE THE PHP-FPM CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
+ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
+
+#=================================================
+# SPECIFIC RESTORATION
+#=================================================
+# REINSTALL DEPENDENCIES
+#=================================================
+
+# Define and install dependencies
+ynh_install_app_dependencies $dependencies
+
+#=================================================
+# RESTORE THE CRON FILE
+#=================================================
+
+ynh_restore_file "/etc/cron.d/$app"
+
+#=================================================
+# BACKUP THE LOGROTATE CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/logrotate.d/$app"
+
+#=================================================
+# RESTORE THE DATA DIRECTORY
+#=================================================
+
+# The data directory will be restored only if it exists in the backup archive
+# So only if it was backup previously.
+if [ -d "$YNH_BACKUP_DIR/data" ]
 then
-	sudo cp -a ./data/. "$DATADIR"
+	datadir="/home/yunohost.app/${app}/data"
+	ynh_restore_file "$datadir"
 fi
-ynh_app_setting_delete $app backup_core_only	# Retire l'option backup_core_only du fichier settings.yml le cas échéant
+# Remove the option backup_core_only if it's in the settings.yml file
+ynh_app_setting_delete $app backup_core_only
 
-# Create and restore the database
-ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
-ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
+#=================================================
+# RESTORE USER RIGHTS
+#=================================================
+
+# Fix app ownerships & permissions
+chown -R $app: "$final_path" "$datadir"
+chmod 640 "${final_path}/config/config.php"
+chmod 755 /home/yunohost.app
 
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
-  sudo mkdir -p "${DATADIR}/${u}"
-  sudo setfacl -m g:$app:rwx "/home/$u" || true
+    mkdir -p "${datadir}/${u}"
+    setfacl -m g:$app:rwx "/home/$u" || true
 done
 
-# Fix app ownerships & permissions
-sudo chown -R $app: "$DESTDIR" "$DATADIR"
-sudo find ${DESTDIR}/ -type f -print0 | sudo xargs -0 chmod 0644
-sudo find ${DESTDIR}/ -type d -print0 | sudo xargs -0 chmod 0755
-sudo find ${DATADIR}/ -type f -print0 | sudo xargs -0 chmod 0640
-sudo find ${DATADIR}/ -type d -print0 | sudo xargs -0 chmod 0750
-sudo chmod 640 "${DESTDIR}/config/config.php"
-sudo chmod 755 /home/yunohost.app
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# RELOAD NGINX AND PHP-FPM
+#=================================================
 
-# Restore configuration files
-sudo cp -a ./conf/nginx.conf   "$nginx_conf"
-sudo cp -a ./conf/php-fpm.conf "$phpfpm_conf"
-
-# Restore cron job
-sudo cp -a ./conf/cron "/etc/cron.d/${app}"
-
-# Restore logrotate configuration file
-sudo cp -a ./logrotate /etc/logrotate.d/$app
-
-# Reload services
-sudo service php5-fpm restart || true
-sudo service nginx reload || true
+systemctl reload php5-fpm
+systemctl reload nginx

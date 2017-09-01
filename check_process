@@ -21,10 +21,10 @@
 	Level 1=auto
 	Level 2=auto
 	Level 3=auto
-# Level 4: 
-	Level 4=0
-# Level 5: 
-	Level 5=0
+# Level 4: LDAP and http auth
+	Level 4=1
+# Level 5: https://github.com/YunoHost-Apps/nextcloud_ynh/issues/58
+	Level 5=1
 	Level 6=auto
 	Level 7=auto
 	Level 8=0

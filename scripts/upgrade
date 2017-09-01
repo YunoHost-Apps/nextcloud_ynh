@@ -14,8 +14,6 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
-# app may contains owncloud instead of nextcloud in case of migration
-# You should be really careful with this variable if you want to set multi-instance installation
 
 domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
@@ -24,14 +22,9 @@ final_path=$(ynh_app_setting_get $app final_path)
 db_name=$(ynh_app_setting_get $app db_name)
 user_home=$(ynh_app_setting_get $app user_home)
 
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/data"
-
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-
-migration_name=nextcloud
 
 # If db_name doesn't exist, create it
 if [ -z $db_name ]; then
@@ -45,26 +38,6 @@ if [ -z $final_path ]; then
 	ynh_app_setting_set $app final_path $final_path
 fi
 
-
-# Handle old migrations from ownCloud
-# Get the database name in the config file
-nc_conf="$final_path/config/config.php"
-curr_dbname=$(grep dbname "$nc_conf" \
-    | sed "s|.*=> '\(.*\)'.*|\1|g")
-# If the database hasn't the name nextcloud, rename the database
-if [ "$curr_dbname" != "$db_name" ]
-then
-    # Get the database user in the config file
-    curr_dbuser=$(grep dbuser "$nc_conf" \
-	| sed "s|.*=> '\(.*\)'.*|\1|g")
-    db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
-
-    # Rename the database
-    rename_mysql_db "$curr_dbname" "$curr_dbuser" "$db_pwd" "$db_name"
-    ynh_replace_string "^(\s*'dbname' =>).*," "\1 '${db_name}'," "$nc_conf"
-    ynh_replace_string "#^(\s*'dbuser' =>).*," "${db_name}'," "$nc_conf"
-fi
-
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -74,8 +47,9 @@ fi
 
 # Get the current version number of nextcloud/owncloud
 current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
+current_major_version=${current_version%%.*}
 
-if [ "$current_version" \> "11.0.0" ]
+if [ $current_major_version -gt 11 ]
 then
     # Inform the backup/restore process that it should not save the data directory
     ynh_app_setting_set $app backup_core_only 1
@@ -83,6 +57,9 @@ then
     # Backup the current version of the app
     ynh_backup_before_upgrade
     ynh_clean_setup () {
+	# Remove the post migration script before its execution !
+	ynh_secure_remove "/tmp/owncloud_post_migration.sh" 2>&1
+
 	# restore it if the upgrade fails
 	ynh_restore_upgradebackup
     }
@@ -92,17 +69,28 @@ fi
 ynh_abort_if_errors
 
 #=================================================
-# MIGRATE FROM OWNCLOUD TO NEXTCLOUD
+# HANDLE MIGRATION FROM OWNCLOUD
 #=================================================
 
-# If the name of the app is not nextcloud ($migration_name), check if it's a migration from owncloud
-if [ $YNH_APP_ID != $migration_name ]
+ynh_handle_app_migration "owncloud" "owncloud_migration"
+if [ $migration_process -eq 1 ]
 then
-    [ $YNH_APP_ID == owncloud ] \
-	|| ynh_die "Incompatible application to migrate to Nextcloud"
+    # If a migration has been perform
+    # Reload some values changed by the migration process
+    final_path=$(ynh_app_setting_get $app final_path)
+    db_name=$(ynh_app_setting_get $app db_name)
 
-    # Prepare owcloud to migrate to nextcloud
-    ./upgrade.d/owncloud.sh
+    # Remove the old fake package for owncloud.
+    # Its name it's not regular, so the migration process can't remove it.
+    ynh_package_autopurge owncloud-deps
+
+    # Change the database access in the config.
+    ynh_replace_string "\('dbname' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
+    ynh_replace_string "\('dbuser' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
+
+    # Change the path of the data directory
+    ynh_replace_string "\('dbuser' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
+    ynh_replace_string "\('datadirectory' =>.*\)$old_app" "\1$app" "$final_path/config/config.php"
 fi
 
 #=================================================
@@ -120,7 +108,7 @@ path_url=$(ynh_normalize_url_path $path_url)
 
 # Delete current nginx configuration to be able to check if .well-known is already served.
 ynh_remove_nginx_config
-ynh_app_setting_delete $app "checksum__etc_nginx_conf.d_$domain.d_$app.conf"
+ynh_app_setting_delete $app "checksum__etc_nginx_conf.d_$domain.d_$app.conf" || true
 # Do not serve .well-known if it's already served on the domain
 if is_url_handled "https://${domain}/.well-known/caldav" ; then
     sed -ri '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' \
@@ -166,6 +154,12 @@ ynh_install_app_dependencies $dependencies
 source upgrade.d/upgrade.last.sh
 last_version=$next_version
 
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/data"
+
+# Set write access for the following commands
+chown -R $app: "$final_path" "$datadir"
+
 # Print the current version number of nextcloud
 exec_occ -V
 
@@ -174,7 +168,8 @@ while [ "$last_version" != "$current_version" ]
 do
 
     # The major version is the first part of the version number
-    major_version=${next_version%%.*}
+#     major_version=${next_version%%.*}
+    major_version=${last_version%%.*}
     current_major_version=${current_version%%.*}
 
     # If the current version have the same major version than the next.
@@ -186,7 +181,7 @@ do
     # Load the value for this version
     source upgrade.d/upgrade.$current_major_version.sh
 
-    echo -e "\nUpdate to nextcloud $next_version" >&2
+    echo -e "\nUpgrade to nextcloud $next_version" >&2
 
     # Create an app.src for this version of nextcloud
     cp ../conf/app.src.default ../conf/app.src
@@ -212,7 +207,6 @@ do
     # Replace the old nextcloud by the new one
     ynh_secure_remove "$final_path"
     mv "$tmpdir" "$final_path"
-ls -alh "$final_path" >&2
 
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"
@@ -328,28 +322,6 @@ for u in $(ynh_user_list); do
 done
 
 #=================================================
-# ADD A JOB FOR FINISHING UPGRADING OWNCLOUD
-#=================================================
-
-# Finish ownCloud migration
-if [ $YNH_APP_ID == owncloud ]
-then
-    echo "ownCloud has been successfully migrated to Nextcloud! \
-A last scheduled operation will run in a couple of minutes to finish the \
-migration in YunoHost side. Do not proceed any application operation while \
-you don't see Nextcloud as installed." >&2
-
-    # Install a cron job and script for final migration step
-    script_path="/usr/local/sbin/owncloud-migration.sh"
-    ynh_replace_string "#APP#" "$YNH_APP_ID" ../conf/owncloud-migration.sh
-    cp ../conf/owncloud-migration.sh "$script_path"
-    chmod 755 "$script_path"
-    cron_path="/etc/cron.d/owncloud-migration"
-    echo "*/1 * * * * root $script_path" | tee "$cron_path" >/dev/null
-    chmod 644 "$cron_path"
-fi
-
-#=================================================
 # WARNING ABOUT THIRD-PARTY APPS
 #=================================================
 
@@ -379,3 +351,24 @@ ynh_app_setting_set $app skipped_regex \
 #=================================================
 
 systemctl reload nginx
+
+#=================================================
+# FINISH MIGRATION PROCESS
+#=================================================
+
+if [ $migration_process -eq 1 ]
+then
+    echo "ownCloud has been successfully migrated to Nextcloud! \
+A last scheduled operation will run in a couple of minutes to finish the \
+migration in YunoHost side. Do not proceed any application operation while \
+you don't see Nextcloud as installed." >&2
+
+    # Execute a post migration script after the end of this upgrade.
+    # Mainly for some cleaning
+    script_post_migration=owncloud_post_migration.sh
+    ynh_replace_string "__OLD_APP__" "$old_app" ../conf/$script_post_migration
+    ynh_replace_string "__NEW_APP__" "$app" ../conf/$script_post_migration
+    cp ../conf/$script_post_migration /tmp
+    chmod +x /tmp/$script_post_migration
+    (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
+fi

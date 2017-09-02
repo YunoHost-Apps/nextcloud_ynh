@@ -68,11 +68,50 @@ is_url_handled() {
   [[ ! ${output[0]} =~ \/yunohost\/sso\/ && ${output[1]} != 404 ]]
 }
 
-# ynh_handle_app_migration "ID FROM WHICH TO MIGRATE" "MIGRATION FILE"
+# Make the main steps to migrate an app to its fork.
 #
-# WARNING You have to replace manually any reference to a moved file in the settings.yml
-# Also for the config of the app or anything else that not handled by this helper.
+# This helper have to be used for an app who need to migrate to a new name or a new fork.
+# Like owncloud to nextcloud or zerobin to privatebin
 #
+# This helper will move the files of an app to its new name
+# Or recreate the things it can't moves.
+#
+# To know which files it have to moves. You have to give a "migration file", stored in ../conf
+# This file is simply a list of each file it have to moves.
+# Except that you have to add all variables as variable. That mean you have to add $app instead of the real name of the app.
+# And the same for domain or anything else like that.
+# $app is espcially important because it's this variable which be used to identify the old place and the new one for each file.
+#
+# If a database exist for this app, it will be dump then reload to a new database name, with a new user.
+# You have to forward this change in the settings of your app.
+#
+# Same things for an existing user, a new one will be create.
+# But the old one can't be remove unless it's not using. See below.
+#
+# If you have some dependencies for your app, it's possible to changed the fake package who manage them.
+# You have to fill the variable $dependencies, and then a new fake package will be created and installed.
+# And the old one will be removed.
+# If you don't have a variable $dependencies, the helper can't know what's the dependencies of the app.
+#
+# The settings.yml of the app will be modified as following:
+# - finalpath will be changed, according to the new name. If it can find the old name in the existing $final_path
+# - The checksum of php-fpm and nginx config file will be changed too.
+# - If there a $db_name value, it will be changed.
+# - And, of course, the ID will be changed to the new name too.
+#
+# Finally, the $app variable will take the value of the new name.
+# The helper will set the variable $migration_process at 1 if a migration has been proceed.
+#
+# You have to handle all the migrations not done by this helper for your app, like configuration or special values in settings.yml
+# Also, at the end of upgrade script, you have to add a post_migration script to handle all the things the helper can't do during YunoHost use your app.
+# Especially remove the old user, move some hooks and remove the old configuration directory
+# To launch this script, you have to move it elsewhere and start it after the upgrade script.
+# `cp ../conf/$script_post_migration /tmp`
+# `(cd /tmp; echo "/tmp/$script_post_migration" | at now + 2 minutes)`
+#
+# usage: ynh_handle_app_migration migration_id migration_list
+# | arg: migration_id  - ID from which to migrate
+# | arg: migration_list - List of file to move.
 ynh_handle_app_migration ()  {
     #=================================================
     # LOAD SETTINGS

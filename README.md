@@ -8,7 +8,6 @@ you can synchronize your files over your devices.
 **Shipped version:** 12.0.1
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
-
 ![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)
 
 ## Features

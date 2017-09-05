@@ -65,7 +65,7 @@ then
     }
 fi
 
-# Exit if an error occurs during the execution of the script
+# Exit if an error occurs during the script execution
 ynh_abort_if_errors
 
 #=================================================
@@ -81,10 +81,10 @@ then
     db_name=$(ynh_app_setting_get $app db_name)
 
     # Remove the old fake package for owncloud.
-    # Its name it's not regular, so the migration process can't remove it.
+    # Its name is specific, so the migration process can't remove it
     ynh_package_autopurge owncloud-deps
 
-    # Change the database access in the config.
+    # Change the database access in the config
     ynh_replace_string "\('dbname' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
     ynh_replace_string "\('dbuser' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
 
@@ -147,7 +147,7 @@ ynh_install_app_dependencies $dependencies
 # SPECIFIC UPGRADE
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
-# VERSION TO THE FOLLOWING
+# VERSION TO THE NEXT ONE
 #=================================================
 
 # Load the last available version
@@ -163,17 +163,17 @@ chown -R $app: "$final_path" "$datadir"
 # Print the current version number of nextcloud
 exec_occ -V
 
-# While the current version is not the last version, do a upgrade
+# While the current version is not the last version, do an upgrade
 while [ "$last_version" != "$current_version" ]
 do
 
     # The major version is the first part of the version number
-#     major_version=${next_version%%.*}
+    # major_version=${next_version%%.*}
     major_version=${last_version%%.*}
     current_major_version=${current_version%%.*}
 
-    # If the current version have the same major version than the next.
-    # It's the last upgrade to do
+    # If the current version has the same major version than the next one,
+    # then it's the last upgrade to do
     if [ "$major_version" -eq "$current_major_version" ]; then
 	current_major_version=last
     fi
@@ -201,7 +201,7 @@ do
     cp -a "$final_path/config/config.php" "$tmpdir/config/config.php"
 
     # Backup 3rd party applications from the current nextcloud
-    # But do not overwrite if there any upgrade
+    # But do not overwrite if there is any upgrade
     cp -a --update "$final_path/apps" "$tmpdir/apps"
 
     # Replace the old nextcloud by the new one
@@ -214,7 +214,7 @@ do
     # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
     exec_occ maintenance:mode --off
     exec_occ upgrade \
-	|| ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade Nextcloud")
+      || ([[ $? -eq 3 ]] || ynh_die "Unable to upgrade Nextcloud")
 
     # Get the new current version number
     current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
@@ -327,7 +327,7 @@ done
 
 # Warn about possible disabled apps
 echo "Note that if you've installed some third-parties Nextcloud applications, \
-they are probably disabled and you'll have to manually activate them again." >&2
+they are probably disabled and you'll have to manually enable them again." >&2
 
 #=================================================
 # SETUP LOGROTATE

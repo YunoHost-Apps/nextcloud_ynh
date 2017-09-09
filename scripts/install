@@ -57,7 +57,7 @@ ynh_app_setting_set $app user_home $user_home
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies $dependencies
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE A MYSQL DATABASE

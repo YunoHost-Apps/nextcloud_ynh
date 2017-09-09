@@ -3,7 +3,7 @@
 # COMMON VARIABLES
 #=================================================
 
-dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-imagick acl tar smbclient"
+pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-imagick acl tar smbclient"
 
 #=================================================
 # COMMON HELPERS
@@ -89,9 +89,9 @@ is_url_handled() {
 # But the old one can't be removed unless it's not used. See below.
 #
 # If you have some dependencies for your app, it's possible to change the fake debian package which manages them.
-# You have to fill the $dependencies variable, and then a new fake package will be created and installed,
+# You have to fill the $pkg_dependencies variable, and then a new fake package will be created and installed,
 # and the old one will be removed.
-# If you don't have a $dependencies variable, the helper can't know what the app dependencies are.
+# If you don't have a $pkg_dependencies variable, the helper can't know what the app dependencies are.
 #
 # The app settings.yml will be modified as follows:
 # - finalpath will be changed according to the new name (but only if the existing $final_path contains the old app name)
@@ -272,9 +272,9 @@ ynh_handle_app_migration ()  {
     # CHANGE THE FAKE DEPENDENCIES PACKAGE
     #=================================================
 
-    # Check if a variable $dependencies exists
+    # Check if a variable $pkg_dependencies exists
     # If this variable doesn't exist, this part shall be managed in the upgrade script.
-    if [ -n "${dependencies:-}" ]
+    if [ -n "${pkg_dependencies:-}" ]
     then
       # Define the name of the package
       local old_package_name="${old_app//_/-}-ynh-deps"
@@ -284,7 +284,7 @@ ynh_handle_app_migration ()  {
       then
         # Install a new fake package
         app=$new_app
-        ynh_install_app_dependencies $dependencies
+        ynh_install_app_dependencies $pkg_dependencies
         # Then remove the old one
         app=$old_app
         ynh_remove_app_dependencies

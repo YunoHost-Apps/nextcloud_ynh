@@ -141,7 +141,7 @@ ynh_add_fpm_config
 # UPGRADE DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies $dependencies
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # SPECIFIC UPGRADE

@@ -84,7 +84,7 @@ ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
 #=================================================
 
 # Define and install dependencies
-ynh_install_app_dependencies $dependencies
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # RESTORE THE CRON FILE

@@ -201,10 +201,8 @@ ynh_handle_app_migration ()  {
     old_label=$(ynh_app_setting_get $new_app label)
     if [ "${old_label,,}" == "$old_app_id" ]
     then
-        echo "new=$new_app_id"
         # Build the new label from the id of the app. With the first character as upper case
         new_label=$(echo $new_app_id | cut -c1 | tr [:lower:] [:upper:])$(echo $new_app_id | cut -c2-)
-        echo "new_label=$new_label"
         ynh_app_setting_set $new_app label $new_label
     fi
     

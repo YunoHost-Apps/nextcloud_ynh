@@ -197,6 +197,17 @@ ynh_handle_app_migration ()  {
     # That's why we use sed instead of app setting here.
     # https://github.com/YunoHost/yunohost/blob/c6b5284be8da39cf2da4e1036a730eb5e0515096/src/yunohost/app.py#L1316-L1321
 
+    # Change the label if it's simply the name of the app
+    old_label=$(ynh_app_setting_get $new_app label)
+    if [ "${old_label,,}" == "$old_app_id" ]
+    then
+        echo "new=$new_app_id"
+        # Build the new label from the id of the app. With the first character as upper case
+        new_label=$(echo $new_app_id | cut -c1 | tr [:lower:] [:upper:])$(echo $new_app_id | cut -c2-)
+        echo "new_label=$new_label"
+        ynh_app_setting_set $new_app label $new_label
+    fi
+    
     #=================================================
     # MOVE FILES TO THE NEW DESTINATION
     #=================================================

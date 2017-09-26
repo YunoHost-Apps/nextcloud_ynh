@@ -1,0 +1,6 @@
+SOURCE_URL=https://download.nextcloud.com/server/releases/nextcloud-__VERSION__.tar.bz2
+SOURCE_SUM=__SHA256_SUM__
+SOURCE_SUM_PRG=sha256sum
+SOURCE_FORMAT=tar.bz2
+SOURCE_IN_SUBDIR=true
+SOURCE_FILENAME=

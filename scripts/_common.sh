@@ -26,7 +26,7 @@ extract_nextcloud() {
   local DESTDIR=$1
   local AS_USER=${2:-admin}
 
-  # retrieve and extract Roundcube tarball
+  # retrieve and extract Nextcloud tarball
   nc_tarball="/tmp/nextcloud.tar.bz2"
   rm -f "$nc_tarball"
   wget -q -O "$nc_tarball" "$NEXTCLOUD_SOURCE_URL" \

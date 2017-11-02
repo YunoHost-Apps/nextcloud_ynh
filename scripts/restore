@@ -102,12 +102,16 @@ ynh_restore_file "/etc/logrotate.d/$app"
 # RESTORE THE DATA DIRECTORY
 #=================================================
 
+datadir="/home/yunohost.app/${app}/data"
+
 # The data directory will be restored only if it exists in the backup archive
 # So only if it was backup previously.
 if [ -d "$YNH_BACKUP_DIR/data" ]
 then
-	datadir="/home/yunohost.app/${app}/data"
 	ynh_restore_file "$datadir"
+else
+	# Create app folders
+	mkdir -p "$datadir"
 fi
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete $app backup_core_only

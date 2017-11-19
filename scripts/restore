@@ -106,7 +106,7 @@ datadir="/home/yunohost.app/${app}/data"
 
 # The data directory will be restored only if it exists in the backup archive
 # So only if it was backup previously.
-if [ -d "$YNH_BACKUP_DIR/data" ]
+if [ -d "$YNH_BACKUP_DIR/apps/$app/backup/home/yunohost.app/$app" ]
 then
 	ynh_restore_file "$datadir"
 else

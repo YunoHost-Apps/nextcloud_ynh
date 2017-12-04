@@ -3,11 +3,6 @@
 #=================================================
 # GENERIC START
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Exit on command errors and treat access to unset variables as an error
-set -eu
 
 #=================================================
 # IMPORT GENERIC HELPERS

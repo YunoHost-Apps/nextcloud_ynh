@@ -22,6 +22,13 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
 # LOAD SETTINGS
 #=================================================
 
@@ -82,5 +89,5 @@ if [ -z $backup_core_only ]
 then
 	ynh_backup "/home/yunohost.app/${app}/data"
 else
-	echo "Data dir will not saved, because backup_core_only is set." >&2
+	echo "Data dir will not be saved, because backup_core_only is set." >&2
 fi

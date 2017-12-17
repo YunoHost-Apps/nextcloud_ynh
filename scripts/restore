@@ -3,11 +3,6 @@
 #=================================================
 # GENERIC START
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Exit on command errors and treat access to unset variables as an error
-set -eu
 
 #=================================================
 # IMPORT GENERIC HELPERS
@@ -20,6 +15,13 @@ if [ ! -e _common.sh ]; then
 fi
 source _common.sh
 source /usr/share/yunohost/helpers
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 #=================================================
 # LOAD SETTINGS

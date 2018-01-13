@@ -1,50 +1,92 @@
 #!/bin/bash
 
-# Load common variables and helpers
-source ./_common.sh
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Source app helpers
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Set app specific variables
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
 app=$YNH_APP_INSTANCE_NAME
-dbname=$app
-dbuser=$app
 
-# Remove cron job
-# TODO: Ensure that cron job is not running
-sudo rm -f "/etc/cron.d/${app}"
+domain=$(ynh_app_setting_get $app domain)
+db_name=$(ynh_app_setting_get $app db_name)
+final_path=$(ynh_app_setting_get $app final_path)
 
-# Drop MySQL database and user
-ynh_mysql_drop_db "$dbname"
-ynh_mysql_drop_user "$dbuser"
+#=================================================
+# STANDARD REMOVE
+#=================================================
+# REMOVE DEPENDENCIES
+#=================================================
 
-# Retrieve domain from app settings
-domain=$(ynh_app_setting_get "$app" domain)
+# Remove metapackage and its dependencies
+ynh_remove_app_dependencies
 
-# Delete app directory and configurations
-    [[ "/var/www" =~ "/var/www/${app}" ]] \
-|| (test -n "$app" && sudo rm -r "/var/www/${app}" )
+#=================================================
+# REMOVE THE MYSQL DATABASE
+#=================================================
 
-sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
-[[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+# Remove a database if it exists, along with the associated user
+ynh_mysql_remove_db $db_name $db_name
 
-# Reload services
-sudo service php5-fpm reload
-sudo service nginx reload
+#=================================================
+# REMOVE APP MAIN DIR
+#=================================================
 
-# Remove app dependencies
-ynh_package_autoremove "$DEPS_PKG_NAME"
+# Remove the app directory securely
+ynh_secure_remove "$final_path"
 
-# Clean home folders ACLs
+#=================================================
+# REMOVE NGINX CONFIGURATION
+#=================================================
+
+# Remove the dedicated nginx config
+ynh_remove_nginx_config
+
+#=================================================
+# REMOVE PHP-FPM CONFIGURATION
+#=================================================
+
+# Remove the dedicated php-fpm config
+ynh_remove_fpm_config
+
+#=================================================
+# REMOVE LOGROTATE CONFIGURATION
+#=================================================
+
+# Remove the app-specific logrotate config
+ynh_remove_logrotate
+
+#=================================================
+# SPECIFIC REMOVE
+#=================================================
+# REMOVE THE CRON FILE
+#=================================================
+
+# Remove a cron file
+# TODO: Ensure that cron job is not running (How !?)
+ynh_secure_remove "/etc/cron.d/$app"
+
+#=================================================
+# CLEAN ACL IN HOME DIRECTORIES
+#=================================================
+
 for i in $(ls /home); do
   [[ ! $i == yunohost.* ]] \
-    && sudo setfacl -x g:$app:rwx >/dev/null 2>&1
+    && setfacl -x g:$app:rwx 2>&1
 done
 
-# Remove the user account
-id "$app" >/dev/null 2>&1 \
-  && sudo deluser --quiet --remove-home "$app" >/dev/null
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# REMOVE DEDICATED USER
+#=================================================
 
-# Remove logrotate configuration
-ynh_remove_logrotate
+# Delete a system user
+ynh_system_user_delete $app

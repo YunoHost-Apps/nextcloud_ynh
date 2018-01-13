@@ -1,48 +1,88 @@
 #!/bin/bash
 
-set -eu
+#=================================================
+# GENERIC START
+#=================================================
 
-# Get multi-instances specific variables
-app=$YNH_APP_INSTANCE_NAME
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Set app specific variables
-dbname=$app
-dbuser=$app
-
-# Source app helpers
+if [ ! -e _common.sh ]; then
+	# Get the _common.sh file if it's not in the current directory
+	cp ../settings/scripts/_common.sh ./_common.sh
+	chmod a+rx _common.sh
+fi
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Retrieve app settings
-domain=$(ynh_app_setting_get "$app" domain)
-path=$(ynh_app_setting_get "$app" path)
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
 
-# Copy the app source files
-DESTDIR="/var/www/$app"
-ynh_backup "$DESTDIR" "www"
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
-# Copy the data directory
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+final_path=$(ynh_app_setting_get $app final_path)
+domain=$(ynh_app_setting_get $app domain)
+db_name=$(ynh_app_setting_get $app db_name)
+
+#=================================================
+# STANDARD BACKUP STEPS
+#=================================================
+# BACKUP THE APP MAIN DIR
+#=================================================
+
+ynh_backup "$final_path"
+
+#=================================================
+# BACKUP THE NGINX CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+#=================================================
+# BACKUP THE PHP-FPM CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php5/fpm/conf.d/20-$app.ini"
+
+#=================================================
+# BACKUP THE MYSQL DATABASE
+#=================================================
+
+ynh_mysql_dump_db "$db_name" > db.sql
+
+#=================================================
+# SPECIFIC BACKUP
+#=================================================
+# BACKUP LOGROTATE
+#=================================================
+
+ynh_backup "/etc/logrotate.d/$app"
+
+#=================================================
+# BACKUP THE CRON FILE
+#=================================================
+
+ynh_backup "/etc/cron.d/$app"
+
+#=================================================
+# BACKUP THE DATA DIRECTORY
+#=================================================
+
 backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
-if [ -z $backup_core_only ]	# Si backup_core_only a une valeur dans le fichier settings.yml, ne sauvegarde pas le dossier data
+# If backup_core_only have any value in the settings.yml file, do not backup the data directory
+if [ -z $backup_core_only ]
 then
-	DATADIR="/home/yunohost.app/${app}/data"
-	ynh_backup "$DATADIR" "data" 1
+	ynh_backup "/home/yunohost.app/${app}/data"
 else
-	echo "Data dir will not saved, because backup_core_only is set." >&2
+	echo "Data dir will not be saved, because backup_core_only is set." >&2
 fi
-
-# Copy the conf files
-mkdir ./conf
-ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "conf/nginx.conf"
-ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "conf/php-fpm.conf"
-ynh_backup "/etc/cron.d/${app}" "conf/cron"
-
-# Dump the database
-mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql
-
-# Copy the control file of the dependency package
-# FIXME: find a way to retrieve package name from _common.sh?
-dpkg-query -s nextcloud-deps > ./nextcloud-deps.control
-
-# Backup the logrotate configuration file
-ynh_backup "/etc/logrotate.d/$app" "logrotate"

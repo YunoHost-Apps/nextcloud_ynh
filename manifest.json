@@ -1,17 +1,20 @@
 {
-    "packaging_format": 1,
     "id": "nextcloud",
     "name": "Nextcloud",
+    "packaging_format": 1,
     "description": {
         "en": "Access & share your files, calendars, contacts, mail & more from any device, on your terms",
         "fr": "Consultez et partagez vos fichiers, agendas, carnets d'adresses, emails et bien plus depuis les appareils de votre choix, sous vos conditions"
     },
+    "version": "12.0.4-1",
     "url": "https://nextcloud.com",
-    "license": "AGPL-3",
-    "version": "12.0.2",
+    "license": "AGPL-3.0",
     "maintainer": {
         "name": "-",
         "email": "-"
+    },
+    "requirements": {
+        "yunohost": ">= 2.7.2"
     },
     "multi_instance": false,
     "services": [
@@ -19,9 +22,6 @@
         "php5-fpm",
         "mysql"
     ],
-    "requirements": {
-        "yunohost": ">= 2.6.0"
-    },
     "arguments": {
         "install" : [
             {

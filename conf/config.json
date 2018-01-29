@@ -1,10 +1,5 @@
 {
   "system": {
-    "datadirectory": "#DATADIR#",
-    "trusted_domains": [
-      "localhost",
-      "#DOMAIN#"
-    ],
     "updatechecker": false,
     "memcache.local": "\\OC\\Memcache\\APCu",
     "integrity.check.disabled": true,

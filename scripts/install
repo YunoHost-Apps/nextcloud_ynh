@@ -144,11 +144,6 @@ exec_occ maintenance:install \
 # CONFIGURE NEXTCLOUD
 #=================================================
 
-nc_conf="${final_path}/config.json"
-cp ../conf/config.json "$nc_conf"
-ynh_replace_string "#DOMAIN#" "$domain" "$nc_conf"
-ynh_replace_string "#DATADIR#" "$datadir" "$nc_conf"
-
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
@@ -156,7 +151,18 @@ exec_occ app:disable updatenotification
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
 
-# Load the config file in nextcloud
+# Load the installation config file in nextcloud
+nc_conf="${final_path}/config_install.json"
+cp ../conf/config_install.json "$nc_conf"
+ynh_replace_string "#DOMAIN#" "$domain" "$nc_conf"
+ynh_replace_string "#DATADIR#" "$datadir" "$nc_conf"
+exec_occ config:import "$nc_conf"
+# Then remove it
+rm -f "$nc_conf"
+
+# Load the additional config file (used also for upgrade)
+nc_conf="${final_path}/config_install.json"
+cp ../conf/config.json "$nc_conf"
 exec_occ config:import "$nc_conf"
 # Then remove it
 rm -f "$nc_conf"
@@ -216,6 +222,8 @@ ynh_store_file_checksum "${final_path}/config/config.php"
 
 cron_path="/etc/cron.d/$app"
 cp -a ../conf/nextcloud.cron "$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
 
 ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"

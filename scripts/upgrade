@@ -286,6 +286,8 @@ ynh_store_file_checksum "${final_path}/config/config.php"
 
 cron_path="/etc/cron.d/$app"
 cp -a ../conf/nextcloud.cron "$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
 
 ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
@@ -334,7 +336,7 @@ they are probably disabled and you'll have to manually enable them again." >&2
 #=================================================
 
 # Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate
+ynh_use_logrotate --non-append
 
 #=================================================
 # GENERIC FINALIZATION

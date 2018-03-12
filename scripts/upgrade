@@ -191,6 +191,12 @@ do
     # Create a temporary directory
     tmpdir=$(mktemp -d)
 
+    # Patch nexcloud files only for the last upgrade.
+    if [ "$current_major_version" = "last" ]
+    then
+        cp -a ../sources/patches_last_version ../sources/patches
+    fi
+
     # Install the next nextcloud version in $tmpdir
     ynh_setup_source "$tmpdir"
 

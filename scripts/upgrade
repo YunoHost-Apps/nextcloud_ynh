@@ -176,6 +176,8 @@ do
     # then it's the last upgrade to do
     if [ "$major_version" -eq "$current_major_version" ]; then
 	current_major_version=last
+	# Patch nexcloud files only for the last upgrade.
+	cp -a ../sources/patches_last_version ../sources/patches
     fi
 
     # Load the value for this version
@@ -190,12 +192,6 @@ do
 
     # Create a temporary directory
     tmpdir=$(mktemp -d)
-
-    # Patch nexcloud files only for the last upgrade.
-    if [ "$current_major_version" = "last" ]
-    then
-        cp -a ../sources/patches_last_version ../sources/patches
-    fi
 
     # Install the next nextcloud version in $tmpdir
     ynh_setup_source "$tmpdir"

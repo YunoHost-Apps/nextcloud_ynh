@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Last available nextcloud version
-next_version="13.0.0"
+next_version="13.0.1"
 
 # Nextcloud tarball checksum sha256
-nextcloud_source_sha256="38e6064432a2d1a044f219028d3fd46cb7a943a47e11eef346810bd289705aec"
+nextcloud_source_sha256="5743314a71e972ae46a14b36b37394d4545915aa5f32d9e12ba786d04c1f1d11"

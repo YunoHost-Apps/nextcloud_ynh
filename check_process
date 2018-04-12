@@ -12,7 +12,7 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
-		upgrade=1	from_commit=8ea155ee6d482249c9d16c14c01d7e1fb50cdc18
+		upgrade=1	from_commit=68c2f41da6b33bd8c949e5ba624bedba08c448be
 		backup_restore=1
 		multi_instance=0
 		incorrect_path=1
@@ -35,6 +35,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=8ea155ee6d482249c9d16c14c01d7e1fb50cdc18
-		name=Complete refactoring
+	; commit=68c2f41da6b33bd8c949e5ba624bedba08c448be
+		name=Move patches to the right folder
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

@@ -12,6 +12,7 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
+		upgrade=1	from_commit=68c2f41da6b33bd8c949e5ba624bedba08c448be
 		backup_restore=1
 		multi_instance=0
 		incorrect_path=1
@@ -33,3 +34,7 @@
 ;;; Options
 Email=
 Notification=none
+;;; Upgrade options
+	; commit=68c2f41da6b33bd8c949e5ba624bedba08c448be
+		name=Move patches to the right folder
+		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

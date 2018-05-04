@@ -135,6 +135,15 @@ for u in $(ynh_user_list); do
 done
 
 #=================================================
+# YUNOHOST MULTIMEDIA INTEGRATION
+#=================================================
+
+# Build YunoHost multimedia directories
+ynh_multimedia_build_main_dir
+# Allow nextcloud to write into these directories
+ynh_multimedia_addaccess $app
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX AND PHP-FPM

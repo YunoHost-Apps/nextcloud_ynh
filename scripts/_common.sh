@@ -19,10 +19,12 @@ exec_occ() {
       php occ --no-interaction --no-ansi "$@")
 }
 
-# Create the external storage for the home folders and enable sharing
-create_home_external_storage() {
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+  local datadir="$1"
+  local mount_name="$2"
   local mount_id=`exec_occ files_external:create --output=json \
-      'Home' 'local' 'null::null' -c 'datadir=/home/$user' || true`
+      "$2" 'local' 'null::null' -c "datadir=$datadir" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
     && echo "Unable to create external storage" >&2 \
     || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -314,4 +316,32 @@ ynh_handle_app_migration ()  {
     # Set migration_process to 1 to inform that an upgrade has been made
     migration_process=1
   fi
+}
+
+
+#=================================================
+# EXPERIMENTAL HELPERS
+#=================================================
+#=================================================
+# YUNOHOST MULTIMEDIA INTEGRATION
+#=================================================
+
+# Install or update the main directory yunohost.multimedia
+#
+# usage: ynh_multimedia_build_main_dir
+ynh_multimedia_build_main_dir () {
+        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/master.zip 2>&1
+        unzip -q master.zip
+        ./yunohost.multimedia-master/script/ynh_media_build.sh
+}
+
+# Allow an user to have an write authorisation in multimedia directories
+#
+# usage: ynh_multimedia_addaccess user_name
+#
+# | arg: user_name - The name of the user which gain this access.
+ynh_multimedia_addaccess () {
+        local user_name=$1
+        groupadd -f multimedia
+        usermod -a -G multimedia $user_name
 }

@@ -330,8 +330,19 @@ ynh_handle_app_migration ()  {
 #
 # usage: ynh_multimedia_build_main_dir
 ynh_multimedia_build_main_dir () {
-        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/master.zip 2>&1
-        unzip -q master.zip
+        local ynh_media_release="v1.0"
+        local checksum="4852c8607db820ad51f348da0dcf0c88"
+
+        # Download yunohost.multimedia scripts
+        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 
+
+        # Check the control sum
+        echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
+                || ynh_die "Corrupt source"
+
+        # Extract
+        mkdir yunohost.multimedia-master
+        tar -xf ${ynh_media_release}.tar.gz -C yunohost.multimedia-master --strip-components 1
         ./yunohost.multimedia-master/script/ynh_media_build.sh
 }
 

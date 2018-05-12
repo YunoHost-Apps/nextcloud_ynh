@@ -336,7 +336,7 @@ ynh_multimedia_build_main_dir () {
         # Download yunohost.multimedia scripts
         wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 
 
-        # Check the control sum
+        # Verify checksum
         echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
                 || ynh_die "Corrupt source"
 
@@ -346,11 +346,11 @@ ynh_multimedia_build_main_dir () {
         ./yunohost.multimedia-master/script/ynh_media_build.sh
 }
 
-# Allow an user to have an write authorisation in multimedia directories
+# Grant write access to multimedia directories to a specified user
 #
 # usage: ynh_multimedia_addaccess user_name
 #
-# | arg: user_name - The name of the user which gain this access.
+# | arg: user_name - User to be granted write access
 ynh_multimedia_addaccess () {
         local user_name=$1
         groupadd -f multimedia

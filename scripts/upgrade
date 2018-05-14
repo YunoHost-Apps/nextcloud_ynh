@@ -175,9 +175,7 @@ do
     # If the current version has the same major version than the next one,
     # then it's the last upgrade to do
     if [ "$major_version" -eq "$current_major_version" ]; then
-	current_major_version=last
-	# Patch nexcloud files only for the last upgrade.
-	cp -a ../sources/patches_last_version ../sources/patches
+      current_major_version=last
     fi
 
     # Load the value for this version

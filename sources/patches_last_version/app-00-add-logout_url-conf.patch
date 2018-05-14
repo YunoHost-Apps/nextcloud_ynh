@@ -1,14 +1,14 @@
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
-@@ -100,7 +100,10 @@ class LoginController extends Controller {
+@@ -119,7 +119,10 @@
  		}
  		$this->userSession->logout();
- 
--		return new RedirectResponse($this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm'));
+
+-		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm'));
 +		$redirectUrl = $this->config->getSystemValue('logout_url',
 +			$this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm')
 +		);
-+		return new RedirectResponse($redirectUrl);
++		$response = new RedirectResponse($redirectUrl);
+ 		$response->addHeader('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
+ 		return $response;
  	}
- 
- 	/**

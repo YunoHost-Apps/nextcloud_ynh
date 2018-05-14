@@ -6,7 +6,7 @@
 pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient"
 
 if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-	pkg_dependencies="$pkg_dependencies php-zip"
+	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
 fi
 
 #=================================================
@@ -139,7 +139,7 @@ ynh_handle_app_migration ()  {
   fi
 
   #=================================================
-  # CHECK IF IT HAS TO MIGRATE 
+  # CHECK IF IT HAS TO MIGRATE
   #=================================================
 
   migration_process=0
@@ -209,7 +209,7 @@ ynh_handle_app_migration ()  {
         new_label=$(echo $new_app_id | cut -c1 | tr [:lower:] [:upper:])$(echo $new_app_id | cut -c2-)
         ynh_app_setting_set $new_app label $new_label
     fi
-    
+
     #=================================================
     # MOVE FILES TO THE NEW DESTINATION
     #=================================================

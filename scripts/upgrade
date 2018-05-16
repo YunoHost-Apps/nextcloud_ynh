@@ -270,7 +270,7 @@ if [ $user_home -eq 1 ]; then
     exec_occ app:enable files_external
     exec_occ files_external:list --output=json \
 	| grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
-	|| create_home_external_storage
+	|| create_external_storage "/home/\$user" "Home"
 fi
 
 #=================================================
@@ -300,6 +300,19 @@ exec_occ background:cron
 
 # Set system group in hooks
 ynh_replace_string "#GROUP#" "$app" ../hooks/post_user_create
+
+#=================================================
+# YUNOHOST MULTIMEDIA INTEGRATION
+#=================================================
+
+# Build YunoHost multimedia directories
+ynh_multimedia_build_main_dir
+# Mount the user directory in Nextcloud
+exec_occ app:enable files_external
+create_external_storage "/home/yunohost.multimedia/\$user" "Multimedia"
+create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
+# Allow nextcloud to write into these directories
+ynh_multimedia_addaccess $app
 
 #=================================================
 # GENERIC FINALIZATION

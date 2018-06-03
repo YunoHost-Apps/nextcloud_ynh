@@ -55,10 +55,10 @@ ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
 ynh_backup "/etc/php5/fpm/conf.d/20-$app.ini"
 
 #=================================================
-# BACKUP THE MYSQL DATABASE
+# BACKUP THE POSTGRESQL DATABASE
 #=================================================
 
-ynh_mysql_dump_db "$db_name" > db.sql
+ynh_psql_dump_db "$db_name" > /db.sql
 
 #=================================================
 # SPECIFIC BACKUP

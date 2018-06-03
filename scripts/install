@@ -60,12 +60,15 @@ ynh_app_setting_set $app user_home $user_home
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
-# CREATE A MYSQL DATABASE
+# CREATE A POSTGRESQL DATABASE
 #=================================================
 
 db_name=$(ynh_sanitize_dbid $app)
+db_pwd=$(ynh_string_random)
 ynh_app_setting_set $app db_name $db_name
-ynh_mysql_setup_db $db_name $db_name
+ynh_app_setting_set $app db_pwd $db_pwd
+ynh_psql_test_if_first_run
+ynh_psql_create_db $db_name $db_name $db_pwd
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -134,7 +137,7 @@ chown -R $app: "$final_path" "$datadir"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name "$db_name" \
+    --database "pgsql" --database-name "$db_name" \
     --database-user "$db_name" --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$(ynh_string_random 6)" \
     --data-dir "$datadir" \
@@ -204,7 +207,7 @@ exec_occ config:system:get logout_url >/dev/null 2>&1 \
 #=================================================
 
 # Set the user as admin
-ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" \
+ynh_psql_connect_as "$db_name" "$db_pwd" "$db_name" \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 # And delete admin user
 exec_occ user:delete admin

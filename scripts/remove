@@ -29,11 +29,11 @@ final_path=$(ynh_app_setting_get $app final_path)
 ynh_remove_app_dependencies
 
 #=================================================
-# REMOVE THE MYSQL DATABASE
+# REMOVE THE POSTGRESQL DATABASE
 #=================================================
 
 # Remove a database if it exists, along with the associated user
-ynh_mysql_remove_db $db_name $db_name
+ynh_psql_remove_db $db_name $db_name
 
 #=================================================
 # REMOVE APP MAIN DIR

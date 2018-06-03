@@ -32,6 +32,11 @@ Also, note we made the choice to disable third-parties applications at the
 upgrade. It allows to prevent an unstable - and sometimes broken - Nextcloud
 installation. You will just have to manually activate them after the upgrade.
 
+Finally, the following error message in Nextcloud logs can be safely ignored:
+```
+Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/home/yunohost.multimedia/share/' not inside '/home/yunohost.multimedia/user/')
+```
+
 ## Migrate from ownCloud
 
 **This is not considered as stable yet, please do it with care and only for

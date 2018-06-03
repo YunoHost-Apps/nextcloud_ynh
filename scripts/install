@@ -183,6 +183,10 @@ exec_occ ldap:test-config \'\' \
 if [ $user_home -eq 1 ]; then
     exec_occ app:enable files_external
     create_external_storage "/home/\$user" "Home"
+    # Iterate over users to extend their home folder permissions
+    for u in $(ynh_user_list); do
+        setfacl -m g:$app:rwx "/home/$u" || true
+    done
 fi
 
 #=================================================
@@ -264,13 +268,6 @@ find ${datadir}/ -type f -print0 | xargs -0 chmod 0640
 find ${datadir}/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "${final_path}/config/config.php"
 chmod 755 /home/yunohost.app
-
-# Iterate over users to extend their home folder permissions - for the external
-# storage plugin usage - and create relevant Nextcloud directories
-for u in $(ynh_user_list); do
-    mkdir -p "${datadir}/${u}"
-    setfacl -m g:$app:rwx "/home/$u" || true
-done
 
 #=================================================
 # SETUP LOGROTATE

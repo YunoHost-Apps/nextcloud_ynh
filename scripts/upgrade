@@ -202,7 +202,8 @@ do
 
     # Backup 3rd party applications from the current nextcloud
     # But do not overwrite if there is any upgrade
-    cp -a --update "$final_path/apps" "$tmpdir/apps"
+    # (apps directory already exists in Nextcloud archive)
+    cp -a --update "$final_path/apps" "$tmpdir"
 
     # Replace the old nextcloud by the new one
     ynh_secure_remove "$final_path"

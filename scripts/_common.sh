@@ -6,7 +6,7 @@
 pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient"
 
 if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-	pkg_dependencies="$pkg_dependencies php-zip"
+	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
 fi
 
 #=================================================
@@ -19,10 +19,12 @@ exec_occ() {
       php occ --no-interaction --no-ansi "$@")
 }
 
-# Create the external storage for the home folders and enable sharing
-create_home_external_storage() {
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+  local datadir="$1"
+  local mount_name="$2"
   local mount_id=`exec_occ files_external:create --output=json \
-      'Home' 'local' 'null::null' -c 'datadir=/home/$user' || true`
+      "$2" 'local' 'null::null' -c "datadir=$datadir" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
     && echo "Unable to create external storage" >&2 \
     || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -139,7 +141,7 @@ ynh_handle_app_migration ()  {
   fi
 
   #=================================================
-  # CHECK IF IT HAS TO MIGRATE 
+  # CHECK IF IT HAS TO MIGRATE
   #=================================================
 
   migration_process=0
@@ -209,7 +211,7 @@ ynh_handle_app_migration ()  {
         new_label=$(echo $new_app_id | cut -c1 | tr [:lower:] [:upper:])$(echo $new_app_id | cut -c2-)
         ynh_app_setting_set $new_app label $new_label
     fi
-    
+
     #=================================================
     # MOVE FILES TO THE NEW DESTINATION
     #=================================================
@@ -314,4 +316,43 @@ ynh_handle_app_migration ()  {
     # Set migration_process to 1 to inform that an upgrade has been made
     migration_process=1
   fi
+}
+
+
+#=================================================
+# EXPERIMENTAL HELPERS
+#=================================================
+#=================================================
+# YUNOHOST MULTIMEDIA INTEGRATION
+#=================================================
+
+# Install or update the main directory yunohost.multimedia
+#
+# usage: ynh_multimedia_build_main_dir
+ynh_multimedia_build_main_dir () {
+        local ynh_media_release="v1.0"
+        local checksum="4852c8607db820ad51f348da0dcf0c88"
+
+        # Download yunohost.multimedia scripts
+        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 
+
+        # Verify checksum
+        echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
+                || ynh_die "Corrupt source"
+
+        # Extract
+        mkdir yunohost.multimedia-master
+        tar -xf ${ynh_media_release}.tar.gz -C yunohost.multimedia-master --strip-components 1
+        ./yunohost.multimedia-master/script/ynh_media_build.sh
+}
+
+# Grant write access to multimedia directories to a specified user
+#
+# usage: ynh_multimedia_addaccess user_name
+#
+# | arg: user_name - User to be granted write access
+ynh_multimedia_addaccess () {
+        local user_name=$1
+        groupadd -f multimedia
+        usermod -a -G multimedia $user_name
 }

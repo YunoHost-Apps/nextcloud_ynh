@@ -5,7 +5,7 @@ Nextcloud for YunoHost
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
-**Shipped version:** 13.0.1
+**Shipped version:** 13.0.2
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
 ![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)
@@ -31,6 +31,11 @@ disabled to prevent the warning message.
 Also, note we made the choice to disable third-parties applications at the
 upgrade. It allows to prevent an unstable - and sometimes broken - Nextcloud
 installation. You will just have to manually activate them after the upgrade.
+
+Finally, the following error message in Nextcloud logs can be safely ignored:
+```
+Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/home/yunohost.multimedia/share/' not inside '/home/yunohost.multimedia/user/')
+```
 
 ## Migrate from ownCloud
 

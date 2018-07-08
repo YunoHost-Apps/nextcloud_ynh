@@ -274,7 +274,7 @@ chmod 755 /home/yunohost.app
 #=================================================
 
 # Use logrotate to manage application logfile
-ynh_use_logrotate "/home/yunohost.app/nextcloud/data/nextcloud.log"
+ynh_use_logrotate "${datadir}/nextcloud.log"
 
 #=================================================
 # SETUP SSOWAT

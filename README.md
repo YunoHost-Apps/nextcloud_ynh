@@ -5,7 +5,7 @@ Nextcloud for YunoHost
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
-**Shipped version:** 13.0.3
+**Shipped version:** 13.0.5
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
 ![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)

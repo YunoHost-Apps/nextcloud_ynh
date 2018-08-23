@@ -5,7 +5,7 @@ Nextcloud for YunoHost
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
-**Shipped version:** 13.0.2
+**Shipped version:** 13.0.5
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
 ![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)
@@ -17,6 +17,7 @@ this package:
 
  * Integrate with YunoHost users and SSO - i.e. logout button
  * Allow one user to be the administrator (set at the installation)
+ * Allow multiple instances of this application
  * Optionally access the user home folder from Nextcloud files (set at the
    installation, the sharing is enabled by default)
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's

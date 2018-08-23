@@ -12,9 +12,9 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
-		upgrade=1	from_commit=68c2f41da6b33bd8c949e5ba624bedba08c448be
+		upgrade=1	from_commit=1cdb9ea1619c6acaaa90bae88b5c4bed5084a2a7
 		backup_restore=1
-		multi_instance=0
+		multi_instance=1
 		incorrect_path=1
 		port_already_use=0
 		change_url=0
@@ -35,6 +35,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=68c2f41da6b33bd8c949e5ba624bedba08c448be
-		name=Move patches to the right folder
+	; commit=1cdb9ea1619c6acaaa90bae88b5c4bed5084a2a7
+		name= Fix Debian Stretch dependencies by installing php-apcu, php-mbstring … 
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

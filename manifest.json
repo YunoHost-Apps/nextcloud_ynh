@@ -10,8 +10,8 @@
     "url": "https://nextcloud.com",
     "license": "AGPL-3.0",
     "maintainer": {
-        "name": "-",
-        "email": "-"
+        "name": "YunoHost Contributors",
+        "email": "apps@yunohost.org"
     },
     "requirements": {
         "yunohost": ">= 2.7.2"

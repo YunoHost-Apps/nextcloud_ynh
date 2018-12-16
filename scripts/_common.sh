@@ -3,7 +3,7 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient"
+pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient at"
 
 if [ "$(lsb_release --codename --short)" != "jessie" ]; then
 	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"

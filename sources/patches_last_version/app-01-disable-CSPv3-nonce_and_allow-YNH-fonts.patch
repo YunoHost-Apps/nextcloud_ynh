@@ -1,9 +1,9 @@
- lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php | 4 ++++
- lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php    | 3 ++-
+ .../Security/CSP/ContentSecurityPolicyNonceManager.php        | 4 ++++
+ lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php   | 3 ++-
  2 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php b/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php
-index 088fb2d859..15b05b75d1 100644
+index 795d8cc864..5f3c961445 100644
 --- a/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php
 +++ b/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php
 @@ -70,6 +70,10 @@ class ContentSecurityPolicyNonceManager {
@@ -18,16 +18,16 @@ index 088fb2d859..15b05b75d1 100644
  			Request::USER_AGENT_CHROME,
  			// Firefox 45+
 diff --git a/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php b/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php
-index 6397d32cb9..32281a1734 100644
+index 3fcef1d0ef..7ce01a68fc 100644
 --- a/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php
 +++ b/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php
-@@ -406,7 +406,8 @@ class EmptyContentSecurityPolicy {
- 
+@@ -449,7 +449,8 @@ class EmptyContentSecurityPolicy {
+
  		if(!empty($this->allowedFontDomains)) {
  			$policy .= 'font-src ' . implode(' ', $this->allowedFontDomains);
 -			$policy .= ';';
 +			// YunoHost patch: extend font-src to load data fonts embedded in YunoHost tile script
 +			$policy .= ' data:;';
  		}
- 
+
  		if(!empty($this->allowedConnectDomains)) {

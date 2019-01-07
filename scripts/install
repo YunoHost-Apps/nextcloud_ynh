@@ -242,6 +242,11 @@ ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 exec_occ background:cron
 
 #=================================================
+# POST-INSTALL MAINTENANCE
+#=================================================
+(cd /tmp ; at now + 10 minutes <<< "(cd $final_path ; sudo -u $app php occ db:add-missing-indices ; sudo -u $app php occ db:convert-filecache-bigint -n) > /tmp/nextcloud_maintenance.log")
+
+#=================================================
 # CONFIGURE THE HOOK FILE FOR USER CREATE
 #=================================================
 

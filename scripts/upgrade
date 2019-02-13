@@ -191,7 +191,7 @@ do
     ynh_replace_string "__SHA256_SUM__" "$nextcloud_source_sha256" "../conf/app.src"
 
     # Create a temporary directory
-    tmpdir=$(mktemp -d)
+    tmpdir="$(ynh_smart_mktemp 300)"
 
     # Install the next nextcloud version in $tmpdir
     ynh_setup_source "$tmpdir"
@@ -210,6 +210,7 @@ do
     # Replace the old nextcloud by the new one
     ynh_secure_remove "$final_path"
     mv "$tmpdir" "$final_path"
+    ynh_secure_remove "$tmpdir"
 
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"

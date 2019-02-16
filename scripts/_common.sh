@@ -6,7 +6,7 @@
 pkg_dependencies="php-gd php-json php-intl php-mcrypt php-curl php-apcu php-redis php-ldap php-imagick php-zip php-mbstring php-xml imagemagick acl tar smbclient at"
 
 #=================================================
-# COMMON HELPERS -- SHOULD BE ADDED TO YUNOHOST
+# EXPERIMENTAL HELPERS
 #=================================================
 
 # Execute a command as another user
@@ -277,8 +277,9 @@ ynh_handle_app_migration ()  {
 
 
 #=================================================
-# EXPERIMENTAL HELPERS
+# FUTURE OFFICIAL HELPERS
 #=================================================
+
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
@@ -287,15 +288,19 @@ ynh_handle_app_migration ()  {
 #
 # usage: ynh_multimedia_build_main_dir
 ynh_multimedia_build_main_dir () {
-        local ynh_media_release="v1.0"
-        local checksum="4852c8607db820ad51f348da0dcf0c88"
+        local ynh_media_release="v1.2"
+        local checksum="806a827ba1902d6911095602a9221181"
 
         # Download yunohost.multimedia scripts
         wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 
 
-        # Verify checksum
+        # Check the control sum
         echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
                 || ynh_die "Corrupt source"
+
+        # Check if the package acl is installed. Or install it.
+        ynh_package_is_installed 'acl' \
+                || ynh_package_install acl
 
         # Extract
         mkdir yunohost.multimedia-master

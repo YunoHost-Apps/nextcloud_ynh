@@ -9,44 +9,6 @@ if [ "$(lsb_release --codename --short)" != "jessie" ]; then
 	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
 fi
 
-#=================================================
-# COMMON HELPERS
-#=================================================
-
-# Execute a command with occ
-exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
-}
-
-# Create the external storage for the given folders and enable sharing
-create_external_storage() {
-  local datadir="$1"
-  local mount_name="$2"
-  local mount_id=`exec_occ files_external:create --output=json \
-      "$2" 'local' 'null::null' -c "datadir=$datadir" || true`
-  ! [[ $mount_id =~ ^[0-9]+$ ]] \
-    && echo "Unable to create external storage" >&2 \
-    || exec_occ files_external:option "$mount_id" enable_sharing true
-}
-
-# Rename a MySQL database and user
-# Usage: rename_mysql_db DBNAME DBUSER DBPASS NEW_DBNAME_AND_USER
-rename_mysql_db() {
-    local db_name=$1 db_user=$2 db_pwd=$3 new_db_name=$4
-    local sqlpath="/tmp/${db_name}-$(date '+%s').sql"
-
-    # Dump the old database
-    mysqldump -u "$db_user" -p"$db_pwd" --no-create-db "$db_name" > "$sqlpath"
-
-    # Create the new database and user
-    ynh_mysql_create_db "$new_db_name" "$new_db_name" "$db_pwd"
-    ynh_mysql_connect_as "$new_db_name" "$db_pwd" "$new_db_name" < "$sqlpath"
-
-    # Remove the old database
-    ynh_mysql_remove_db $db_name $db_name
-    ynh_secure_remove "$sqlpath"
-}
 
 #=================================================
 # COMMON HELPERS -- SHOULD BE ADDED TO YUNOHOST

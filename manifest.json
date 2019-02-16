@@ -14,12 +14,12 @@
         "email": "apps@yunohost.org"
     },
     "requirements": {
-        "yunohost": ">= 2.7.2"
+        "yunohost": ">= 3.0"
     },
     "multi_instance": true,
     "services": [
         "nginx",
-        "php5-fpm",
+        "php7.0-fpm",
         "mysql"
     ],
     "arguments": {

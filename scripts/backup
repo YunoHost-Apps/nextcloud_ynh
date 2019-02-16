@@ -44,7 +44,7 @@ ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 # BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP THE MYSQL DATABASE

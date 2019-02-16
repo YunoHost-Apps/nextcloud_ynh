@@ -69,7 +69,7 @@ ynh_system_user_create $app
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
+ynh_restore_file "/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -139,5 +139,5 @@ ynh_multimedia_addaccess $app
 # RELOAD NGINX AND PHP-FPM
 #=================================================
 
-systemctl reload php5-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx

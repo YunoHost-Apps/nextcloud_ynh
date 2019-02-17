@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -25,6 +26,7 @@ user_home=$(ynh_app_setting_get $app user_home)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_print_info "Ensuring downward compatibility..."
 
 # If db_name doesn't exist, create it
 if [ -z $db_name ]; then
@@ -44,6 +46,7 @@ ynh_app_setting_delete $app backup_core_only
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
+ynh_print_info "Backing up the app before upgrading (may take a while)..."
 
 # Made a backup only after the version 11.0.0
 # Before, the datas will be always saved.
@@ -104,6 +107,7 @@ path_url=$(ynh_normalize_url_path $path_url)
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Upgrading nginx web server configuration..."
 
 ynh_backup_if_checksum_is_different "/etc/nginx/conf.d/$domain.d/$app.conf"
 
@@ -123,6 +127,7 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
 ynh_system_user_create $app
@@ -130,6 +135,7 @@ ynh_system_user_create $app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Upgrading php-fpm configuration..."
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
@@ -137,6 +143,7 @@ ynh_add_fpm_config
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
+ynh_print_info "Upgrading dependencies..."
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -195,7 +202,7 @@ do
     ynh_replace_string "__SHA256_SUM__" "$nextcloud_source_sha256" "../conf/app.src"
 
     # Create a temporary directory
-    tmpdir=$(mktemp -d)
+    tmpdir="$(ynh_smart_mktemp 300)"
 
     # Install the next nextcloud version in $tmpdir
     ynh_setup_source "$tmpdir"
@@ -214,6 +221,7 @@ do
     # Replace the old nextcloud by the new one
     ynh_secure_remove "$final_path"
     mv "$tmpdir" "$final_path"
+    ynh_secure_remove "$tmpdir"
 
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"
@@ -234,6 +242,7 @@ done
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
+ynh_print_info "Reconfiguring nextcloud..."
 
 # Verify the checksum and backup the file if it's different
 ynh_backup_if_checksum_is_different "$final_path/config/config.php"
@@ -329,6 +338,7 @@ ynh_replace_string "__GROUP__" "$app" ../hooks/post_user_create
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
+ynh_print_info "Updating multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -365,6 +375,7 @@ they are probably disabled and you'll have to manually enable them again."
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_print_info "Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -374,6 +385,7 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Upgrading SSOwat configuration..."
 
 ynh_app_setting_set $app unprotected_uris "/"
 ynh_app_setting_set $app skipped_regex \
@@ -382,6 +394,7 @@ ynh_app_setting_set $app skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
 
@@ -405,3 +418,9 @@ you don't see Nextcloud as installed."
     chmod +x /tmp/$script_post_migration
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
 fi
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Upgrade of $app completed"

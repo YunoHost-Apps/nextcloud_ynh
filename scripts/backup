@@ -19,6 +19,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -31,24 +32,28 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
+ynh_print_info "Backing up the main app directory..."
 
 ynh_backup "$final_path"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Backing up nginx web server configuration..."
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Backing up php-fpm configuration..."
 
 ynh_backup "/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP THE MYSQL DATABASE
 #=================================================
+ynh_print_info "Backing up the MySQL database..."
 
 ynh_mysql_dump_db "$db_name" > db.sql
 
@@ -57,6 +62,7 @@ ynh_mysql_dump_db "$db_name" > db.sql
 #=================================================
 # BACKUP LOGROTATE
 #=================================================
+ynh_print_info "Backing up logrotate configuration..."
 
 ynh_backup "/etc/logrotate.d/$app"
 
@@ -69,8 +75,15 @@ ynh_backup "/etc/cron.d/$app"
 #=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
+ynh_print_info "Backing up data directory..."
 
 # The 1 parameter indicates the directory is "big",
 # so that it won't be backed up before upgrade
 # This argument has to be the third one.
 ynh_backup "/home/yunohost.app/${app}/data" "/home/yunohost.app/${app}/data" 1
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

@@ -30,6 +30,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
@@ -43,6 +44,7 @@ ynh_webpath_register $app $domain $path_url
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
@@ -54,12 +56,14 @@ ynh_app_setting_set $app user_home $user_home
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
+ynh_print_info "Creating a MySQL database..."
 
 db_name=$(ynh_sanitize_dbid $app)
 ynh_app_setting_set $app db_name $db_name
@@ -68,6 +72,7 @@ ynh_mysql_setup_db $db_name $db_name
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_print_info "Setting up source files..."
 
 # Load the last available version
 source upgrade.d/upgrade.last.sh
@@ -85,6 +90,7 @@ ynh_setup_source "$final_path"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Configuring nginx web server..."
 
 # Do not serve .well-known if it's already served on the domain
 if is_url_handled "https://$domain/.well-known/caldav" ; then
@@ -98,6 +104,7 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Configuring system user..."
 
 # Create a system user
 ynh_system_user_create $app
@@ -105,6 +112,7 @@ ynh_system_user_create $app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Configuring php-fpm..."
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
@@ -123,6 +131,7 @@ mkdir -p "$datadir"
 #=================================================
 # INSTALL NEXTCLOUD
 #=================================================
+ynh_print_info "Installing nextcloud..."
 
 # Define a function to execute commands with `occ`
 exec_occ() {
@@ -144,6 +153,7 @@ exec_occ maintenance:install \
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
+ynh_print_info "Configuring nextcloud..."
 
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
@@ -268,6 +278,7 @@ ynh_replace_string "__GROUP__" "$app" ../hooks/post_user_create
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
+ynh_print_info "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -296,6 +307,7 @@ chmod 755 /home/yunohost.app
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_print_info "Configuring log rotation..."
 
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate "$datadir/nextcloud.log"
@@ -303,6 +315,7 @@ ynh_use_logrotate "$datadir/nextcloud.log"
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Configuring SSOwat..."
 
 ynh_app_setting_set $app unprotected_uris "/"
 ynh_app_setting_set $app skipped_regex \
@@ -311,5 +324,12 @@ ynh_app_setting_set $app skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"

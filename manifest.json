@@ -6,7 +6,7 @@
         "en": "Access & share your files, calendars, contacts, mail & more from any device, on your terms",
         "fr": "Consultez et partagez vos fichiers, agendas, carnets d'adresses, emails et bien plus depuis les appareils de votre choix, sous vos conditions"
     },
-    "version": "15.0.2~ynh1",
+    "version": "15.0.4~ynh2",
     "url": "https://nextcloud.com",
     "license": "AGPL-3.0",
     "maintainer": {

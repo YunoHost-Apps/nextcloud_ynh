@@ -6,12 +6,12 @@
         "en": "Access & share your files, calendars, contacts, mail & more from any device, on your terms",
         "fr": "Consultez et partagez vos fichiers, agendas, carnets d'adresses, emails et bien plus depuis les appareils de votre choix, sous vos conditions"
     },
-    "version": "13.0.6~ynh1",
+    "version": "15.0.4~ynh1",
     "url": "https://nextcloud.com",
     "license": "AGPL-3.0",
     "maintainer": {
-        "name": "-",
-        "email": "-"
+        "name": "YunoHost Contributors",
+        "email": "apps@yunohost.org"
     },
     "requirements": {
         "yunohost": ">= 2.7.2"

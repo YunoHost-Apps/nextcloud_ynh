@@ -79,6 +79,8 @@ ynh_replace_string "__VERSION__" "$next_version" "../conf/app.src"
 ynh_replace_string "__SHA256_SUM__" "$nextcloud_source_sha256" "../conf/app.src"
 
 ynh_app_setting_set $app final_path $final_path
+# Enable YunoHost patches on Nextcloud sources
+cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 
@@ -233,6 +235,11 @@ ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 
 exec_occ background:cron
+
+#=================================================
+# POST-INSTALL MAINTENANCE
+#=================================================
+(cd /tmp ; at now + 10 minutes <<< "(cd $final_path ; sudo -u $app php occ db:add-missing-indices ; sudo -u $app php occ db:convert-filecache-bigint -n) > /tmp/${app}_maintenance.log")
 
 #=================================================
 # CONFIGURE THE HOOK FILE FOR USER CREATE

@@ -3,7 +3,7 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient"
+pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient at"
 
 if [ "$(lsb_release --codename --short)" != "jessie" ]; then
 	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
@@ -355,4 +355,30 @@ ynh_multimedia_addaccess () {
         local user_name=$1
         groupadd -f multimedia
         usermod -a -G multimedia $user_name
+}
+
+ynh_smart_mktemp () {
+        local min_size="${1:-300}"
+        # Transform the minimum size from megabytes to kilobytes
+        min_size=$(( $min_size * 1024 ))
+
+        # Check if there's enough free space in a directory
+        is_there_enough_space () {
+                local free_space=$(df --output=avail "$1" | sed 1d)
+                test $free_space -ge $min_size
+        }
+
+        if is_there_enough_space /tmp; then
+                local tmpdir=/tmp
+        elif is_there_enough_space /var; then
+                local tmpdir=/var
+        elif is_there_enough_space /; then
+                local tmpdir=/   
+        elif is_there_enough_space /home; then
+                local tmpdir=/home
+        else
+		ynh_die "Insufficient free space to continue..."
+        fi
+
+        echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"
 }

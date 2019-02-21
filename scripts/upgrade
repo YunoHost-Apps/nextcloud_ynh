@@ -224,6 +224,8 @@ do
 
     # Print the current version number of nextcloud
     exec_occ -V
+    exec_occ db:add-missing-indices
+    exec_occ db:convert-filecache-bigint
 done
 
 #=================================================

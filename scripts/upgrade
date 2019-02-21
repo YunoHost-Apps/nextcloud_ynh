@@ -176,8 +176,6 @@ do
     # then it's the last upgrade to do
     if [ "$major_version" -eq "$current_major_version" ]; then
       current_major_version=last
-      # Execute the commands dedicated to the last upgrade
-      last_upgrade_operations
     fi
 
     # Load the value for this version

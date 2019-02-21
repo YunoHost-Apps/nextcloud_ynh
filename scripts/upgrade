@@ -189,7 +189,7 @@ do
     ynh_replace_string "__SHA256_SUM__" "$nextcloud_source_sha256" "../conf/app.src"
 
     # Create a temporary directory
-    tmpdir="$(ynh_smart_mktemp 300)"
+    tmpdir="${final_path}_temp_upgrade_dir"
 
     # Install the next nextcloud version in $tmpdir
     ynh_setup_source "$tmpdir"

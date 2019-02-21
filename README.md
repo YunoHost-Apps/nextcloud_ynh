@@ -8,7 +8,7 @@ you can synchronize your files over your devices.
 **Shipped version:** 15.0.0
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
-![](https://raw.githubusercontent.com/nextcloud/screenshots/master/files/Files%20Overview.png)
+![](https://github.com/nextcloud/screenshots/blob/master/files/filelist.png)
 
 ## Features
 

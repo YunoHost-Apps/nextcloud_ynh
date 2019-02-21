@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Last available nextcloud version
-next_version="15.0.4"
+next_version="15.0.2"
 
 # Nextcloud tarball checksum sha256
-nextcloud_source_sha256="f87db047c174f563e391a22c959d9ace767ca14ef0f97fc394f3061fc63d8f77"
+nextcloud_source_sha256="c1f4cc33e39994ddbe6777370b62c30b7ae52136a0530c0b9922770803ca0fea"
 
 # This function will only be executed upon applying the last upgrade referenced above
 last_upgrade_operations () {

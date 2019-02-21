@@ -376,8 +376,6 @@ ynh_smart_mktemp () {
                 local tmpdir=/   
         elif is_there_enough_space /home; then
                 local tmpdir=/home
-        else
-		ynh_die "Insufficient free space to continue..."
         fi
 
         echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"

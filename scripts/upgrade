@@ -49,7 +49,7 @@ fi
 current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-if [ $current_major_version -gt 15 ]
+if [ $current_major_version -gt 11 ]
 then
     # Inform the backup/restore process that it should not save the data directory
     ynh_app_setting_set $app backup_core_only 1

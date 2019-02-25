@@ -49,7 +49,7 @@ fi
 current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-if [ $current_major_version -gt 11 ]
+if [ $current_major_version -gt 15 ]
 then
     # Inform the backup/restore process that it should not save the data directory
     ynh_app_setting_set $app backup_core_only 1
@@ -205,8 +205,10 @@ do
     # Backup 3rd party applications from the current nextcloud
     # But do not overwrite if there is any upgrade
     # (apps directory already exists in Nextcloud archive)
-    touch -t 197001010000 $final_path/apps/*
-    cp -a --update "$final_path/apps" "$tmpdir"
+    for nc_app_dir in $(sudo ls "${final_path}/apps"); do
+       [[ ! -d "${tmpdir}/apps/${nc_app_dir}" ]] \
+          && cp -a "${final_path}/apps/${nc_app_dir}" "${tmpdir}/apps/${nc_app_dir}"
+    done
 
     # Replace the old nextcloud by the new one
     ynh_secure_remove "$final_path"

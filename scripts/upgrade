@@ -205,6 +205,7 @@ do
     # Backup 3rd party applications from the current nextcloud
     # But do not overwrite if there is any upgrade
     # (apps directory already exists in Nextcloud archive)
+    touch -t 197001010000 $final_path/apps/.
     cp -a --update "$final_path/apps" "$tmpdir"
 
     # Replace the old nextcloud by the new one

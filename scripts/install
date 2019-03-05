@@ -158,7 +158,7 @@ ynh_print_info "Configuring nextcloud..."
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
-# Enable ldap plugins
+# Enable ldap plugin
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
 

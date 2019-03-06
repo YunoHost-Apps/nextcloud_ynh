@@ -158,7 +158,8 @@ last_version=$next_version
 datadir="/home/yunohost.app/${app}/data"
 
 # Set write access for the following commands
-chown -R $app: "$final_path" "$datadir"
+chown -R $app: "$final_path"
+find ${datadir}/ \! -user $app -o \! -group $app -exec chown $app: {} \;
 
 # Print the current version number of nextcloud
 exec_occ -V
@@ -213,7 +214,8 @@ do
     ynh_secure_remove "$tmpdir"
 
     # Set write access for the following commands
-    chown -R $app: "$final_path" "$datadir"
+    chown -R $app: "$final_path" 
+    find ${datadir}/ \! -user $app -o \! -group $app -exec chown $app: {} \;
 
     # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
     exec_occ maintenance:mode --off
@@ -329,11 +331,12 @@ ynh_multimedia_addaccess $app
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
+chown -R $app: "$final_path" 
+find ${datadir}/ \! -user $app -o \! -group $app -exec chown $app: {} \;
 find ${final_path}/ -type f -print0 | xargs -0 chmod 0644
 find ${final_path}/ -type d -print0 | xargs -0 chmod 0755
-find ${datadir}/ -type f -print0 | xargs -0 chmod 0640
-find ${datadir}/ -type d -print0 | xargs -0 chmod 0750
+find ${datadir}/ -type f \! -perm 0640 -print0 | xargs -0 chmod 0640
+find ${datadir}/ -type d \! -perm 0750 -print0 | xargs -0 chmod 0750
 chmod 640 "${final_path}/config/config.php"
 chmod 755 /home/yunohost.app
 

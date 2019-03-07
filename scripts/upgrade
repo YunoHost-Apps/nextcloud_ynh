@@ -160,7 +160,7 @@ datadir="/home/yunohost.app/${app}/data"
 # Set write access for the following commands
 chown -R $app: "$final_path" 
 # Change of owner and group if files in datadir does not have the right permissions
-find "${datadir}/" \! -user $app -o \! -group $app -exec chown $app: {} \;
+find "$datadir/" \! -user $app -o \! -group $app | xargs -d '\n' chown $app:
 
 # Print the current version number of nextcloud
 exec_occ -V
@@ -217,7 +217,7 @@ do
     # Set write access for the following commands
     chown -R $app: "$final_path" 
     # Change of owner and group if files in datadir does not have the right permissions
-    find "${datadir}/" \! -user $app -o \! -group $app -exec chown $app: {} \;
+    find "$datadir/" \! -user $app -o \! -group $app | xargs -d '\n' chown $app:
 
     # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
     exec_occ maintenance:mode --off
@@ -335,13 +335,13 @@ ynh_multimedia_addaccess $app
 # Fix app ownerships & permissions
 chown -R $app: "$final_path" 
 # Change of owner and group if files in datadir does not have the right permissions
-find "${datadir}/" \! -user $app -o \! -group $app -exec chown $app: {} \;
-find "${final_path}/" -type f -print0 | xargs -0 chmod 0644
-find "${final_path}/" -type d -print0 | xargs -0 chmod 0755
+find "$datadir/" \! -user $app -o \! -group $app | xargs -d '\n' chown $app:
+find "$final_path/" -type f | xargs -d '\n' chmod 0644
+find "$final_path/" -type d | xargs -d '\n' chmod 0755
 # Change permissions if the file in datadir does not have the right permissions
-find "${datadir}/" -type f \! -perm 0640 -print0 | xargs -0 chmod 0640
+find "$datadir/" -type f \! -perm 0640 | xargs -d '\n' chmod 0640
 # Change permissions if directories in datadir does not have the right permissions
-find "${datadir}/" -type d \! -perm 0750 -print0 | xargs -0 chmod 0750
+find "$datadir/" -type d \! -perm 0750 | xargs -d '\n' chmod 0750
 chmod 640 "${final_path}/config/config.php"
 chmod 755 /home/yunohost.app
 

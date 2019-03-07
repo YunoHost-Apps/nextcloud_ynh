@@ -205,9 +205,12 @@ do
     # Backup 3rd party applications from the current nextcloud
     # But do not overwrite if there is any upgrade
     # (apps directory already exists in Nextcloud archive)
-    for nc_app_dir in $(ls "${final_path}/apps"); do
-       [ ! -d "${tmpdir}/apps/${nc_app_dir}" ] \
-          && cp -a "${final_path}/apps/${nc_app_dir}" "${tmpdir}/apps/${nc_app_dir}"
+    for nc_app_dir in "$(ls "$final_path/apps")"
+    do
+        if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
+	then
+            cp -a "$final_path/apps/$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
+	fi
     done
 
     # Replace the old nextcloud by the new one

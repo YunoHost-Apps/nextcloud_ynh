@@ -14,7 +14,7 @@
         "email": "apps@yunohost.org"
     },
     "requirements": {
-        "yunohost": ">= 3.0"
+        "yunohost": ">= 3.2.0"
     },
     "multi_instance": true,
     "services": [

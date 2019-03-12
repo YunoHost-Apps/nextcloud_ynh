@@ -266,6 +266,12 @@ exec_occ config:system:get logout_url >/dev/null 2>&1 \
 " >> "${final_path}/config/config.php"
 
 #=================================================
+# CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
+#=================================================
+
+ynh_replace_string "'overwrite.cli.url' => 'http://localhost'," "'overwrite.cli.url' => 'https://${domain}'," "${final_path}/config/config.php"
+
+#=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
 #=================================================
 

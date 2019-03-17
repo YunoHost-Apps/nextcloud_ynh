@@ -206,6 +206,7 @@ do
     # But do not overwrite if there is any upgrade
     # (apps directory already exists in Nextcloud archive)
     for nc_app_dir in "$(ls "$final_path/apps")"
+    for nc_app_dir in "$(ls -1 "$final_path/apps")"
     do
         if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
 	then

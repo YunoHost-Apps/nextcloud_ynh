@@ -3,17 +3,10 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -26,6 +19,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -38,24 +32,28 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
+ynh_print_info "Backing up the main app directory..."
 
 ynh_backup "$final_path"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Backing up nginx web server configuration..."
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Backing up php-fpm configuration..."
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP THE MYSQL DATABASE
 #=================================================
+ynh_print_info "Backing up the MySQL database..."
 
 ynh_mysql_dump_db "$db_name" > db.sql
 
@@ -64,6 +62,7 @@ ynh_mysql_dump_db "$db_name" > db.sql
 #=================================================
 # BACKUP LOGROTATE
 #=================================================
+ynh_print_info "Backing up logrotate configuration..."
 
 ynh_backup "/etc/logrotate.d/$app"
 
@@ -76,12 +75,15 @@ ynh_backup "/etc/cron.d/$app"
 #=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
+ynh_print_info "Backing up data directory..."
 
-backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
-# If backup_core_only have any value in the settings.yml file, do not backup the data directory
-if [ -z $backup_core_only ]
-then
-	ynh_backup "/home/yunohost.app/${app}/data"
-else
-	echo "Data dir will not be saved, because backup_core_only is set." >&2
-fi
+# The 1 parameter indicates the directory is "big",
+# so that it won't be backed up before upgrade
+# This argument has to be the third one.
+ynh_backup "/home/yunohost.app/${app}/data" "/home/yunohost.app/${app}/data" 1
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

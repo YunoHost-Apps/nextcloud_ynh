@@ -71,6 +71,14 @@ ynh_print_info "Removing logrotate configuration"
 ynh_remove_logrotate
 
 #=================================================
+# REMOVE FAIL2BAN CONFIGURATION
+#=================================================
+ynh_print_info "Remove fail2ban configuration"
+
+# Remove the dedicated fail2ban config
+ynh_remove_fail2ban_config
+
+#=================================================
 # SPECIFIC REMOVE
 #=================================================
 # REMOVE THE CRON FILE

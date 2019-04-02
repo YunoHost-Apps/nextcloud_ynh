@@ -387,6 +387,14 @@ ynh_print_info "Upgrading logrotate configuration..."
 ynh_use_logrotate --non-append
 
 #=================================================
+# SETUP FAIL2BAN
+#=================================================
+ynh_print_info "Reconfiguring fail2ban..."
+
+# Create a dedicated fail2ban config
+ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SETUP SSOWAT

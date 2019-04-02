@@ -3,17 +3,10 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -26,6 +19,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -37,6 +31,7 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
+ynh_print_info "Validating restoration parameters..."
 
 ynh_webpath_available $domain $path_url \
 	|| ynh_die "Path not available: ${domain}${path_url}"
@@ -54,12 +49,14 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
+ynh_print_info "Restoring the app main directory..."
 
 ynh_restore_file "$final_path"
 
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
+ynh_print_info "Restoring the MySQL database..."
 
 db_pwd=$(ynh_app_setting_get $app mysqlpwd)
 ynh_mysql_setup_db $db_name $db_name $db_pwd
@@ -68,6 +65,7 @@ ynh_mysql_connect_as $db_name $db_pwd $db_name < ./db.sql
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
+ynh_print_info "Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
 ynh_system_user_create $app
@@ -76,14 +74,14 @@ ynh_system_user_create $app
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
-ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
+ynh_restore_file "/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Reinstalling dependencies..."
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -103,8 +101,9 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # RESTORE THE DATA DIRECTORY
 #=================================================
+ynh_print_info "Restoring data directory..."
 
-datadir="/home/yunohost.app/${app}/data"
+datadir="/home/yunohost.app/$app/data"
 
 # The data directory will be restored only if it exists in the backup archive
 # So only if it was backup previously.
@@ -115,8 +114,6 @@ else
 	# Create app folders
 	mkdir -p "$datadir"
 fi
-# Remove the option backup_core_only if it's in the settings.yml file
-ynh_app_setting_delete $app backup_core_only
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -124,19 +121,20 @@ ynh_app_setting_delete $app backup_core_only
 
 # Fix app ownerships & permissions
 chown -R $app: "$final_path" "$datadir"
-chmod 640 "${final_path}/config/config.php"
+chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
-    mkdir -p "${datadir}/${u}"
-    setfacl -m g:$app:rwx "/home/$u" || true
+    mkdir -p "$datadir/$u"
+    setfacl --modify g:$app:rwx "/home/$u" || true
 done
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
+ynh_print_info "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -148,6 +146,13 @@ ynh_multimedia_addaccess $app
 #=================================================
 # RELOAD NGINX AND PHP-FPM
 #=================================================
+ynh_print_info "Reloading nginx web server and php-fpm..."
 
-systemctl reload php5-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Restoration completed for $app"

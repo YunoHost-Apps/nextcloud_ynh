@@ -3,53 +3,10 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient at"
-
-if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
-fi
+pkg_dependencies="php-gd php-json php-intl php-mcrypt php-curl php-apcu php-redis php-ldap php-imagick php-zip php-mbstring php-xml imagemagick acl tar smbclient at"
 
 #=================================================
-# COMMON HELPERS
-#=================================================
-
-# Execute a command with occ
-exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
-}
-
-# Create the external storage for the given folders and enable sharing
-create_external_storage() {
-  local datadir="$1"
-  local mount_name="$2"
-  local mount_id=`exec_occ files_external:create --output=json \
-      "$2" 'local' 'null::null' -c "datadir=$datadir" || true`
-  ! [[ $mount_id =~ ^[0-9]+$ ]] \
-    && echo "Unable to create external storage" >&2 \
-    || exec_occ files_external:option "$mount_id" enable_sharing true
-}
-
-# Rename a MySQL database and user
-# Usage: rename_mysql_db DBNAME DBUSER DBPASS NEW_DBNAME_AND_USER
-rename_mysql_db() {
-    local db_name=$1 db_user=$2 db_pwd=$3 new_db_name=$4
-    local sqlpath="/tmp/${db_name}-$(date '+%s').sql"
-
-    # Dump the old database
-    mysqldump -u "$db_user" -p"$db_pwd" --no-create-db "$db_name" > "$sqlpath"
-
-    # Create the new database and user
-    ynh_mysql_create_db "$new_db_name" "$new_db_name" "$db_pwd"
-    ynh_mysql_connect_as "$new_db_name" "$db_pwd" "$new_db_name" < "$sqlpath"
-
-    # Remove the old database
-    ynh_mysql_remove_db $db_name $db_name
-    ynh_secure_remove "$sqlpath"
-}
-
-#=================================================
-# COMMON HELPERS -- SHOULD BE ADDED TO YUNOHOST
+# EXPERIMENTAL HELPERS
 #=================================================
 
 # Execute a command as another user
@@ -318,10 +275,36 @@ ynh_handle_app_migration ()  {
   fi
 }
 
+ynh_smart_mktemp () {
+        local min_size="${1:-300}"
+        # Transform the minimum size from megabytes to kilobytes
+        min_size=$(( $min_size * 1024 ))
+
+        # Check if there's enough free space in a directory
+        is_there_enough_space () {
+                local free_space=$(df --output=avail "$1" | sed 1d)
+                test $free_space -ge $min_size
+        }
+
+        if is_there_enough_space /tmp; then
+                local tmpdir=/tmp
+        elif is_there_enough_space /var; then
+                local tmpdir=/var
+        elif is_there_enough_space /; then
+                local tmpdir=/   
+        elif is_there_enough_space /home; then
+                local tmpdir=/home
+        else
+		ynh_die "Insufficient free space to continue..."
+        fi
+
+        echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"
+}
 
 #=================================================
-# EXPERIMENTAL HELPERS
+# FUTURE OFFICIAL HELPERS
 #=================================================
+
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
@@ -330,15 +313,19 @@ ynh_handle_app_migration ()  {
 #
 # usage: ynh_multimedia_build_main_dir
 ynh_multimedia_build_main_dir () {
-        local ynh_media_release="v1.0"
-        local checksum="4852c8607db820ad51f348da0dcf0c88"
+        local ynh_media_release="v1.2"
+        local checksum="806a827ba1902d6911095602a9221181"
 
         # Download yunohost.multimedia scripts
         wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 
 
-        # Verify checksum
+        # Check the control sum
         echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
                 || ynh_die "Corrupt source"
+
+        # Check if the package acl is installed. Or install it.
+        ynh_package_is_installed 'acl' \
+                || ynh_package_install acl
 
         # Extract
         mkdir yunohost.multimedia-master

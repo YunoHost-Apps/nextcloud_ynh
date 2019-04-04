@@ -56,8 +56,16 @@ current_major_version=${current_version%%.*}
 
 if [ $current_major_version -gt 11 ]
 then
+    # Inform the backup/restore process that it should not save the data directory
+    # Use only for the previous backup script that doesn't set 'is_big'
+    ynh_app_setting_set $app backup_core_only 1
+
     # Backup the current version of the app
     ynh_backup_before_upgrade
+
+    # Remove the option backup_core_only after the backup.
+    ynh_app_setting_delete $app backup_core_only
+
     ynh_clean_setup () {
 		# Remove the post migration script before its execution !
 		ynh_secure_remove "/tmp/owncloud_post_migration.sh" 2>&1

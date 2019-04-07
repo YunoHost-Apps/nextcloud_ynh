@@ -148,6 +148,10 @@ ynh_print_info "Upgrading php-fpm configuration..."
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
 
+# Delete existing ini configuration file (backward compatibility)
+if [ -f /etc/php/7.0/fpm/conf.d/20-$app.ini ]; then
+	ynh_secure_remove /etc/php/7.0/fpm/conf.d/20-$app.ini
+fi
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================

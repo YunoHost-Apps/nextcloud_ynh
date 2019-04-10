@@ -12,7 +12,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
-**Shipped version:** 15.0.5
+**Shipped version:** 15.0.7
 
 ## Screenshots
 
@@ -81,10 +81,10 @@ This can only be done from the command-line interface - e.g. through SSH. Once
 you're connected, you simply have to execute the following:
 
 ```bash
-sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --verbose
+sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --debug
 ```
 
-The `--verbose` option will let you see the full output. If you encounter any
+The `--debug` option will let you see the full output. If you encounter any
 issue, please paste it.
 
 Note that a cron job will be executed at some time after the end of this

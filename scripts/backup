@@ -28,6 +28,16 @@ domain=$(ynh_app_setting_get $app domain)
 db_name=$(ynh_app_setting_get $app db_name)
 
 #=================================================
+# APPLY BACKUP CORE ONLY POLICY
+#=================================================
+# Apply policy only if we are not in upgrade mode
+BACKUP_CORE_ONLY=${BACKUP_CORE_ONLY:-default}
+if [ "$BACKUP_CORE_ONLY" == "default" ] ; then
+    BACKUP_CORE_ONLY=$(ynh_app_setting_get $app backup_core_only)
+    BACKUP_CORE_ONLY=${BACKUP_CORE_ONLY:-0}
+fi
+
+#=================================================
 # STANDARD BACKUP STEPS
 #=================================================
 # BACKUP THE APP MAIN DIR

@@ -319,6 +319,14 @@ ynh_print_info "Configuring log rotation..."
 ynh_use_logrotate "$datadir/nextcloud.log"
 
 #=================================================
+# SETUP FAIL2BAN
+#=================================================
+ynh_print_info "Configuring fail2ban..."
+
+# Create a dedicated fail2ban config
+ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+
+#=================================================
 # SETUP SSOWAT
 #=================================================
 ynh_print_info "Configuring SSOwat..."

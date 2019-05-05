@@ -142,6 +142,23 @@ ynh_multimedia_build_main_dir
 ynh_multimedia_addaccess $app
 
 #=================================================
+# RESTORE THE FAIL2BAN CONFIGURATION
+#=================================================
+ynh_print_info "Restoring the fail2ban configuration..."
+
+ynh_restore_file "/etc/fail2ban/jail.d/$app.conf"
+ynh_restore_file "/etc/fail2ban/filter.d/$app.conf"
+
+# Make sure a log file exists (mostly for CI tests)
+logfile="/home/yunohost.app/$app/data/nextcloud.log"
+if [ ! -f "$logfile" ]; then
+	touch "$logfile"
+	chown $app: "$logfile"
+fi
+
+ynh_systemd_action --action=restart --service_name=fail2ban
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX AND PHP-FPM

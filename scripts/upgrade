@@ -148,6 +148,10 @@ ynh_print_info "Upgrading php-fpm configuration..."
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
 
+# Delete existing ini configuration file (backward compatibility)
+if [ -f /etc/php/7.0/fpm/conf.d/20-$app.ini ]; then
+	ynh_secure_remove /etc/php/7.0/fpm/conf.d/20-$app.ini
+fi
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
@@ -393,6 +397,14 @@ ynh_print_info "Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
+
+#=================================================
+# SETUP FAIL2BAN
+#=================================================
+ynh_print_info "Reconfiguring fail2ban..."
+
+# Create a dedicated fail2ban config
+ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # GENERIC FINALIZATION

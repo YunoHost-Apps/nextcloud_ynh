@@ -30,6 +30,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
@@ -37,14 +38,13 @@ test ! -e "$final_path" || ynh_die "This path already contains a folder"
 # Normalize the url path syntax
 path_url=$(ynh_normalize_url_path $path_url)
 
-# Check web path availability
-ynh_webpath_available $domain $path_url
 # Register (book) web path
 ynh_webpath_register $app $domain $path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
@@ -56,12 +56,14 @@ ynh_app_setting_set $app user_home $user_home
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
+ynh_print_info "Creating a MySQL database..."
 
 db_name=$(ynh_sanitize_dbid $app)
 ynh_app_setting_set $app db_name $db_name
@@ -70,6 +72,7 @@ ynh_mysql_setup_db $db_name $db_name
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_print_info "Setting up source files..."
 
 # Load the last available version
 source upgrade.d/upgrade.last.sh
@@ -87,17 +90,13 @@ ynh_setup_source "$final_path"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Configuring nginx web server..."
 
 # Do not serve .well-known if it's already served on the domain
-if is_url_handled "https://${domain}/.well-known/caldav" ; then
+if is_url_handled "https://$domain/.well-known/caldav" ; then
     sed -ri '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' \
-	"../conf/nginx.conf"
+        "../conf/nginx.conf"
 fi
-
-# Handle root path, avoid double slash.
-# Temporary fix, in waiting for an upgrade of the helper. (#361)
-path_url_slash_less=${path_url%/}
-ynh_replace_string "__PATH__/" "$path_url_slash_less/" "../conf/nginx.conf"
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -105,6 +104,7 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Configuring system user..."
 
 # Create a system user
 ynh_system_user_create $app
@@ -112,6 +112,7 @@ ynh_system_user_create $app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Configuring php-fpm..."
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
@@ -123,50 +124,62 @@ ynh_add_fpm_config
 #=================================================
 
 # Define app's data directory
-datadir="/home/yunohost.app/${app}/data"
+datadir="/home/yunohost.app/$app/data"
 # Create app folders
 mkdir -p "$datadir"
 
 #=================================================
 # INSTALL NEXTCLOUD
 #=================================================
+ynh_print_info "Installing nextcloud..."
+
+# Define a function to execute commands with `occ`
+exec_occ() {
+  (cd "$final_path" && exec_as "$app" \
+      php occ --no-interaction --no-ansi "$@")
+}
 
 # Set write access for the following commands
 chown -R $app: "$final_path" "$datadir"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name "$db_name" \
-    --database-user "$db_name" --database-pass "$db_pwd" \
+    --database "mysql" --database-name $db_name \
+    --database-user $db_name --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$(ynh_string_random 6)" \
     --data-dir "$datadir" \
-  || ynh_die "Unable to install Nextcloud"
+    || ynh_die "Unable to install Nextcloud"
 
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
+ynh_print_info "Configuring nextcloud..."
 
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
-# Enable plugins
+# Enable ldap plugin
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
 
 # Load the installation config file in nextcloud
-nc_conf="${final_path}/config_install.json"
+nc_conf="$final_path/config_install.json"
 cp ../conf/config_install.json "$nc_conf"
-ynh_replace_string "#DOMAIN#" "$domain" "$nc_conf"
-ynh_replace_string "#DATADIR#" "$datadir" "$nc_conf"
+
+ynh_replace_string "__DOMAIN__" "$domain" "$nc_conf"
+ynh_replace_string "__DATADIR__" "$datadir" "$nc_conf"
 exec_occ config:import "$nc_conf"
-# Then remove it
+
+# Then remove the config file
 rm -f "$nc_conf"
 
 # Load the additional config file (used also for upgrade)
-nc_conf="${final_path}/config_install.json"
+nc_conf="$final_path/config.json"
 cp ../conf/config.json "$nc_conf"
+
 exec_occ config:import "$nc_conf"
-# Then remove it
+
+# Then remove the config file
 rm -f "$nc_conf"
 
 #=================================================
@@ -181,13 +194,26 @@ exec_occ ldap:test-config \'\' \
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
 #=================================================
 
+# Define a function to add an external storage
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+  local datadir="$1"
+  local mount_name="$2"
+  local mount_id=`exec_occ files_external:create --output=json \
+      "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+  ! [[ $mount_id =~ ^[0-9]+$ ]] \
+      && echo "Unable to create external storage" >&2 \
+      || exec_occ files_external:option "$mount_id" enable_sharing true
+}
+
 # Enable External Storage and create local mount to home folder
-if [ $user_home -eq 1 ]; then
+if [ $user_home -eq 1 ]
+then
     exec_occ app:enable files_external
     create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl -m g:$app:rwx "/home/$u" || true
+        setfacl --modify g:$app:rwx "/home/$u" || true
     done
 fi
 
@@ -203,7 +229,13 @@ exec_occ config:system:get logout_url >/dev/null 2>&1 \
 \$main_domain = exec('cat /etc/yunohost/current_host');
 \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
 //-YunoHost-
-" >> "${final_path}/config/config.php"
+" >> "$final_path/config/config.php"
+
+#=================================================
+# CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
+#=================================================
+
+ynh_replace_string "'overwrite.cli.url' => 'http://localhost'," "'overwrite.cli.url' => 'https://${domain}'," "${final_path}/config/config.php"
 
 #=================================================
 # REMOVE THE TEMPORARY ADMIN AND SET THE TRUE ONE
@@ -220,7 +252,7 @@ exec_occ user:delete admin
 #=================================================
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum "${final_path}/config/config.php"
+ynh_store_file_checksum "$final_path/config/config.php"
 
 #=================================================
 # ADD A CRON JOB
@@ -231,14 +263,15 @@ cp -a ../conf/nextcloud.cron "$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 
-ynh_replace_string "#USER#" "$app" "$cron_path"
-ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
+ynh_replace_string "__USER__" "$app" "$cron_path"
+ynh_replace_string "__DESTDIR__" "$final_path" "$cron_path"
 
 exec_occ background:cron
 
 #=================================================
 # POST-INSTALL MAINTENANCE
 #=================================================
+
 (cd /tmp ; at now + 10 minutes <<< "(cd $final_path ; sudo -u $app php occ db:add-missing-indices ; sudo -u $app php occ db:convert-filecache-bigint -n) > /tmp/${app}_maintenance.log")
 
 #=================================================
@@ -246,11 +279,12 @@ exec_occ background:cron
 #=================================================
 
 # Set system group in hooks
-ynh_replace_string "#GROUP#" "$app" ../hooks/post_user_create
+ynh_replace_string "__GROUP__" "$app" ../hooks/post_user_create
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
+ynh_print_info "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -269,23 +303,33 @@ ynh_multimedia_addaccess $app
 
 # Fix app ownerships & permissions
 chown -R $app: "$final_path" "$datadir"
-find ${final_path}/ -type f -print0 | xargs -0 chmod 0644
-find ${final_path}/ -type d -print0 | xargs -0 chmod 0755
-find ${datadir}/ -type f -print0 | xargs -0 chmod 0640
-find ${datadir}/ -type d -print0 | xargs -0 chmod 0750
-chmod 640 "${final_path}/config/config.php"
+find $final_path/ -type f -print0 | xargs -0 chmod 0644
+find $final_path/ -type d -print0 | xargs -0 chmod 0755
+find $datadir/ -type f -print0 | xargs -0 chmod 0640
+find $datadir/ -type d -print0 | xargs -0 chmod 0750
+chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_print_info "Configuring log rotation..."
 
-# Use logrotate to manage application logfile
-ynh_use_logrotate "${datadir}/nextcloud.log"
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate "$datadir/nextcloud.log"
+
+#=================================================
+# SETUP FAIL2BAN
+#=================================================
+ynh_print_info "Configuring fail2ban..."
+
+# Create a dedicated fail2ban config
+ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Configuring SSOwat..."
 
 ynh_app_setting_set $app unprotected_uris "/"
 ynh_app_setting_set $app skipped_regex \
@@ -294,5 +338,12 @@ ynh_app_setting_set $app skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"

@@ -1,9 +1,9 @@
 {
   "system": {
-    "datadirectory": "#DATADIR#",
+    "datadirectory": "__DATADIR__",
     "trusted_domains": [
       "localhost",
-      "#DOMAIN#"
+      "__DOMAIN__"
     ]
   }
 }

@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -24,6 +25,7 @@ final_path=$(ynh_app_setting_get $app final_path)
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
+ynh_print_info "Removing dependencies"
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
@@ -31,6 +33,7 @@ ynh_remove_app_dependencies
 #=================================================
 # REMOVE THE MYSQL DATABASE
 #=================================================
+ynh_print_info "Removing the MySQL database"
 
 # Remove a database if it exists, along with the associated user
 ynh_mysql_remove_db $db_name $db_name
@@ -38,6 +41,7 @@ ynh_mysql_remove_db $db_name $db_name
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
+ynh_print_info "Removing app main directory"
 
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
@@ -45,6 +49,7 @@ ynh_secure_remove "$final_path"
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Removing nginx web server configuration"
 
 # Remove the dedicated nginx config
 ynh_remove_nginx_config
@@ -52,6 +57,7 @@ ynh_remove_nginx_config
 #=================================================
 # REMOVE PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Removing php-fpm configuration"
 
 # Remove the dedicated php-fpm config
 ynh_remove_fpm_config
@@ -59,9 +65,18 @@ ynh_remove_fpm_config
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
+ynh_print_info "Removing logrotate configuration"
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
+
+#=================================================
+# REMOVE FAIL2BAN CONFIGURATION
+#=================================================
+ynh_print_info "Remove fail2ban configuration"
+
+# Remove the dedicated fail2ban config
+ynh_remove_fail2ban_config
 
 #=================================================
 # SPECIFIC REMOVE
@@ -78,8 +93,9 @@ ynh_secure_remove "/etc/cron.d/$app"
 #=================================================
 
 for i in $(ls /home); do
+  # Clean ACL in every directories in /home, except those which start with 'yunohost.'
   [[ ! $i == yunohost.* ]] \
-    && setfacl -x g:$app:rwx 2>&1
+    && setfacl --remove g:$app:rwx 2>&1
 done
 
 #=================================================
@@ -87,6 +103,13 @@ done
 #=================================================
 # REMOVE DEDICATED USER
 #=================================================
+ynh_print_info "Removing the dedicated system user"
 
 # Delete a system user
 ynh_system_user_delete $app
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Removal of $app completed"

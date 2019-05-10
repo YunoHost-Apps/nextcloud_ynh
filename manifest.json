@@ -56,8 +56,8 @@
                 "name": "user_home",
                 "type": "boolean",
                 "ask": {
-                    "en": "Access the users home folder from Nextcloud?",
-                    "fr": "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"
+                    "en": "Access the users home folder (/home/username/) from Nextcloud?",
+                    "fr": "Accéder au dossier personnel des utilisateurs (/home/username/) depuis Nextcloud ?"
                 },
                 "default": false
             }

@@ -6,256 +6,6 @@
 pkg_dependencies="php-gd php-json php-intl php-mcrypt php-curl php-apcu php-redis php-ldap php-imagick php-zip php-mbstring php-xml imagemagick acl tar smbclient at"
 
 #=================================================
-# UNSTABLE HELPERS
-#=================================================
-
-# Start (or other actions) a service,  print a log in case of failure and optionnaly wait until the service is completely started
-#
-# usage: ynh_systemd_action [-n service_name] [-a action] [ [-l "line to match"] [-p log_path] [-t timeout] [-e length] ]
-# | arg: -n, --service_name= - Name of the service to start. Default : $app
-# | arg: -a, --action=       - Action to perform with systemctl. Default: start
-# | arg: -l, --line_match=   - Line to match - The line to find in the log to attest the service have finished to boot.
-#                              If not defined it don't wait until the service is completely started.
-#                              WARNING: When using --line_match, you should always add `ynh_clean_check_starting` into your
-#                                `ynh_clean_setup` at the beginning of the script. Otherwise, tail will not stop in case of failure
-#                                of the script. The script will then hang forever.
-# | arg: -p, --log_path=     - Log file - Path to the log file. Default : /var/log/$app/$app.log
-# | arg: -t, --timeout=      - Timeout - The maximum time to wait before ending the watching. Default : 300 seconds.
-# | arg: -e, --length=       - Length of the error log : Default : 20
-ynh_systemd_action() {
-    # Declare an array to define the options of this helper.
-    declare -Ar args_array=( [n]=service_name= [a]=action= [l]=line_match= [p]=log_path= [t]=timeout= [e]=length= )
-    local service_name
-    local action
-    local line_match
-    local length
-    local log_path
-    local timeout
-
-    # Manage arguments with getopts
-    ynh_handle_getopts_args "$@"
-
-    local service_name="${service_name:-$app}"
-    local action=${action:-start}
-    local log_path="${log_path:-/var/log/$service_name/$service_name.log}"
-    local length=${length:-20}
-    local timeout=${timeout:-300}
-
-    # Start to read the log
-    if [[ -n "${line_match:-}" ]]
-    then
-        local templog="$(mktemp)"
-        # Following the starting of the app in its log
-        if [ "$log_path" == "systemd" ] ; then
-            # Read the systemd journal
-            journalctl --unit=$service_name --follow --since=-0 --quiet > "$templog" &
-            # Get the PID of the journalctl command
-            local pid_tail=$!
-        else
-            # Read the specified log file
-            tail -F -n0 "$log_path" > "$templog" 2>&1 &
-            # Get the PID of the tail command
-            local pid_tail=$!
-        fi
-    fi
-
-    ynh_print_info --message="${action^} the service $service_name"
-
-    # Use reload-or-restart instead of reload. So it wouldn't fail if the service isn't running.
-    if [ "$action" == "reload" ]; then
-        action="reload-or-restart"
-    fi
-
-    systemctl $action $service_name \
-        || ( journalctl --no-pager --lines=$length -u $service_name >&2 \
-        ; test -e "$log_path" && echo "--" >&2 && tail --lines=$length "$log_path" >&2 \
-        ; false )
-
-    # Start the timeout and try to find line_match
-    if [[ -n "${line_match:-}" ]]
-    then
-        local i=0
-        for i in $(seq 1 $timeout)
-        do
-            # Read the log until the sentence is found, that means the app finished to start. Or run until the timeout
-            if grep --quiet "$line_match" "$templog"
-            then
-                ynh_print_info --message="The service $service_name has correctly started."
-                break
-            fi
-            if [ $i -eq 3 ]; then
-                echo -n "Please wait, the service $service_name is ${action}ing" >&2
-            fi
-            if [ $i -ge 3 ]; then
-                echo -n "." >&2
-            fi
-            sleep 1
-        done
-        if [ $i -ge 3 ]; then
-            echo "" >&2
-        fi
-        if [ $i -eq $timeout ]
-        then
-            ynh_print_warn --message="The service $service_name didn't fully started before the timeout."
-            ynh_print_warn --message="Please find here an extract of the end of the log of the service $service_name:"
-            journalctl --no-pager --lines=$length -u $service_name >&2
-            test -e "$log_path" && echo "--" >&2 && tail --lines=$length "$log_path" >&2
-        fi
-        ynh_clean_check_starting
-    fi
-}
-
-# Create a dedicated fail2ban config (jail and filter conf files)
-#
-# usage 1: ynh_add_fail2ban_config --logpath=log_file --failregex=filter [--max_retry=max_retry] [--ports=ports]
-# | arg: -l, --logpath=   - Log file to be checked by fail2ban
-# | arg: -r, --failregex= - Failregex to be looked for by fail2ban
-# | arg: -m, --max_retry= - Maximum number of retries allowed before banning IP address - default: 3
-# | arg: -p, --ports=     - Ports blocked for a banned IP address - default: http,https
-#
-# -----------------------------------------------------------------------------
-#
-# usage 2: ynh_add_fail2ban_config --use_template [--others_var="list of others variables to replace"]
-# | arg: -t, --use_template - Use this helper in template mode
-# | arg: -v, --others_var=  - List of others variables to replace separeted by a space
-# |                           for example : 'var_1 var_2 ...'
-#
-# This will use a template in ../conf/f2b_jail.conf and ../conf/f2b_filter.conf
-#   __APP__      by  $app
-#
-#  You can dynamically replace others variables by example :
-#   __VAR_1__    by $var_1
-#   __VAR_2__    by $var_2
-#
-# Generally your template will look like that by example (for synapse):
-#
-# f2b_jail.conf:
-#     [__APP__]
-#     enabled = true
-#     port = http,https
-#     filter = __APP__
-#     logpath = /var/log/__APP__/logfile.log
-#     maxretry = 3
-#
-# f2b_filter.conf:
-#     [INCLUDES]
-#     before = common.conf
-#     [Definition]
-#
-#     # Part of regex definition (just used to make more easy to make the global regex)
-#     __synapse_start_line = .? \- synapse\..+ \-
-#
-#    # Regex definition.
-#    failregex = ^%(__synapse_start_line)s INFO \- POST\-(\d+)\- <HOST> \- \d+ \- Received request\: POST /_matrix/client/r0/login\??<SKIPLINES>%(__synapse_start_line)s INFO \- POST\-\1\- Got login request with identifier: \{u'type': u'm.id.user', u'user'\: u'(.+?)'\}, medium\: None, address: None, user\: u'\5'<SKIPLINES>%(__synapse_start_line)s WARNING \- \- (Attempted to login as @\5\:.+ but they do not exist|Failed password login for user @\5\:.+)$
-#
-#     ignoreregex =
-#
-# -----------------------------------------------------------------------------
-#
-# Note about the "failregex" option:
-#          regex to match the password failure messages in the logfile. The
-#          host must be matched by a group named "host". The tag "<HOST>" can
-#          be used for standard IP/hostname matching and is only an alias for
-#          (?:::f{4,6}:)?(?P<host>[\w\-.^_]+)
-#
-#          You can find some more explainations about how to make a regex here :
-#          https://www.fail2ban.org/wiki/index.php/MANUAL_0_8#Filters
-#
-# Note that the logfile need to exist before to call this helper !!
-#
-# To validate your regex you can test with this command:
-# fail2ban-regex /var/log/YOUR_LOG_FILE_PATH /etc/fail2ban/filter.d/YOUR_APP.conf
-#
-# Requires YunoHost version 3.?.? or higher.
-ynh_add_fail2ban_config () {
-  # Declare an array to define the options of this helper.
-  local legacy_args=lrmptv
-  declare -Ar args_array=( [l]=logpath= [r]=failregex= [m]=max_retry= [p]=ports= [t]=use_template [v]=others_var=)
-  local logpath
-  local failregex
-  local max_retry
-  local ports
-  local others_var
-  local use_template
-  # Manage arguments with getopts
-  ynh_handle_getopts_args "$@"
-  use_template="${use_template:-0}"
-  max_retry=${max_retry:-3}
-  ports=${ports:-http,https}
-
-  finalfail2banjailconf="/etc/fail2ban/jail.d/$app.conf"
-  finalfail2banfilterconf="/etc/fail2ban/filter.d/$app.conf"
-  ynh_backup_if_checksum_is_different "$finalfail2banjailconf"
-  ynh_backup_if_checksum_is_different "$finalfail2banfilterconf"
-
-  if [ $use_template -eq 1 ]
-  then
-    # Usage 2, templates
-    cp ../conf/f2b_jail.conf $finalfail2banjailconf
-    cp ../conf/f2b_filter.conf $finalfail2banfilterconf
-
-    if [ -n "${app:-}" ]
-    then
-      ynh_replace_string "__APP__" "$app" "$finalfail2banjailconf"
-      ynh_replace_string "__APP__" "$app" "$finalfail2banfilterconf"
-    fi
-
-    # Replace all other variable given as arguments
-    for var_to_replace in ${others_var:-}; do
-      # ${var_to_replace^^} make the content of the variable on upper-cases
-      # ${!var_to_replace} get the content of the variable named $var_to_replace
-      ynh_replace_string --match_string="__${var_to_replace^^}__" --replace_string="${!var_to_replace}" --target_file="$finalfail2banjailconf"
-      ynh_replace_string --match_string="__${var_to_replace^^}__" --replace_string="${!var_to_replace}" --target_file="$finalfail2banfilterconf"
-    done
-
-  else
-    # Usage 1, no template. Build a config file from scratch.
-    test -n "$logpath" || ynh_die "ynh_add_fail2ban_config expects a logfile path as first argument and received nothing."
-    test -n "$failregex" || ynh_die "ynh_add_fail2ban_config expects a failure regex as second argument and received nothing."
-
-    tee $finalfail2banjailconf <<EOF
-[$app]
-enabled = true
-port = $ports
-filter = $app
-logpath = $logpath
-maxretry = $max_retry
-EOF
-
-    tee $finalfail2banfilterconf <<EOF
-[INCLUDES]
-before = common.conf
-[Definition]
-failregex = $failregex
-ignoreregex =
-EOF
-  fi
-
-  # Common to usage 1 and 2.
-  ynh_store_file_checksum "$finalfail2banjailconf"
-  ynh_store_file_checksum "$finalfail2banfilterconf"
-
-  systemctl try-reload-or-restart fail2ban
-
-  local fail2ban_error="$(journalctl -u fail2ban | tail -n50 | grep "WARNING.*$app.*")"
-  if [[ -n "$fail2ban_error" ]]; then
-    ynh_print_err --message="Fail2ban failed to load the jail for $app"
-    ynh_print_warn --message="${fail2ban_error#*WARNING}"
-  fi
-}
-
-# Remove the dedicated fail2ban config (jail and filter conf files)
-#
-# usage: ynh_remove_fail2ban_config
-#
-# Requires YunoHost version 3.?.? or higher.
-ynh_remove_fail2ban_config () {
-  ynh_secure_remove "/etc/fail2ban/jail.d/$app.conf"
-  ynh_secure_remove "/etc/fail2ban/filter.d/$app.conf"
-  systemctl try-reload-or-restart fail2ban
-}
-
-#=================================================
 # EXPERIMENTAL HELPERS
 #=================================================
 
@@ -550,8 +300,21 @@ ynh_handle_app_migration ()  {
   fi
 }
 
+#=================================================
+
+# Check available space before creating a temp directory.
+#
+# usage: ynh_smart_mktemp --min_size="Min size"
+#
+# | arg: -s, --min_size= - Minimal size needed for the temporary directory, in Mb
 ynh_smart_mktemp () {
-        local min_size="${1:-300}"
+        # Declare an array to define the options of this helper.
+        declare -Ar args_array=( [s]=min_size= )
+        local min_size
+        # Manage arguments with getopts
+        ynh_handle_getopts_args "$@"
+
+        min_size="${min_size:-300}"
         # Transform the minimum size from megabytes to kilobytes
         min_size=$(( $min_size * 1024 ))
 
@@ -566,11 +329,11 @@ ynh_smart_mktemp () {
         elif is_there_enough_space /var; then
                 local tmpdir=/var
         elif is_there_enough_space /; then
-                local tmpdir=/
+                local tmpdir=/   
         elif is_there_enough_space /home; then
                 local tmpdir=/home
         else
-		ynh_die "Insufficient free space to continue..."
+                ynh_die "Insufficient free space to continue..."
         fi
 
         echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"
@@ -617,30 +380,4 @@ ynh_multimedia_addaccess () {
         local user_name=$1
         groupadd -f multimedia
         usermod -a -G multimedia $user_name
-}
-
-ynh_smart_mktemp () {
-        local min_size="${1:-300}"
-        # Transform the minimum size from megabytes to kilobytes
-        min_size=$(( $min_size * 1024 ))
-
-        # Check if there's enough free space in a directory
-        is_there_enough_space () {
-                local free_space=$(df --output=avail "$1" | sed 1d)
-                test $free_space -ge $min_size
-        }
-
-        if is_there_enough_space /tmp; then
-                local tmpdir=/tmp
-        elif is_there_enough_space /var; then
-                local tmpdir=/var
-        elif is_there_enough_space /; then
-                local tmpdir=/
-        elif is_there_enough_space /home; then
-                local tmpdir=/home
-        else
-		ynh_die "Insufficient free space to continue..."
-        fi
-
-        echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"
 }

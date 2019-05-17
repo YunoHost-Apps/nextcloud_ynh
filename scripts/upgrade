@@ -12,41 +12,47 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info "Loading installation settings..."
+ynh_script_progression --message="Loading installation settings..." --weight=3
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-admin=$(ynh_app_setting_get $app admin)
-final_path=$(ynh_app_setting_get $app final_path)
-db_name=$(ynh_app_setting_get $app db_name)
-user_home=$(ynh_app_setting_get $app user_home)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+user_home=$(ynh_app_setting_get --app=$app --key=user_home)
+
+#=================================================
+# CHECK VERSION
+#=================================================
+
+upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_print_info "Ensuring downward compatibility..."
+ynh_script_progression --message="Ensuring downward compatibility..."
 
 # If db_name doesn't exist, create it
-if [ -z $db_name ]; then
-	db_name=$(ynh_sanitize_dbid $app)
-	ynh_app_setting_set $app db_name $db_name
+if [ -z "$db_name" ]; then
+	db_name=$(ynh_sanitize_dbid --db_name=$app)
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
 # If final_path doesn't exist, create it
-if [ -z $final_path ]; then
+if [ -z "$final_path" ]; then
 	final_path=/var/www/$app
-	ynh_app_setting_set $app final_path $final_path
+	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
-ynh_app_setting_delete $app backup_core_only
+ynh_app_setting_delete --app=$app --key=backup_core_only
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_print_info "Backing up the app before upgrading (may take a while)..."
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=30
 
 # Made a backup only after the version 11.0.0
 # Before, the datas will be always saved.
@@ -58,7 +64,7 @@ if [ $current_major_version -gt 11 ]
 then
     # Inform the backup/restore process that it should not save the data directory
     # Use only for the previous backup script that doesn't set 'is_big'
-    ynh_app_setting_set $app backup_core_only 1
+    ynh_app_setting_set --app=$app --key=backup_core_only --value=1
 
     # Backup the current version of the app
     ynh_backup_before_upgrade
@@ -68,7 +74,7 @@ then
 
     ynh_clean_setup () {
 		# Remove the post migration script before its execution !
-		ynh_secure_remove "/tmp/owncloud_post_migration.sh" 2>&1
+		ynh_exec_warn_less ynh_secure_remove --file="/tmp/owncloud_post_migration.sh"
 
 		# restore it if the upgrade fails
 		ynh_restore_upgradebackup
@@ -87,8 +93,8 @@ if [ $migration_process -eq 1 ]
 then
     # If a migration has been performed
     # Reload some values changed by the migration process
-    final_path=$(ynh_app_setting_get $app final_path)
-    db_name=$(ynh_app_setting_get $app db_name)
+    final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+    db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 
     # Remove the old fake package for owncloud.
     # Its name is specific, so the migration process can't remove it
@@ -108,23 +114,23 @@ fi
 #=================================================
 
 # Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path $path_url)
+path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=2
 
-ynh_backup_if_checksum_is_different "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Delete current nginx configuration to be able to check if .well-known is already served.
 ynh_remove_nginx_config
-ynh_app_setting_delete $app "checksum__etc_nginx_conf.d_$domain.d_$app.conf" || true
+ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
 # Check if .well-known is available for this domain
-if is_url_handled "https://$domain/.well-known/caldav" || is_url_handled "https://$domain/.well-known/carddav"
+if is_url_handled --url="https://$domain/.well-known/caldav" || is_url_handled --url="https://$domain/.well-known/carddav"
 then
     ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
@@ -138,27 +144,28 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_print_info "Making sure dedicated system user exists..."
+ynh_script_progression --message="Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create $app
+ynh_system_user_create --username=$app
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info "Upgrading php-fpm configuration..."
+ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/7.0/fpm/conf.d/20-$app.ini ]; then
-	ynh_secure_remove /etc/php/7.0/fpm/conf.d/20-$app.ini
+	ynh_secure_remove --file=/etc/php/7.0/fpm/conf.d/20-$app.ini
 fi
+
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_print_info "Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..." --weight=7
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -168,172 +175,176 @@ ynh_install_app_dependencies $pkg_dependencies
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
 #=================================================
-ynh_print_info "Upgrading nextcloud..."
 
-# Define a function to execute commands with `occ`
-exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
-}
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+    ynh_script_progression --message="Upgrading nextcloud..." --weight=3
 
-# Load the last available version
-source upgrade.d/upgrade.last.sh
-last_version=$next_version
+    # Define a function to execute commands with `occ`
+    exec_occ() {
+    (cd "$final_path" && exec_as "$app" \
+        php occ --no-interaction --no-ansi "$@")
+    }
 
-# Define app's data directory
-datadir="/home/yunohost.app/$app/data"
+    # Load the last available version
+    source upgrade.d/upgrade.last.sh
+    last_version=$next_version
 
-# Set write access for the following commands
-chown -R $app: "$final_path" "$datadir"
-
-# Print the current version number of nextcloud
-exec_occ -V
-
-# While the current version is not the last version, do an upgrade
-while [ "$last_version" != "$current_version" ]
-do
-
-    # The major version is the first part of the version number
-    # major_version=${next_version%%.*}
-    major_version=${last_version%%.*}
-    current_major_version=${current_version%%.*}
-
-    # If the current version has the same major version than the next one,
-    # then it's the last upgrade to do
-    if [ "$major_version" -eq "$current_major_version" ]; then
-      current_major_version=last
-      # Execute the commands dedicated to the last upgrade
-      last_upgrade_operations
-    fi
-
-    # Load the value for this version
-    source upgrade.d/upgrade.$current_major_version.sh
-
-    ynh_print_info "Upgrade to nextcloud $next_version"
-
-    # Create an app.src for this version of nextcloud
-    cp ../conf/app.src.default ../conf/app.src
-    ynh_replace_string "__VERSION__" "$next_version" "../conf/app.src"
-    ynh_replace_string "__SHA256_SUM__" "$nextcloud_source_sha256" "../conf/app.src"
-
-    # Create a temporary directory
-    tmpdir="$(ynh_smart_mktemp 300)"
-
-    # Install the next nextcloud version in $tmpdir
-    ynh_setup_source "$tmpdir"
-
-    # Enable maintenance mode
-    exec_occ maintenance:mode --on
-
-    # Backup the config file in the temp dir
-    cp -a "$final_path/config/config.php" "$tmpdir/config/config.php"
-
-    # Backup 3rd party applications from the current nextcloud
-    # But do not overwrite if there is any upgrade
-    # (apps directory already exists in Nextcloud archive)
-    cp -a --update "$final_path/apps" "$tmpdir"
-
-    # Replace the old nextcloud by the new one
-    ynh_secure_remove "$final_path"
-    mv "$tmpdir" "$final_path"
-    ynh_secure_remove "$tmpdir"
+    # Define app's data directory
+    datadir="/home/yunohost.app/$app/data"
 
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"
 
-    # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
-    exec_occ maintenance:mode --off
-    exec_occ upgrade \
-      || ([ $? -eq 3 ] || ynh_die "Unable to upgrade Nextcloud")
-
-    # Get the new current version number
-    current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
-    current_major_version=${current_version%%.*}
-
     # Print the current version number of nextcloud
     exec_occ -V
-done
 
-#=================================================
-# CONFIGURE NEXTCLOUD
-#=================================================
-ynh_print_info "Reconfiguring nextcloud..."
+    # While the current version is not the last version, do an upgrade
+    while [ "$last_version" != "$current_version" ]
+    do
 
-# Verify the checksum and backup the file if it's different
-ynh_backup_if_checksum_is_different "$final_path/config/config.php"
+        # The major version is the first part of the version number
+        # major_version=${next_version%%.*}
+        major_version=${last_version%%.*}
+        current_major_version=${current_version%%.*}
 
-nc_conf="${final_path}/config.json"
-cp ../conf/config.json "$nc_conf"
+        # If the current version has the same major version than the next one,
+        # then it's the last upgrade to do
+        if [ "$major_version" -eq "$current_major_version" ]; then
+        current_major_version=last
+        # Execute the commands dedicated to the last upgrade
+        last_upgrade_operations
+        fi
 
-ynh_replace_string "__DOMAIN__" "$domain" "$nc_conf"
-ynh_replace_string "__DATADIR__" "$datadir" "$nc_conf"
+        # Load the value for this version
+        source upgrade.d/upgrade.$current_major_version.sh
 
-# Ensure that UpdateNotification app is disabled
-exec_occ app:disable updatenotification
+        ynh_print_info --message="Upgrade to nextcloud $next_version"
 
-# Enable plugins
-exec_occ app:enable user_ldap
+        # Create an app.src for this version of nextcloud
+        cp ../conf/app.src.default ../conf/app.src
+        ynh_replace_string --match_string="__VERSION__" --replace_string="$next_version" --target_file="../conf/app.src"
+        ynh_replace_string --match_string="__SHA256_SUM__" --replace_string="$nextcloud_source_sha256" --target_file="../conf/app.src"
 
-# Load the config file in nextcloud
-exec_occ config:import "$nc_conf"
+        # Create a temporary directory
+        tmpdir="$(ynh_smart_mktemp min_size=300)"
 
-# Then remove the config file
-rm -f "$nc_conf"
+        # Install the next nextcloud version in $tmpdir
+        ynh_setup_source --dest_dir="$tmpdir"
 
-#=================================================
-# ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
-#=================================================
+        # Enable maintenance mode
+        exec_occ maintenance:mode --on
 
-# Add dynamic logout URL to the config
-exec_occ config:system:get logout_url >/dev/null 2>&1 \
-  || echo "
-//-YunoHost-
-// set logout_url according to main domain
-\$main_domain = exec('cat /etc/yunohost/current_host');
-\$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
-//-YunoHost-
-" >> "$final_path/config/config.php"
+        # Backup the config file in the temp dir
+        cp -a "$final_path/config/config.php" "$tmpdir/config/config.php"
 
-#=================================================
-# CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
-#=================================================
+        # Backup 3rd party applications from the current nextcloud
+        # But do not overwrite if there is any upgrade
+        # (apps directory already exists in Nextcloud archive)
+        cp -a --update "$final_path/apps" "$tmpdir"
 
-ynh_replace_string "'overwrite.cli.url' => 'http://localhost'," "'overwrite.cli.url' => 'https://${domain}'," "${final_path}/config/config.php"
+        # Replace the old nextcloud by the new one
+        ynh_secure_remove --file="$final_path"
+        mv "$tmpdir" "$final_path"
+        ynh_secure_remove --file="$tmpdir"
 
-#=================================================
-# MOUNT HOME FOLDERS AS EXTERNAL STORAGE
-#=================================================
+        # Set write access for the following commands
+        chown -R $app: "$final_path" "$datadir"
 
-# Define a function to add an external storage
-# Create the external storage for the given folders and enable sharing
-create_external_storage() {
-  local datadir="$1"
-  local mount_name="$2"
-  local mount_id=`exec_occ files_external:create --output=json \
-      "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
-  ! [[ $mount_id =~ ^[0-9]+$ ]] \
-      && echo "Unable to create external storage" >&2 \
-      || exec_occ files_external:option "$mount_id" enable_sharing true
-}
+        # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
+        exec_occ maintenance:mode --off
+        exec_occ upgrade \
+        || ([ $? -eq 3 ] || ynh_die --message="Unable to upgrade Nextcloud")
 
-# Enable External Storage and create local mount to home folder as needed
-if [ $user_home -eq 1 ]; then
-    exec_occ app:enable files_external
-    exec_occ files_external:list --output=json \
-	| grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
-	|| create_external_storage "/home/\$user" "Home"
-    # Iterate over users to extend their home folder permissions
-    for u in $(ynh_user_list); do
-      setfacl --modify g:$app:rwx "/home/$u" || true
+        # Get the new current version number
+        current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
+        current_major_version=${current_version%%.*}
+
+        # Print the current version number of nextcloud
+        exec_occ -V
     done
+
+    #=================================================
+    # CONFIGURE NEXTCLOUD
+    #=================================================
+    ynh_script_progression --message="Reconfiguring nextcloud..." --weight=9
+
+    # Verify the checksum and backup the file if it's different
+    ynh_backup_if_checksum_is_different --file="$final_path/config/config.php"
+
+    nc_conf="${final_path}/config.json"
+    cp ../conf/config.json "$nc_conf"
+
+    ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$nc_conf"
+    ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$nc_conf"
+
+    # Ensure that UpdateNotification app is disabled
+    exec_occ app:disable updatenotification
+
+    # Enable plugins
+    exec_occ app:enable user_ldap
+
+    # Load the config file in nextcloud
+    exec_occ config:import "$nc_conf"
+
+    # Then remove the config file
+    ynh_secure_remove --file="$nc_conf"
+
+    #=================================================
+    # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
+    #=================================================
+
+    # Add dynamic logout URL to the config
+    exec_occ config:system:get logout_url >/dev/null 2>&1 \
+    || echo "
+    //-YunoHost-
+    // set logout_url according to main domain
+    \$main_domain = exec('cat /etc/yunohost/current_host');
+    \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
+    //-YunoHost-
+    " >> "$final_path/config/config.php"
+
+    #=================================================
+    # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
+    #=================================================
+
+    ynh_replace_string --match_string="'overwrite.cli.url' => 'http://localhost'," --replace_string="'overwrite.cli.url' => 'https://${domain}'," --target_file="${final_path}/config/config.php"
+
+    #=================================================
+    # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
+    #=================================================
+
+    # Define a function to add an external storage
+    # Create the external storage for the given folders and enable sharing
+    create_external_storage() {
+    local datadir="$1"
+    local mount_name="$2"
+    local mount_id=`exec_occ files_external:create --output=json \
+        "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+    ! [[ $mount_id =~ ^[0-9]+$ ]] \
+        && ynh_print_warn --message="Unable to create external storage" \
+        || exec_occ files_external:option "$mount_id" enable_sharing true
+    }
+
+    # Enable External Storage and create local mount to home folder as needed
+    if [ $user_home -eq 1 ]; then
+        exec_occ app:enable files_external
+        exec_occ files_external:list --output=json \
+        | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
+        || create_external_storage "/home/\$user" "Home"
+        # Iterate over users to extend their home folder permissions
+        for u in $(ynh_user_list); do
+        setfacl --modify g:$app:rwx "/home/$u" || true
+        done
+    fi
+
+    #=================================================
+    # STORE THE CHECKSUM OF THE CONFIG FILE
+    #=================================================
+
+    # Calculate and store the config file checksum into the app settings
+    ynh_store_file_checksum --file="${final_path}/config/config.php"
 fi
-
-#=================================================
-# STORE THE CHECKSUM OF THE CONFIG FILE
-#=================================================
-
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum "${final_path}/config/config.php"
 
 #=================================================
 # UPDATE THE CRON JOB
@@ -344,8 +355,8 @@ cp -a ../conf/nextcloud.cron "$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 
-ynh_replace_string "__USER__" "$app" "$cron_path"
-ynh_replace_string "__DESTDIR__" "$final_path" "$cron_path"
+ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
+ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
 
 exec_occ background:cron
 
@@ -354,12 +365,12 @@ exec_occ background:cron
 #=================================================
 
 # Set system group in hooks
-ynh_replace_string "__GROUP__" "$app" ../hooks/post_user_create
+ynh_replace_string --match_string="__GROUP__" --replace_string="$app" --target_file=../hooks/post_user_create
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
-ynh_print_info "Updating multimedia directories..."
+ynh_script_progression --message="Updating multimedia directories..." --weight=6
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -389,14 +400,17 @@ chmod 755 /home/yunohost.app
 # WARNING ABOUT THIRD-PARTY APPS
 #=================================================
 
-# Warn about possible disabled apps
-ynh_print_warn "Note that if you've installed some third-parties Nextcloud applications, \
-they are probably disabled and you'll have to manually enable them again."
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+    # Warn about possible disabled apps
+    ynh_print_warn --message="Note that if you've installed some third-parties Nextcloud applications, \
+    they are probably disabled and you'll have to manually enable them again."
+fi
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_print_info "Upgrading logrotate configuration..."
+ynh_script_progression --message="Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -404,7 +418,7 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_print_info "Reconfiguring fail2ban..."
+ynh_script_progression --message="Reconfiguring fail2ban..." --weight=7
 
 # Create a dedicated fail2ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
@@ -414,18 +428,18 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_print_info "Upgrading SSOwat configuration..."
+ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
 
-ynh_app_setting_set $app unprotected_uris "/"
-ynh_app_setting_set $app skipped_regex \
-    "$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
+ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+ynh_app_setting_set --app=$app --key=skipped_regex \
+    --value="$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_print_info "Reloading nginx web server..."
+ynh_script_progression --message="Reloading nginx web server..."
 
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # FINISH MIGRATION PROCESS
@@ -433,7 +447,7 @@ systemctl reload nginx
 
 if [ $migration_process -eq 1 ]
 then
-    ynh_print_info "ownCloud has been successfully migrated to Nextcloud! \
+    ynh_print_info --message="ownCloud has been successfully migrated to Nextcloud! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \
 you don't see Nextcloud as installed."
@@ -441,8 +455,8 @@ you don't see Nextcloud as installed."
     # Execute a post migration script after the end of this upgrade.
     # Mainly for some cleaning
     script_post_migration=owncloud_post_migration.sh
-    ynh_replace_string "__OLD_APP__" "$old_app" ../conf/$script_post_migration
-    ynh_replace_string "__NEW_APP__" "$app" ../conf/$script_post_migration
+    ynh_replace_string --match_string="__OLD_APP__" --replace_string="$old_app" --target_file=../conf/$script_post_migration
+    ynh_replace_string --match_string="__NEW_APP__" --replace_string="$app" --target_file=../conf/$script_post_migration
     cp ../conf/$script_post_migration /tmp
     chmod +x /tmp/$script_post_migration
     (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
@@ -452,4 +466,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Upgrade of $app completed"
+ynh_script_progression --message="Upgrade of $app completed" --last

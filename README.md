@@ -47,9 +47,9 @@ this package:
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Official%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Official%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/nextcloud%20%28Official%29.svg)](https://ci-stretch.nohost.me/ci/apps/nextcloud/)
+* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
+* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/nextcloud/)
 
 ## Limitations
 
@@ -104,6 +104,7 @@ sudo yunohost app ssowatconf
 
  * Report a bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues
  * Nextcloud website: https://nextcloud.com/
+ * Nextcloud repository: https://github.com/nextcloud/server
  * YunoHost website: https://yunohost.org/
 
 ---

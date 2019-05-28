@@ -340,6 +340,102 @@ ynh_smart_mktemp () {
 }
 
 #=================================================
+
+# Set permissions on files and directories with chown
+#
+# Use find to apply permissions faster on very big directories.
+#
+# usage: ynh_chown --user=user [--group=group] --file="file_or_directory" [--recursive]
+# | arg: -u, --user - Owner
+# | arg: -g, --group - Owner group (Default same as --user)
+# | arg: -f, --file - File or directory where permissions will be applied.
+# | arg: -r, --recursive - Change permissions recursively
+ynh_chown () {
+	# Declare an array to define the options of this helper.
+	local legacy_args=ugfr
+	declare -Ar args_array=( [u]=user= [g]=group= [f]=file= [r]=recursive )
+	local user
+	local group
+	local file
+	local recursive
+	# Manage arguments with getopts
+	ynh_handle_getopts_args "$@"
+	group="${group:-$user}"
+	recursive=${recursive:-0}
+
+	if [ $recursive -eq 1 ]
+	then
+		local ending_slash=""
+		if [ -d "$file" ]
+		then
+			ending_slash=/
+		fi
+
+		# With very big directories, find is way faster than chown itself.
+		# Especially because find will check the permissions and applied chown only if the permissions aren't correct.
+		# '\!' is used to have a negation on -user and -group.
+		# ' -d '\n' ' force \n to be the delimiter of each entry instead of space. So xargs will handle correctly directories and files with spaces.
+		ynh_exec_warn_less "find \"$file$ending_slash\" \! -user $user -o \! -group $group | xargs --no-run-if-empty --delimiter='\n' chown --preserve-root $user:$group"
+	else
+		ynh_exec_warn_less chown $user:$group \"$file\"
+	fi
+}
+
+# Set permissions on files and directories with chmod
+#
+# Use find to apply permissions faster on very big directories.
+#
+# usage: ynh_chmod --permissions=0755 --file="file_or_directory" [--recursive]  [--type=file/dir]
+# | arg: -p, --permissions - Permissions to apply with chmod.
+# | arg: -f, --file - File or directory where permissions will be applied.
+# | arg: -r, --recursive - Change permissions recursively
+# | arg: -t, --type - Apply permissions only on regular files (file) or directories (dir)
+ynh_chmod () {
+	# Declare an array to define the options of this helper.
+	local legacy_args=pfrt
+	declare -Ar args_array=( [p]=permissions= [f]=file= [r]=recursive [t]=type= )
+	local permissions
+	local file
+	local recursive
+	local type
+	# Manage arguments with getopts
+	ynh_handle_getopts_args "$@"
+	recursive=${recursive:-0}
+	type="${type:-}"
+
+	if [ -n "$type" ] && [ "$type" != "file" ] && [ "$type" != "dir" ]
+	then
+		ynh_print_err --message="The value \"$type\" for --type is not recognized."
+		type=""
+	else
+		if [ "$type" == "file" ]
+		then
+			type="-type f"
+		elif [ "$type" == "dir" ]
+		then
+			type="-type d"
+		fi
+	fi
+
+	if [ $recursive -eq 1 ]
+	then
+		local ending_slash=""
+		if [ -d "$file" ]
+		then
+			ending_slash=/
+		fi
+
+		# With very big directories, find is way faster than chmod itself.
+		# Especially because find will check the permissions and applied chmod only if the permissions aren't correct.
+		# '\!' is used to have a negation on -perm.
+		# ' -d '\n' ' force \n to be the delimiter of each entry instead of space. So xargs will handle correctly directories and files with spaces.
+		ynh_exec_warn_less "find \"$file$ending_slash\" $type \! -perm $permissions | xargs --no-run-if-empty --delimiter='\n' chmod --preserve-root $permissions"
+	else
+		ynh_exec_warn_less chmod $permissions \"$file\"
+	fi
+}
+
+#=================================================
 # FUTURE OFFICIAL HELPERS
 #=================================================
 

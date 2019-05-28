@@ -303,10 +303,10 @@ ynh_multimedia_addaccess $app
 
 # Fix app ownerships & permissions
 chown -R $app: "$final_path" "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
+ynh_chmod --permissions=0644 --file="$final_path" --recursive --type=file
+ynh_chmod --permissions=0755 --file="$final_path" --recursive --type=dir
+ynh_chmod --permissions=0640 --file="$datadir" --recursive --type=file
+ynh_chmod --permissions=0750 --file="$datadir" --recursive --type=dir
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 

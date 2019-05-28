@@ -124,7 +124,8 @@ mkdir -p "$datadir"
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
+ynh_chown --user=$app --file="$final_path" --recursive
+ynh_chown --user=$app --file="$datadir" --recursive
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 

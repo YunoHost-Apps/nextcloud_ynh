@@ -194,9 +194,9 @@ then
     datadir="/home/yunohost.app/$app/data"
 
     # Set write access for the following commands
-    chown -R $app: "$final_path" 
+    chown -R $app: "$final_path"
     # Change of owner and group if files in datadir does not have the right permissions
-    find "$datadir/" \! -user $app -o \! -group $app | xargs -d '\n' chown $app:
+    ynh_chown --user=$app --file="$datadir" --recursive
 
     # Print the current version number of nextcloud
     exec_occ -V
@@ -251,7 +251,8 @@ then
         ynh_secure_remove --file="$tmpdir"
 
         # Set write access for the following commands
-        chown -R $app: "$final_path" "$datadir"
+        chown -R $app: "$final_path"
+        ynh_chown --user=$app --file="$datadir" --recursive
 
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
@@ -390,15 +391,15 @@ ynh_multimedia_addaccess $app
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
+chown -R $app: "$final_path"
 # Change of owner and group if files in datadir does not have the right permissions
-find "$datadir/" \! -user $app -o \! -group $app | xargs -d '\n' chown $app:
-find "$final_path/" -type f | xargs -d '\n' chmod 0644
-find "$final_path/" -type d | xargs -d '\n' chmod 0755
+ynh_chown --user=$app --file="$datadir" --recursive
+ynh_chmod --permissions=0644 --file="$final_path" --recursive --type=file
+ynh_chmod --permissions=0755 --file="$final_path" --recursive --type=dir
 # Change permissions if the file in datadir does not have the right permissions
-find "$datadir/" -type f \! -perm 0640 | xargs -d '\n' chmod 0640
+ynh_chmod --permissions=0640 --file="$datadir" --recursive --type=file
 # Change permissions if directories in datadir does not have the right permissions
-find "$datadir/" -type d \! -perm 0750 | xargs -d '\n' chmod 0750
+ynh_chmod --permissions=0750 --file="$datadir" --recursive --type=dir
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 

@@ -341,7 +341,7 @@ ynh_smart_mktemp () {
 
 #=================================================
 
-# Set permissions on files and directories with chown
+# Set ownership on files and directories with chown
 #
 # Use find to apply permissions faster on very big directories.
 #
@@ -372,9 +372,9 @@ ynh_chown () {
 		fi
 
 		# With very big directories, find is way faster than chown itself.
-		# Especially because find will check the permissions and applied chown only if the permissions aren't correct.
+		# Especially because find will check the permissions and apply chown only if the permissions aren't correct.
 		# '\!' is used to have a negation on -user and -group.
-		# ' -d '\n' ' force \n to be the delimiter of each entry instead of space. So xargs will handle correctly directories and files with spaces.
+		# ' -d '\n' ' forces \n to be the delimiter of each entry instead of space. So xargs will handle correctly directories and files with spaces.
 		ynh_exec_warn_less "find \"$file$ending_slash\" \! -user $user -o \! -group $group | xargs --no-run-if-empty --delimiter='\n' chown --preserve-root $user:$group"
 	else
 		ynh_exec_warn_less chown $user:$group \"$file\"
@@ -426,9 +426,9 @@ ynh_chmod () {
 		fi
 
 		# With very big directories, find is way faster than chmod itself.
-		# Especially because find will check the permissions and applied chmod only if the permissions aren't correct.
+		# Especially because find will check the permissions and apply chmod only if the permissions aren't correct.
 		# '\!' is used to have a negation on -perm.
-		# ' -d '\n' ' force \n to be the delimiter of each entry instead of space. So xargs will handle correctly directories and files with spaces.
+		# ' -d '\n' ' forces \n to be the delimiter of each entry instead of space. So xargs will handle correctly directories and files with spaces.
 		ynh_exec_warn_less "find \"$file$ending_slash\" $type \! -perm $permissions | xargs --no-run-if-empty --delimiter='\n' chmod --preserve-root $permissions"
 	else
 		ynh_exec_warn_less chmod $permissions \"$file\"

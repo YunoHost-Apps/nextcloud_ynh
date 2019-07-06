@@ -1,62 +1,16 @@
- core/Controller/LoginController.php | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
-
 diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php
-index 182d2bc106..82523e306e 100644
+index f83b03bc90..568e20dcd7 100644
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
-@@ -95,13 +95,13 @@ class LoginController extends Controller {
- 	 * @param Throttler $throttler
- 	 */
- 	public function __construct($appName,
--								IRequest $request,
--								IUserManager $userManager,
--								IConfig $config,
--								ISession $session,
--								IUserSession $userSession,
--								IURLGenerator $urlGenerator,
--								ILogger $logger,
-+						 IRequest $request,
-+						 IUserManager $userManager,
-+						 IConfig $config,
-+						 ISession $session,
-+						 IUserSession $userSession,
-+						 IURLGenerator $urlGenerator,
-+						 ILogger $logger,
- 								Manager $twoFactorManager,
- 								Defaults $defaults,
- 								Throttler $throttler) {
 @@ -130,7 +130,10 @@ class LoginController extends Controller {
  		}
  		$this->userSession->logout();
- 
+
 -		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm'));
 +		$redirectUrl = $this->config->getSystemValue('logout_url',
-+		$this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm')
-+		);
++			$this->urlGenerator->linkToRouteAbsolute('core.login.showLoginForm'));
++
 +		$response = new RedirectResponse($redirectUrl);
+ 		$this->session->set('clearingExecutionContexts', '1');
+ 		$this->session->close();
  		$response->addHeader('Clear-Site-Data', '"cache", "storage", "executionContexts"');
- 		return $response;
- 	}
-@@ -303,10 +306,10 @@ class LoginController extends Controller {
- 				$previousUser = $user;
- 				$user = $users[0]->getUID();
- 				if($user !== $previousUser) {
--					$loginResult = $this->userManager->checkPassword($user, $password);
--				}
-+				$loginResult = $this->userManager->checkPassword($user, $password);
- 			}
- 		}
-+		}
- 
- 		if ($loginResult === false) {
- 			$this->logger->warning('Login failed: \''. $user .
-@@ -314,7 +317,7 @@ class LoginController extends Controller {
- 				['app' => 'core']);
- 			return $this->createLoginFailedResponse($user, $originalUser,
- 				$redirect_url, self::LOGIN_MSG_INVALIDPASSWORD);
--		}
-+			}
- 
- 		// TODO: remove password checks from above and let the user session handle failures
- 		// requires https://github.com/owncloud/core/pull/24616

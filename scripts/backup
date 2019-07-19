@@ -19,79 +19,76 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info "Loading installation settings..."
+ynh_script_progression --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get $app final_path)
-domain=$(ynh_app_setting_get $app domain)
-db_name=$(ynh_app_setting_get $app db_name)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
-ynh_print_info "Backing up the main app directory..."
+ynh_script_progression --message="Backing up the main app directory..."
 
-ynh_backup "$final_path"
+ynh_backup --src_path="$final_path"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Backing up nginx web server configuration..."
+ynh_script_progression --message="Backing up nginx web server configuration..."
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info "Backing up php-fpm configuration..."
+ynh_script_progression --message="Backing up php-fpm configuration..."
 
-ynh_backup "/etc/php/7.0/fpm/pool.d/$app.conf"
+ynh_backup --src_path="/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP THE MYSQL DATABASE
 #=================================================
-ynh_print_info "Backing up the MySQL database..."
+ynh_script_progression --message="Backing up the MySQL database..." --weight=2
 
-ynh_mysql_dump_db "$db_name" > db.sql
+ynh_mysql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # SPECIFIC BACKUP
 #=================================================
 # BACKUP LOGROTATE
 #=================================================
-ynh_print_info "Backing up logrotate configuration..."
+ynh_script_progression --message="Backing up logrotate configuration..."
 
 ynh_backup "/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP FAIL2BAN CONFIGURATION
 #=================================================
-ynh_print_info "Backing up fail2ban configuration..."
+ynh_script_progression --message="Backing up fail2ban configuration..."
 
-ynh_backup "/etc/fail2ban/jail.d/$app.conf"
-ynh_backup "/etc/fail2ban/filter.d/$app.conf"
+ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
+ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 
 #=================================================
 # BACKUP THE CRON FILE
 #=================================================
 
-ynh_backup "/etc/cron.d/$app"
+ynh_backup --src_path="/etc/cron.d/$app"
 
 #=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
-ynh_print_info "Backing up data directory..."
+ynh_script_progression --message="Backing up data directory..."
 
-# The 1 parameter indicates the directory is "big",
-# so that it won't be backed up before upgrade
-# This argument has to be the third one.
-ynh_backup "/home/yunohost.app/${app}/data" "/home/yunohost.app/${app}/data" 1
+ynh_backup --src_path="/home/yunohost.app/${app}/data" --is_big
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
+ynh_script_progression --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)." --last

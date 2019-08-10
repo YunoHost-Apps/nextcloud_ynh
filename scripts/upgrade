@@ -193,6 +193,8 @@ local mount_id=`exec_occ files_external:create --output=json \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
+# Define app's data directory
+datadir="/home/yunohost.app/$app/data"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -201,9 +203,6 @@ then
     # Load the last available version
     source upgrade.d/upgrade.last.sh
     last_version=$next_version
-
-    # Define app's data directory
-    datadir="/home/yunohost.app/$app/data"
 
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"

@@ -182,6 +182,18 @@ exec_occ() {
     php occ --no-interaction --no-ansi "$@")
 }
 
+# Define a function to add an external storage
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+local datadir="$1"
+local mount_name="$2"
+local mount_id=`exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+! [[ $mount_id =~ ^[0-9]+$ ]] \
+    && ynh_print_warn --message="Unable to create external storage" \
+    || exec_occ files_external:option "$mount_id" enable_sharing true
+}
+
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
     ynh_script_progression --message="Upgrading nextcloud..." --weight=3
@@ -322,18 +334,6 @@ then
     #=================================================
     # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
     #=================================================
-
-    # Define a function to add an external storage
-    # Create the external storage for the given folders and enable sharing
-    create_external_storage() {
-    local datadir="$1"
-    local mount_name="$2"
-    local mount_id=`exec_occ files_external:create --output=json \
-        "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
-    ! [[ $mount_id =~ ^[0-9]+$ ]] \
-        && ynh_print_warn --message="Unable to create external storage" \
-        || exec_occ files_external:option "$mount_id" enable_sharing true
-    }
 
     # Enable External Storage and create local mount to home folder as needed
     if [ $user_home -eq 1 ]; then

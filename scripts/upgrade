@@ -176,15 +176,15 @@ ynh_install_app_dependencies $pkg_dependencies
 # VERSION TO THE NEXT ONE
 #=================================================
 
+# Define a function to execute commands with `occ`
+exec_occ() {
+(cd "$final_path" && exec_as "$app" \
+    php occ --no-interaction --no-ansi "$@")
+}
+
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
     ynh_script_progression --message="Upgrading nextcloud..." --weight=3
-
-    # Define a function to execute commands with `occ`
-    exec_occ() {
-    (cd "$final_path" && exec_as "$app" \
-        php occ --no-interaction --no-ansi "$@")
-    }
 
     # Load the last available version
     source upgrade.d/upgrade.last.sh

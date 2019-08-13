@@ -69,7 +69,7 @@ ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..."5
+ynh_script_progression --message="Setting up source files..."
 
 # Load the last available version
 source upgrade.d/upgrade.last.sh

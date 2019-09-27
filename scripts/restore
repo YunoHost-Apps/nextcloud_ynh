@@ -83,7 +83,7 @@ ynh_system_user_create --username=$app
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_restore_file --origin_path="/etc/php/7.0/fpm/pool.d/$app.conf"
+ynh_restore_file --origin_path="/etc/php/$php_version/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -94,6 +94,8 @@ ynh_script_progression --message="Reinstalling dependencies..." --weight=60
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
+
+ynh_install_php --phpversion="$php_version" --package="$extra_pkg_dependencies"
 
 #=================================================
 # RESTORE THE CRON FILE

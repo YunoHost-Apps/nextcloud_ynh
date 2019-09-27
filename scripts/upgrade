@@ -139,7 +139,7 @@ then
 fi
 
 # Create a dedicated nginx config
-ynh_add_nginx_config
+ynh_add_nginx_config php_version
 
 #=================================================
 # CREATE DEDICATED USER
@@ -155,11 +155,11 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_add_fpm_config --phpversion="$php_version"
 
 # Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/7.0/fpm/conf.d/20-$app.ini ]; then
-	ynh_secure_remove --file=/etc/php/7.0/fpm/conf.d/20-$app.ini
+if [ -f /etc/php/$php_version/fpm/conf.d/20-$app.ini ]; then
+	ynh_secure_remove --file=/etc/php/$php_version/fpm/conf.d/20-$app.ini
 fi
 
 #=================================================
@@ -168,6 +168,9 @@ fi
 ynh_script_progression --message="Upgrading dependencies..." --weight=7
 
 ynh_install_app_dependencies $pkg_dependencies
+
+ynh_remove_php
+ynh_install_php --phpversion="$php_version" --package="$extra_pkg_dependencies"
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -183,7 +186,7 @@ then
     # Define a function to execute commands with `occ`
     exec_occ() {
     (cd "$final_path" && exec_as "$app" \
-        php occ --no-interaction --no-ansi "$@")
+        php$php_version occ --no-interaction --no-ansi "$@")
     }
 
     # Load the last available version

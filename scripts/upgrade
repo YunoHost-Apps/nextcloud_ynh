@@ -179,22 +179,33 @@ ynh_install_php --phpversion="$php_version" --package="$extra_pkg_dependencies"
 # VERSION TO THE NEXT ONE
 #=================================================
 
+# Define a function to execute commands with `occ`
+exec_occ() {
+(cd "$final_path" && exec_as "$app" \
+    php occ --no-interaction --no-ansi "$@")
+}
+
+# Define a function to add an external storage
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+local datadir="$1"
+local mount_name="$2"
+local mount_id=`exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+! [[ $mount_id =~ ^[0-9]+$ ]] \
+    && ynh_print_warn --message="Unable to create external storage" \
+    || exec_occ files_external:option "$mount_id" enable_sharing true
+}
+# Define app's data directory
+datadir="/home/yunohost.app/$app/data"
+
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
     ynh_script_progression --message="Upgrading nextcloud..." --weight=3
 
-    # Define a function to execute commands with `occ`
-    exec_occ() {
-    (cd "$final_path" && exec_as "$app" \
-        php$php_version occ --no-interaction --no-ansi "$@")
-    }
-
     # Load the last available version
     source upgrade.d/upgrade.last.sh
     last_version=$next_version
-
-    # Define app's data directory
-    datadir="/home/yunohost.app/$app/data"
 
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"
@@ -244,7 +255,16 @@ then
         # Backup 3rd party applications from the current nextcloud
         # But do not overwrite if there is any upgrade
         # (apps directory already exists in Nextcloud archive)
-        cp -a --update "$final_path/apps" "$tmpdir"
+        (
+        cd $final_path/apps
+        for nc_app_dir in */
+        do
+          if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
+          then
+            cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
+          fi
+        done
+        )
 
         # Replace the old nextcloud by the new one
         ynh_secure_remove --file="$final_path"
@@ -316,18 +336,6 @@ then
     #=================================================
     # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
     #=================================================
-
-    # Define a function to add an external storage
-    # Create the external storage for the given folders and enable sharing
-    create_external_storage() {
-    local datadir="$1"
-    local mount_name="$2"
-    local mount_id=`exec_occ files_external:create --output=json \
-        "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
-    ! [[ $mount_id =~ ^[0-9]+$ ]] \
-        && ynh_print_warn --message="Unable to create external storage" \
-        || exec_occ files_external:option "$mount_id" enable_sharing true
-    }
 
     # Enable External Storage and create local mount to home folder as needed
     if [ $user_home -eq 1 ]; then

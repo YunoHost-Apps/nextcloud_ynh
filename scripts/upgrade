@@ -182,7 +182,7 @@ ynh_install_php --phpversion="$php_version" --package="$extra_pkg_dependencies"
 # Define a function to execute commands with `occ`
 exec_occ() {
 (cd "$final_path" && exec_as "$app" \
-    php occ --no-interaction --no-ansi "$@")
+    php$php_version occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage

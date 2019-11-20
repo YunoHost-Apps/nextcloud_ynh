@@ -295,8 +295,7 @@ then
     nc_conf="${final_path}/config.json"
     cp ../conf/config.json "$nc_conf"
 
-    ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$nc_conf"
-    ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$nc_conf"
+    ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$nc_conf"
 
     # Ensure that UpdateNotification app is disabled
     exec_occ app:disable updatenotification

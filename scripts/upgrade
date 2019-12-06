@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source _ynh_add_fpm_config
 
 #=================================================
 # LOAD SETTINGS
@@ -22,6 +23,9 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
+
+fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 #=================================================
 # CHECK VERSION
@@ -48,6 +52,18 @@ fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
+
+# If fpm_footprint doesn't exist, create it
+if [ -z "$fpm_footprint" ]; then
+	fpm_footprint=high
+	ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
+fi
+
+# If fpm_usage doesn't exist, create it
+if [ -z "$fpm_usage" ]; then
+	fpm_usage=medium
+	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -155,7 +171,7 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/7.0/fpm/conf.d/20-$app.ini ]; then

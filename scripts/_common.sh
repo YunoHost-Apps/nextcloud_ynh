@@ -3,11 +3,7 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient at"
-
-if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
-fi
+pkg_dependencies="php-gd php-json php-intl php-mcrypt php-curl php-apcu php-redis php-ldap php-imagick php-zip php-mbstring php-xml imagemagick acl tar smbclient at"
 
 #=================================================
 # COMMON HELPERS
@@ -49,7 +45,7 @@ rename_mysql_db() {
 }
 
 #=================================================
-# COMMON HELPERS -- SHOULD BE ADDED TO YUNOHOST
+# EXPERIMENTAL HELPERS
 #=================================================
 
 # Execute a command as another user
@@ -65,14 +61,39 @@ exec_as() {
   fi
 }
 
+#=================================================
+
 # Check if an URL is already handled
 # usage: is_url_handled URL
 is_url_handled() {
-  local output=($(curl -k -s -o /dev/null \
-      -w 'x%{redirect_url} %{http_code}' "$1"))
-  # It's handled if it does not redirect to the SSO nor return 404
-  [[ ! ${output[0]} =~ \/yunohost\/sso\/ && ${output[1]} != 404 ]]
+    # Declare an array to define the options of this helper.
+    declare -Ar args_array=( [u]=url= )
+    local url
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+
+    # Try to get the url with curl, and keep the http code and an eventual redirection url.
+    local curl_output="$(curl --insecure --silent --output /dev/null \
+      --write-out '%{http_code};%{redirect_url}' "$url")"
+
+    # Cut the output and keep only the first part to keep the http code
+    local http_code="${curl_output%%;*}"
+    # Do the same thing but keep the second part, the redirection url
+    local redirection="${curl_output#*;}"
+
+    # Return 1 if the url isn't handled.
+    # Which means either curl got a 404 (or the admin) or the sso.
+    # A handled url should redirect to a publicly accessible url.
+    # Return 1 if the url has returned 404
+    if [ "$http_code" = "404" ] || [[ $redirection =~ "/yunohost/admin" ]]; then
+        return 1
+    # Return 1 if the url is redirected to the SSO
+    elif [[ $redirection =~ "/yunohost/sso" ]]; then
+        return 1
+    fi
 }
+
+#=================================================
 
 # Make the main steps to migrate an app to its fork.
 #
@@ -318,49 +339,21 @@ ynh_handle_app_migration ()  {
   fi
 }
 
-
-#=================================================
-# EXPERIMENTAL HELPERS
-#=================================================
-#=================================================
-# YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
 
-# Install or update the main directory yunohost.multimedia
+# Check available space before creating a temp directory.
 #
-# usage: ynh_multimedia_build_main_dir
-ynh_multimedia_build_main_dir () {
-        local ynh_media_release="v1.0"
-        local checksum="4852c8607db820ad51f348da0dcf0c88"
-
-        # Download yunohost.multimedia scripts
-        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 
-
-        # Verify checksum
-        echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
-                || ynh_die "Corrupt source"
-
-        # Extract
-        mkdir yunohost.multimedia-master
-        tar -xf ${ynh_media_release}.tar.gz -C yunohost.multimedia-master --strip-components 1
-        ./yunohost.multimedia-master/script/ynh_media_build.sh
-}
-
-# Grant write access to multimedia directories to a specified user
+# usage: ynh_smart_mktemp --min_size="Min size"
 #
-# usage: ynh_multimedia_addaccess user_name
-#
-# | arg: user_name - User to be granted write access
-ynh_multimedia_addaccess () {
-        local user_name=$1
-        groupadd -f multimedia
-        usermod -a -G multimedia $user_name
-}
-
-#=================================================
-
+# | arg: -s, --min_size= - Minimal size needed for the temporary directory, in Mb
 ynh_smart_mktemp () {
-        local min_size="${1:-300}"
+        # Declare an array to define the options of this helper.
+        declare -Ar args_array=( [s]=min_size= )
+        local min_size
+        # Manage arguments with getopts
+        ynh_handle_getopts_args "$@"
+
+        min_size="${min_size:-300}"
         # Transform the minimum size from megabytes to kilobytes
         min_size=$(( $min_size * 1024 ))
 
@@ -379,7 +372,7 @@ ynh_smart_mktemp () {
         elif is_there_enough_space /home; then
                 local tmpdir=/home
         else
-		ynh_die "Insufficient free space to continue..."
+                ynh_die "Insufficient free space to continue..."
         fi
 
         echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"
@@ -611,4 +604,47 @@ ynh_get_scalable_phpfpm () {
             ynh_debug --message="pm.max_spare_servers = $php_max_spare_servers"
         fi
     fi
+}
+
+#=================================================
+# FUTURE OFFICIAL HELPERS
+#=================================================
+
+#=================================================
+# YUNOHOST MULTIMEDIA INTEGRATION
+#=================================================
+
+# Install or update the main directory yunohost.multimedia
+#
+# usage: ynh_multimedia_build_main_dir
+ynh_multimedia_build_main_dir () {
+        local ynh_media_release="v1.2"
+        local checksum="806a827ba1902d6911095602a9221181"
+
+        # Download yunohost.multimedia scripts
+        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz
+
+        # Check the control sum
+        echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
+                || ynh_die "Corrupt source"
+
+        # Check if the package acl is installed. Or install it.
+        ynh_package_is_installed 'acl' \
+                || ynh_package_install acl
+
+        # Extract
+        mkdir yunohost.multimedia-master
+        tar -xf ${ynh_media_release}.tar.gz -C yunohost.multimedia-master --strip-components 1
+        ./yunohost.multimedia-master/script/ynh_media_build.sh
+}
+
+# Grant write access to multimedia directories to a specified user
+#
+# usage: ynh_multimedia_addaccess user_name
+#
+# | arg: user_name - User to be granted write access
+ynh_multimedia_addaccess () {
+        local user_name=$1
+        groupadd -f multimedia
+        usermod -a -G multimedia $user_name
 }

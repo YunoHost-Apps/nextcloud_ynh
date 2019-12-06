@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source _ynh_add_fpm_config
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -114,7 +115,7 @@ ynh_system_user_create $app
 #=================================================
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_add_fpm_config --usage=medium --footprint=high
 
 #=================================================
 # SPECIFIC SETUP

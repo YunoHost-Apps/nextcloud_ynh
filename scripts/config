@@ -1,0 +1,97 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+source _ynh_add_fpm_config
+
+#=================================================
+# RETRIEVE ARGUMENTS
+#=================================================
+
+app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
+
+#=================================================
+# LOAD VALUES
+#=================================================
+
+# Load the real value from the app config or elsewhere.
+# Then get the value from the form.
+# If the form has a value for a variable, take the value from the form,
+# Otherwise, keep the value from the app config.
+
+# Footprint for php-fpm
+old_fpm_footprint="$(ynh_app_setting_get --app=$app --key=fpm_footprint)"
+fpm_footprint="${YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FOOTPRINT:-$old_fpm_footprint}"
+
+# Free footprint value for php-fpm
+# Check if fpm_footprint is an integer
+if [ "$fpm_footprint" -eq "$fpm_footprint" ] 2> /dev/null
+then
+    # If fpm_footprint is an integer, that's a numeric value for the footprint
+    old_free_footprint=$fpm_footprint
+    fpm_footprint=specific
+else
+    old_free_footprint=0
+fi
+free_footprint="${YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FREE_FOOTPRINT:-$old_free_footprint}"
+
+# Usage for php-fpm
+old_fpm_usage="$(ynh_app_setting_get --app=$app --key=fpm_usage)"
+fpm_usage="${YNH_CONFIG_MAIN_PHP_FPM_CONFIG_USAGE:-$old_fpm_usage}"
+
+#=================================================
+# SHOW_CONFIG FUNCTION FOR 'SHOW' COMMAND
+#=================================================
+
+show_config() {
+	# here you are supposed to read some config file/database/other then print the values
+	# ynh_return "YNH_CONFIG_${PANEL_ID}_${SECTION_ID}_${OPTION_ID}=value"
+
+	ynh_return "YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FOOTPRINT=$fpm_footprint"
+	ynh_return "YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FREE_FOOTPRINT=$free_footprint"
+	ynh_return "YNH_CONFIG_MAIN_PHP_FPM_CONFIG_USAGE=$fpm_usage"
+}
+
+#=================================================
+# MODIFY THE CONFIGURATION
+#=================================================
+
+apply_config() {
+
+    #=================================================
+    # RECONFIGURE PHP-FPM
+    #=================================================
+
+    if [ "$fpm_usage" != "$old_fpm_usage" ] || [ "$fpm_footprint" != "$old_fpm_footprint" ] || [ "$free_footprint" != "$old_free_footprint" ]
+    then
+        # If fpm_footprint is set to 'specific', use $free_footprint value.
+        if [ "$fpm_footprint" = "specific" ]
+        then
+            fpm_footprint=$free_footprint
+        fi
+
+        if [ "$fpm_footprint" != "0" ]
+        then
+            ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
+        else
+            ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
+        fi
+    fi
+}
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SELECT THE ACTION FOLLOWING THE GIVEN ARGUMENT
+#=================================================
+
+case $1 in
+  show) show_config;;
+  apply) apply_config;;
+esac

@@ -6,7 +6,7 @@
 pkg_dependencies="imagemagick acl tar smbclient at"
 
 php_version="7.1"
-extra_pkg_dependencies="php${php_version}-gd php${php_version}-json php${php_version}-intl php${php_version}-mcrypt php${php_version}-curl php${php_version}-apcu php${php_version}-redis php${php_version}-ldap php${php_version}-imagick php${php_version}-zip php${php_version}-mbstring php${php_version}-xml php${php_version}-mysql"
+extra_pkg_dependencies="php${php_version}-bz2 php${php_version}-imap php${php_version}-smbclient php${php_version}-gmp php${php_version}-gd php${php_version}-json php${php_version}-intl php${php_version}-mcrypt php${php_version}-curl php${php_version}-apcu php${php_version}-redis php${php_version}-ldap php${php_version}-imagick php${php_version}-zip php${php_version}-mbstring php${php_version}-xml php${php_version}-mysql"
 
 #=================================================
 # EXPERIMENTAL HELPERS

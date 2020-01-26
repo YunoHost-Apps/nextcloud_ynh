@@ -12,7 +12,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
-**Shipped version:** 17.0.0
+**Shipped version:** 18.0.0
 
 ## Screenshots
 
@@ -27,7 +27,7 @@ you can synchronize your files over your devices.
 
 ## Documentation
 
- * Official documentation: https://docs.nextcloud.com/server/15/user_manual/
+ * Official documentation: https://docs.nextcloud.com/server/18/user_manual/
  * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
 
 ## YunoHost specific features
@@ -49,7 +49,6 @@ this package:
 
 * x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/nextcloud/)
 
 ## Limitations
 

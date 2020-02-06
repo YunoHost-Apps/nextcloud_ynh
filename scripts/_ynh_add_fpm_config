@@ -1,0 +1,128 @@
+#!/bin/bash
+
+# Create a dedicated php-fpm config
+#
+# usage 1: ynh_add_fpm_config [--phpversion=7.X] [--use_template]
+# | arg: -v, --phpversion - Version of php to use.
+# | arg: -t, --use_template - Use this helper in template mode.
+#
+# -----------------------------------------------------------------------------
+#
+# usage 2: ynh_add_fpm_config [--phpversion=7.X] --usage=usage --footprint=footprint
+# | arg: -v, --phpversion - Version of php to use.#
+# | arg: -f, --footprint      - Memory footprint of the service (low/medium/high).
+# low    - Less than 20Mb of ram by pool.
+# medium - Between 20Mb and 40Mb of ram by pool.
+# high   - More than 40Mb of ram by pool.
+# Or specify exactly the footprint, the load of the service as Mb by pool instead of having a standard value.
+# To have this value, use the following command and stress the service.
+# watch -n0.5 ps -o user,cmd,%cpu,rss -u APP
+#
+# | arg: -u, --usage     - Expected usage of the service (low/medium/high).
+# low    - Personal usage, behind the sso.
+# medium - Low usage, few people or/and publicly accessible.
+# high   - High usage, frequently visited website.
+#
+# Requires YunoHost version 2.7.2 or higher.
+ynh_add_fpm_config () {
+	# Declare an array to define the options of this helper.
+	local legacy_args=vtuf
+	declare -Ar args_array=( [v]=phpversion= [t]=use_template [u]=usage= [f]=footprint= )
+	local phpversion
+    local use_template
+    local usage
+    local footprint
+	# Manage arguments with getopts
+	ynh_handle_getopts_args "$@"
+	# The default behaviour is to use the template.
+    use_template="${use_template:-1}"
+    usage="${usage:-}"
+    footprint="${footprint:-}"
+    if [ -n "$usage" ] || [ -n "$footprint" ]; then
+        use_template=0
+    fi
+
+	# Configure PHP-FPM 7.0 by default
+	phpversion="${phpversion:-7.0}"
+
+	local fpm_config_dir="/etc/php/$phpversion/fpm"
+	local fpm_service="php${phpversion}-fpm"
+	# Configure PHP-FPM 5 on Debian Jessie
+	if [ "$(ynh_get_debian_release)" == "jessie" ]; then
+		fpm_config_dir="/etc/php5/fpm"
+		fpm_service="php5-fpm"
+	fi
+	ynh_app_setting_set --app=$app --key=fpm_config_dir --value="$fpm_config_dir"
+	ynh_app_setting_set --app=$app --key=fpm_service --value="$fpm_service"
+	finalphpconf="$fpm_config_dir/pool.d/$app.conf"
+	ynh_backup_if_checksum_is_different --file="$finalphpconf"
+
+	if [ $use_template -eq 1 ]
+	then
+        # Usage 1, use the template in ../conf/php-fpm.conf
+        sudo cp ../conf/php-fpm.conf "$finalphpconf"
+        ynh_replace_string --match_string="__NAMETOCHANGE__" --replace_string="$app" --target_file="$finalphpconf"
+        ynh_replace_string --match_string="__FINALPATH__" --replace_string="$final_path" --target_file="$finalphpconf"
+        ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$finalphpconf"
+        ynh_replace_string --match_string="__PHPVERSION__" --replace_string="$phpversion" --target_file="$finalphpconf"
+
+	else
+        # Usage 2, generate a php-fpm config file with ynh_get_scalable_phpfpm
+        ynh_get_scalable_phpfpm --usage=$usage --footprint=$footprint
+
+        # Copy the default file
+        sudo cp "$fpm_config_dir/pool.d/www.conf" "$finalphpconf"
+
+        # Replace standard variables into the default file
+        ynh_replace_string --match_string="^\[www\]" --replace_string="[$app]" --target_file="$finalphpconf"
+        ynh_replace_string --match_string=".*listen = .*" --replace_string="listen = /var/run/php/php7.0-fpm-$app.sock" --target_file="$finalphpconf"
+        ynh_replace_string --match_string="^user = .*" --replace_string="user = $app" --target_file="$finalphpconf"
+        ynh_replace_string --match_string="^group = .*" --replace_string="group = $app" --target_file="$finalphpconf"
+        ynh_replace_string --match_string=".*chdir = .*" --replace_string="chdir = $final_path" --target_file="$finalphpconf"
+
+        # Configure fpm children
+        ynh_replace_string --match_string=".*pm = .*" --replace_string="pm = $php_pm" --target_file="$finalphpconf"
+        ynh_replace_string --match_string=".*pm.max_children = .*" --replace_string="pm.max_children = $php_max_children" --target_file="$finalphpconf"
+        ynh_replace_string --match_string=".*pm.max_requests = .*" --replace_string="pm.max_requests = 500" --target_file="$finalphpconf"
+        ynh_replace_string --match_string=".*request_terminate_timeout = .*" --replace_string="request_terminate_timeout = 1d" --target_file="$finalphpconf"
+        if [ "$php_pm" = "dynamic" ]
+        then
+            ynh_replace_string --match_string=".*pm.start_servers = .*" --replace_string="pm.start_servers = $php_start_servers" --target_file="$finalphpconf"
+            ynh_replace_string --match_string=".*pm.min_spare_servers = .*" --replace_string="pm.min_spare_servers = $php_min_spare_servers" --target_file="$finalphpconf"
+            ynh_replace_string --match_string=".*pm.max_spare_servers = .*" --replace_string="pm.max_spare_servers = $php_max_spare_servers" --target_file="$finalphpconf"
+        elif [ "$php_pm" = "ondemand" ]
+        then
+            ynh_replace_string --match_string=".*pm.process_idle_timeout = .*" --replace_string="pm.process_idle_timeout = 10s" --target_file="$finalphpconf"
+        fi
+
+        # Comment unused parameters
+        if [ "$php_pm" != "dynamic" ]
+        then
+            ynh_replace_string --match_string=".*\(pm.start_servers = .*\)" --replace_string=";\1" --target_file="$finalphpconf"
+            ynh_replace_string --match_string=".*\(pm.min_spare_servers = .*\)" --replace_string=";\1" --target_file="$finalphpconf"
+            ynh_replace_string --match_string=".*\(pm.max_spare_servers = .*\)" --replace_string=";\1" --target_file="$finalphpconf"
+        fi
+        if [ "$php_pm" != "ondemand" ]
+        then
+            ynh_replace_string --match_string=".*\(pm.process_idle_timeout = .*\)" --replace_string=";\1" --target_file="$finalphpconf"
+        fi
+
+        # Concatene the extra config.
+        if [ -e ../conf/extra_php-fpm.conf ]; then
+            cat ../conf/extra_php-fpm.conf >> "$finalphpconf"
+        fi
+	fi
+	sudo chown root: "$finalphpconf"
+	ynh_store_file_checksum --file="$finalphpconf"
+
+	if [ -e "../conf/php-fpm.ini" ]
+	then
+		echo "Packagers ! Please do not use a separate php ini file, merge your directives in the pool file instead." >&2
+		finalphpini="$fpm_config_dir/conf.d/20-$app.ini"
+		ynh_backup_if_checksum_is_different "$finalphpini"
+		sudo cp ../conf/php-fpm.ini "$finalphpini"
+		sudo chown root: "$finalphpini"
+		ynh_store_file_checksum "$finalphpini"
+	fi
+	ynh_systemd_action --service_name=$fpm_service --action=reload
+}

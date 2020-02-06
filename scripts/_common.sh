@@ -343,6 +343,234 @@ ynh_smart_mktemp () {
 }
 
 #=================================================
+
+# Check the amount of available RAM
+#
+# usage: ynh_check_ram [--required=RAM required in Mb] [--no_swap|--only_swap] [--free_ram]
+# | arg: -r, --required= - Amount of RAM required in Mb. The helper will return 0 is there's enough RAM, or 1 otherwise.
+# If --required isn't set, the helper will print the amount of RAM, in Mb.
+# | arg: -s, --no_swap   - Ignore swap
+# | arg: -o, --only_swap - Ignore real RAM, consider only swap.
+# | arg: -f, --free_ram  - Count only free RAM, not the total amount of RAM available.
+ynh_check_ram () {
+	# Declare an array to define the options of this helper.
+	declare -Ar args_array=( [r]=required= [s]=no_swap [o]=only_swap [f]=free_ram )
+	local required
+	local no_swap
+	local only_swap
+	# Manage arguments with getopts
+	ynh_handle_getopts_args "$@"
+	required=${required:-}
+	no_swap=${no_swap:-0}
+	only_swap=${only_swap:-0}
+
+	local total_ram=$(vmstat --stats --unit M | grep "total memory" | awk '{print $1}')
+	local total_swap=$(vmstat --stats --unit M | grep "total swap" | awk '{print $1}')
+	local total_ram_swap=$(( total_ram + total_swap ))
+
+	local free_ram=$(vmstat --stats --unit M | grep "free memory" | awk '{print $1}')
+	local free_swap=$(vmstat --stats --unit M | grep "free swap" | awk '{print $1}')
+	local free_ram_swap=$(( free_ram + free_swap ))
+
+	# Use the total amount of ram
+	local ram=$total_ram_swap
+	if [ $free_ram -eq 1 ]
+	then
+		# Use the total amount of free ram
+		ram=$free_ram_swap
+		if [ $no_swap -eq 1 ]
+		then
+			# Use only the amount of free ram
+			ram=$free_ram
+		elif [ $only_swap -eq 1 ]
+		then
+			# Use only the amount of free swap
+			ram=$free_swap
+		fi
+	else
+		if [ $no_swap -eq 1 ]
+		then
+			# Use only the amount of free ram
+			ram=$total_ram
+		elif [ $only_swap -eq 1 ]
+		then
+			# Use only the amount of free swap
+			ram=$total_swap
+		fi
+	fi
+
+	if [ -n "$required" ]
+	then
+		# Return 1 if the amount of ram isn't enough.
+		if [ $ram -lt $required ]
+		then
+			return 1
+		else
+			return 0
+		fi
+
+	# If no RAM is required, return the amount of available ram.
+	else
+		echo $ram
+	fi
+}
+
+#=================================================
+
+# Define the values to configure php-fpm
+#
+# usage: ynh_get_scalable_phpfpm --usage=usage --footprint=footprint [--print]
+# | arg: -f, --footprint      - Memory footprint of the service (low/medium/high).
+# low    - Less than 20Mb of ram by pool.
+# medium - Between 20Mb and 40Mb of ram by pool.
+# high   - More than 40Mb of ram by pool.
+# Or specify exactly the footprint, the load of the service as Mb by pool instead of having a standard value.
+# To have this value, use the following command and stress the service.
+# watch -n0.5 ps -o user,cmd,%cpu,rss -u APP
+#
+# | arg: -u, --usage     - Expected usage of the service (low/medium/high).
+# low    - Personal usage, behind the sso.
+# medium - Low usage, few people or/and publicly accessible.
+# high   - High usage, frequently visited website.
+#
+# | arg: -p, --print - Print the result
+#
+#
+#
+# The footprint of the service will be used to defined the maximum footprint we can allow, which is half the maximum RAM.
+# So it will be used to defined 'pm.max_children'
+# A lower value for the footprint will allow more children for 'pm.max_children'. And so for
+#    'pm.start_servers', 'pm.min_spare_servers' and 'pm.max_spare_servers' which are defined from the
+#    value of 'pm.max_children'
+# NOTE: 'pm.max_children' can't exceed 4 times the number of processor's cores.
+#
+# The usage value will defined the way php will handle the children for the pool.
+# A value set as 'low' will set the process manager to 'ondemand'. Children will start only if the
+#   service is used, otherwise no child will stay alive. This config gives the lower footprint when the
+#   service is idle. But will use more proc since it has to start a child as soon it's used.
+# Set as 'medium', the process manager will be at dynamic. If the service is idle, a number of children
+#   equal to pm.min_spare_servers will stay alive. So the service can be quick to answer to any request.
+#   The number of children can grow if needed. The footprint can stay low if the service is idle, but
+#   not null. The impact on the proc is a little bit less than 'ondemand' as there's always a few
+#   children already available.
+# Set as 'high', the process manager will be set at 'static'. There will be always as many children as
+#   'pm.max_children', the footprint is important (but will be set as maximum a quarter of the maximum
+#   RAM) but the impact on the proc is lower. The service will be quick to answer as there's always many
+#   children ready to answer.
+ynh_get_scalable_phpfpm () {
+    local legacy_args=ufp
+    # Declare an array to define the options of this helper.
+    declare -Ar args_array=( [u]=usage= [f]=footprint= [p]=print )
+    local usage
+    local footprint
+    local print
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+    # Set all characters as lowercase
+    footprint=${footprint,,}
+    usage=${usage,,}
+    print=${print:-0}
+
+    if [ "$footprint" = "low" ]
+    then
+        footprint=20
+    elif [ "$footprint" = "medium" ]
+    then
+        footprint=35
+    elif [ "$footprint" = "high" ]
+    then
+        footprint=50
+    fi
+
+    # Define the way the process manager handle child processes.
+    if [ "$usage" = "low" ]
+    then
+        php_pm=ondemand
+    elif [ "$usage" = "medium" ]
+    then
+        php_pm=dynamic
+    elif [ "$usage" = "high" ]
+    then
+        php_pm=static
+    else
+        ynh_die --message="Does not recognize '$usage' as an usage value."
+    fi
+
+    # Get the total of RAM available, except swap.
+    local max_ram=$(ynh_check_ram --no_swap)
+
+    less0() {
+        # Do not allow value below 1
+        if [ $1 -le 0 ]
+        then
+            echo 1
+        else
+            echo $1
+        fi
+    }
+
+    # Define pm.max_children
+    # The value of pm.max_children is the total amount of ram divide by 2 and divide again by the footprint of a pool for this app.
+    # So if php-fpm start the maximum of children, it won't exceed half of the ram.
+    php_max_children=$(( $max_ram / 2 / $footprint ))
+    # If process manager is set as static, use half less children.
+    # Used as static, there's always as many children as the value of pm.max_children
+    if [ "$php_pm" = "static" ]
+    then
+        php_max_children=$(( $php_max_children / 2 ))
+    fi
+    php_max_children=$(less0 $php_max_children)
+
+    # To not overload the proc, limit the number of children to 4 times the number of cores.
+    local core_number=$(nproc)
+    local max_proc=$(( $core_number * 4 ))
+    if [ $php_max_children -gt $max_proc ]
+    then
+        php_max_children=$max_proc
+    fi
+
+    if [ "$php_pm" = "dynamic" ]
+    then
+        # Define pm.start_servers, pm.min_spare_servers and pm.max_spare_servers for a dynamic process manager
+        php_min_spare_servers=$(( $php_max_children / 8 ))
+        php_min_spare_servers=$(less0 $php_min_spare_servers)
+
+        php_max_spare_servers=$(( $php_max_children / 2 ))
+        php_max_spare_servers=$(less0 $php_max_spare_servers)
+
+        php_start_servers=$(( $php_min_spare_servers + ( $php_max_spare_servers - $php_min_spare_servers ) /2 ))
+        php_start_servers=$(less0 $php_start_servers)
+    else
+        php_min_spare_servers=0
+        php_max_spare_servers=0
+        php_start_servers=0
+    fi
+
+    if [ $print -eq 1 ]
+    then
+        ynh_debug --message="Footprint=${footprint}Mb by pool."
+        ynh_debug --message="Process manager=$php_pm"
+        ynh_debug --message="Max RAM=${max_ram}Mb"
+        if [ "$php_pm" != "static" ]; then
+            ynh_debug --message="\nMax estimated footprint=$(( $php_max_children * $footprint ))"
+            ynh_debug --message="Min estimated footprint=$(( $php_min_spare_servers * $footprint ))"
+        fi
+        if [ "$php_pm" = "dynamic" ]; then
+            ynh_debug --message="Estimated average footprint=$(( $php_max_spare_servers * $footprint ))"
+        elif [ "$php_pm" = "static" ]; then
+            ynh_debug --message="Estimated footprint=$(( $php_max_children * $footprint ))"
+        fi
+        ynh_debug --message="\nRaw php-fpm values:"
+        ynh_debug --message="pm.max_children = $php_max_children"
+        if [ "$php_pm" = "dynamic" ]; then
+            ynh_debug --message="pm.start_servers = $php_start_servers"
+            ynh_debug --message="pm.min_spare_servers = $php_min_spare_servers"
+            ynh_debug --message="pm.max_spare_servers = $php_max_spare_servers"
+        fi
+    fi
+}
+
+#=================================================
 # FUTURE OFFICIAL HELPERS
 #=================================================
 

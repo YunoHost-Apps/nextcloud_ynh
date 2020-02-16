@@ -84,7 +84,7 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
+      php${php_version} occ --no-interaction --no-ansi "$@")
 }
 
 if [ $change_domain -eq 1 ]

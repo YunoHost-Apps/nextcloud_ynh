@@ -133,6 +133,16 @@ fi
 path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..." --weight=7
+
+ynh_install_app_dependencies $pkg_dependencies
+
+ynh_remove_php
+ynh_install_php --phpversion="$php_version" --package="$extra_pkg_dependencies"
+
+#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # NGINX CONFIGURATION
@@ -177,16 +187,6 @@ ynh_add_fpm_config --phpversion="$php_version"
 if [ -f /etc/php/$php_version/fpm/conf.d/20-$app.ini ]; then
 	ynh_secure_remove --file=/etc/php/$php_version/fpm/conf.d/20-$app.ini
 fi
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=7
-
-ynh_install_app_dependencies $pkg_dependencies
-
-ynh_remove_php
-ynh_install_php --phpversion="$php_version" --package="$extra_pkg_dependencies"
 
 #=================================================
 # SPECIFIC UPGRADE

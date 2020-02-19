@@ -125,4 +125,22 @@ ynh_add_fpm_config () {
 		ynh_store_file_checksum "$finalphpini"
 	fi
 	ynh_systemd_action --service_name=$fpm_service --action=reload
+	
+	# Clean other php version config files for this app. Used for migration purpose.
+	if [ -e "/etc/php5/fpm/pool.d/$app.conf" ]
+	then
+		ynh_secure_remove --file="/etc/php5/fpm/pool.d/$app.conf"
+		ynh_systemd_action --service_name=php5-fpm --action=reload
+	fi
+	for i in `seq 0 4`
+	do
+		if [ "$phpversion" != "7.$i" ]
+		then
+			if [ -e "/etc/php/7.$i/fpm/pool.d/$app.conf" ]
+			then
+				ynh_secure_remove --file="/etc/php/7.$i/fpm/pool.d/$app.conf"
+				ynh_systemd_action --service_name=php7.$i-fpm --action=reload
+			fi
+		fi
+	done
 }

@@ -5,8 +5,8 @@
 
 pkg_dependencies="imagemagick acl tar smbclient at"
 
-php_version="7.2"
-extra_pkg_dependencies="php${php_version}-bz2 php${php_version}-imap php${php_version}-smbclient php${php_version}-gmp php${php_version}-gd php${php_version}-json php${php_version}-intl php${php_version}-curl php${php_version}-apcu php${php_version}-redis php${php_version}-ldap php${php_version}-imagick php${php_version}-zip php${php_version}-mbstring php${php_version}-xml php${php_version}-mysql"
+YNH_PHP_VERSION="7.3"
+extra_pkg_dependencies="php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-smbclient php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql"
 
 #=================================================
 # EXPERIMENTAL HELPERS
@@ -332,7 +332,7 @@ ynh_smart_mktemp () {
         elif is_there_enough_space /var; then
                 local tmpdir=/var
         elif is_there_enough_space /; then
-                local tmpdir=/   
+                local tmpdir=/
         elif is_there_enough_space /home; then
                 local tmpdir=/home
         else

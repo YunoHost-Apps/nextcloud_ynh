@@ -48,7 +48,7 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 ynh_script_progression --message="Backing up php-fpm configuration..."
 
-ynh_backup --src_path="/etc/php/$php_version/fpm/pool.d/$app.conf"
+ynh_backup --src_path="/etc/php/$YNH_PHP_VERSION/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP THE MYSQL DATABASE

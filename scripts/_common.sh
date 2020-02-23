@@ -6,7 +6,7 @@
 pkg_dependencies="imagemagick acl tar smbclient at"
 
 YNH_PHP_VERSION="7.3"
-extra_pkg_dependencies="php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-smbclient php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql"
+extra_pkg_dependencies="php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-smbclient php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-igbinary"
 
 #=================================================
 # EXPERIMENTAL HELPERS
@@ -616,7 +616,7 @@ ynh_multimedia_addaccess () {
 # Install another version of php.
 #
 # usage: ynh_install_php --phpversion=phpversion [--package=packages]
-# | arg: -v, --phpversion - Version of php to install. Can be one of 7.1, 7.2 or 7.3
+# | arg: -v, --phpversion - Version of php to install.
 # | arg: -p, --package - Additionnal php packages to install
 ynh_install_php () {
 	# Declare an array to define the options of this helper.
@@ -628,12 +628,12 @@ ynh_install_php () {
 	ynh_handle_getopts_args "$@"
 	package=${package:-}
 
-	# Store php_version into the config of this app
-	ynh_app_setting_set $app php_version $phpversion
+	# Store phpversion into the config of this app
+	ynh_app_setting_set $app phpversion $phpversion
 
 	if [ "$phpversion" == "7.0" ]
 	then
-		ynh_die --message="Do not use ynh_install_php to install php7.0"
+		ynh_die "Do not use ynh_install_php to install php7.0"
 	fi
 
 	# Store the ID of this app and the version of php requested for it
@@ -650,16 +650,20 @@ ynh_install_php () {
 	# Set php7.0 back as the default version for php-cli.
 	update-alternatives --set php /usr/bin/php7.0
 
-	# Remove this extra repository after packages are installed
-	ynh_remove_extra_repo --name=extra_php_version
+	# Pin this extra repository after packages are installed to prevent sury of doing shit
+	ynh_pin_repo --package="*" --pin="origin \"packages.sury.org\"" 200 --name=extra_php_version
+	ynh_pin_repo --package="php7.0*" --pin="origin \"packages.sury.org\"" 600 --name=extra_php_version --append
 
 	# Advertise service in admin panel
 	yunohost service add php${phpversion}-fpm --log "/var/log/php${phpversion}-fpm.log"
 }
 
+# Remove the specific version of php used by the app.
+#
+# usage: ynh_install_php
 ynh_remove_php () {
 	# Get the version of php used by this app
-	local phpversion=$(ynh_app_setting_get $app php_version)
+	local phpversion=$(ynh_app_setting_get $app phpversion)
 
 	if [ "$phpversion" == "7.0" ] || [ -z "$phpversion" ]
 	then

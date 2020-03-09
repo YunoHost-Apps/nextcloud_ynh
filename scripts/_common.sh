@@ -3,7 +3,7 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php-gd php-json php-intl php-mcrypt php-curl php-apcu php-redis php-ldap php-imagick php-zip php-mbstring php-xml imagemagick acl tar smbclient at"
+pkg_dependencies="php-gd php-json php-intl php-curl php-apcu php-redis php-ldap php-imagick php-zip php-mbstring php-xml imagemagick acl tar smbclient at"
 
 #=================================================
 # EXPERIMENTAL HELPERS

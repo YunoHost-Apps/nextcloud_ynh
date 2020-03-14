@@ -63,7 +63,7 @@ then
 	domain="$old_domain"
 	path_url="$new_path"
 	# Create a dedicated nginx config
-	ynh_add_nginx_config
+	ynh_add_nginx_config YNH_PHP_VERSION
 fi
 
 # Change the domain for nginx
@@ -84,7 +84,7 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
+      php${YNH_PHP_VERSION} occ --no-interaction --no-ansi "$@")
 }
 
 if [ $change_domain -eq 1 ]

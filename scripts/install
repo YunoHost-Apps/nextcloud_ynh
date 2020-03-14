@@ -58,6 +58,8 @@ ynh_script_progression --message="Installing dependencies..." --weight=60
 
 ynh_install_app_dependencies $pkg_dependencies
 
+ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
@@ -100,7 +102,7 @@ then
 fi
 
 # Create a dedicated nginx config
-ynh_add_nginx_config
+ynh_add_nginx_config YNH_PHP_VERSION
 
 #=================================================
 # CREATE DEDICATED USER
@@ -137,7 +139,7 @@ ynh_script_progression --message="Installing nextcloud..." --weight=30
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
+      php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
 }
 
 # Set write access for the following commands
@@ -266,6 +268,7 @@ chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
 ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
+ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$YNH_PHP_VERSION" --target_file="$cron_path"
 
 exec_occ background:cron
 
@@ -273,7 +276,7 @@ exec_occ background:cron
 # POST-INSTALL MAINTENANCE
 #=================================================
 
-(cd /tmp ; at now + 10 minutes <<< "(cd $final_path ; sudo -u $app php occ db:add-missing-indices ; sudo -u $app php occ db:convert-filecache-bigint -n) > /tmp/${app}_maintenance.log")
+(cd /tmp ; at now + 10 minutes <<< "(cd $final_path ; sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-indices ; sudo -u $app php${YNH_PHP_VERSION} occ db:convert-filecache-bigint -n) > /tmp/${app}_maintenance.log")
 
 #=================================================
 # CONFIGURE THE HOOK FILE FOR USER CREATE

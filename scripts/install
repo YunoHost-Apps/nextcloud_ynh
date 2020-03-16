@@ -93,7 +93,7 @@ ynh_setup_source --dest_dir="$final_path"
 ynh_script_progression --message="Configuring nginx web server..." --weight=2
 
 # Check if .well-known is available for this domain
-if is_url_handled --url="https://$domain/.well-known/caldav" || is_url_handled --url="https://$domain/.well-known/carddav"
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
     ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 

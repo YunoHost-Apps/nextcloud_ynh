@@ -28,17 +28,19 @@ exec_as() {
 #=================================================
 
 # Check if an URL is already handled
-# usage: is_url_handled URL
+# usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {
     # Declare an array to define the options of this helper.
-    declare -Ar args_array=( [u]=url= )
-    local url
+    local legacy_args=dp
+    declare -Ar args_array=( [d]=domain= [p]=path= )
+    local domain
+    local path
     # Manage arguments with getopts
     ynh_handle_getopts_args "$@"
 
     # Try to get the url with curl, and keep the http code and an eventual redirection url.
     local curl_output="$(curl --insecure --silent --output /dev/null \
-      --write-out '%{http_code};%{redirect_url}' "$url")"
+      --write-out '%{http_code};%{redirect_url}' https://127.0.0.1$path --header "Host: $domain" --resolve $domain:443:127.0.0.1)"
 
     # Cut the output and keep only the first part to keep the http code
     local http_code="${curl_output%%;*}"

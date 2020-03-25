@@ -146,7 +146,7 @@ ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependenci
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=3
+ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=2
 
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
@@ -154,10 +154,8 @@ ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.con
 ynh_remove_nginx_config
 ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
-ynh_systemd_action --service_name=nginx --action=reload
-
 # Wait untils nginx has fully reloaded
-sleep 1
+ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"

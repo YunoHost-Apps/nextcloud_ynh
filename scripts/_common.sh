@@ -38,9 +38,6 @@ is_url_handled() {
     # Manage arguments with getopts
     ynh_handle_getopts_args "$@"
 
-    # Wait untils nginx has fully reloaded (avoid curl fail with http2)
-    sleep 2
-
     # Try to get the url with curl, and keep the http code and an eventual redirection url.
     local curl_output="$(curl --insecure --silent --output /dev/null \
       --write-out '%{http_code};%{redirect_url}' https://127.0.0.1$path --header "Host: $domain" --resolve $domain:443:127.0.0.1)"

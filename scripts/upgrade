@@ -133,6 +133,15 @@ fi
 path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..." --weight=7
+
+ynh_install_app_dependencies $pkg_dependencies
+
+ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+
+#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # NGINX CONFIGURATION
@@ -142,11 +151,11 @@ ynh_script_progression --message="Upgrading nginx web server configuration..." -
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Delete current nginx configuration to be able to check if .well-known is already served.
-ynh_remove_nginx_config
+ynh_remove_nginx_config $YNH_PHP_VERSION
 ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
 # Check if .well-known is available for this domain
-if is_url_handled --url="https://$domain/.well-known/caldav" || is_url_handled --url="https://$domain/.well-known/carddav"
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
     ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
@@ -155,7 +164,7 @@ then
 fi
 
 # Create a dedicated nginx config
-ynh_add_nginx_config
+ynh_add_nginx_config YNH_PHP_VERSION
 
 #=================================================
 # CREATE DEDICATED USER
@@ -171,19 +180,12 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
+ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/7.0/fpm/conf.d/20-$app.ini ]; then
-	ynh_secure_remove --file=/etc/php/7.0/fpm/conf.d/20-$app.ini
+if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
+	ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
 fi
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=7
-
-ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -195,7 +197,7 @@ ynh_install_app_dependencies $pkg_dependencies
 # Define a function to execute commands with `occ`
 exec_occ() {
 (cd "$final_path" && exec_as "$app" \
-    php occ --no-interaction --no-ansi "$@")
+    php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage
@@ -381,6 +383,7 @@ chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
 ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
+ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$YNH_PHP_VERSION" --target_file="$cron_path"
 
 exec_occ background:cron
 

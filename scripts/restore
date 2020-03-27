@@ -8,6 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source _ynh_add_fpm_config
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -47,7 +48,7 @@ test ! -d $final_path \
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Check if .well-known is available for this domain
-if is_url_handled --url="https://$domain/.well-known/caldav" || is_url_handled --url="https://$domain/.well-known/carddav"
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
     ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
@@ -83,7 +84,7 @@ ynh_system_user_create --username=$app
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_restore_file --origin_path="/etc/php/7.0/fpm/pool.d/$app.conf"
+ynh_restore_file --origin_path="/etc/php/$YNH_PHP_VERSION/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -94,6 +95,8 @@ ynh_script_progression --message="Reinstalling dependencies..." --weight=60
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
+
+ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
 
 #=================================================
 # RESTORE THE CRON FILE
@@ -169,7 +172,7 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 #=================================================
 ynh_script_progression --message="Reloading nginx web server and php-fpm..."
 
-ynh_systemd_action --service_name=php7.0-fpm --action=reload
+ynh_systemd_action --service_name=php${YNH_PHP_VERSION}-fpm --action=reload
 ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================

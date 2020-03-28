@@ -292,7 +292,7 @@ then
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade \
-        || ([ $? -eq 3 ] || ynh_die --message="Unable to upgrade Nextcloud")
+        || [ $? -eq 3 ] || ynh_die --message="Unable to upgrade Nextcloud"
 
         # Get the new current version number
         current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)

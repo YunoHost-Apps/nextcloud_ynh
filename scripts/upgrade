@@ -151,8 +151,11 @@ ynh_script_progression --message="Upgrading nginx web server configuration..." -
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Delete current nginx configuration to be able to check if .well-known is already served.
-ynh_remove_nginx_config $YNH_PHP_VERSION
+ynh_remove_nginx_config
 ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
+
+# Wait untils nginx has fully reloaded
+ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"

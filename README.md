@@ -68,6 +68,14 @@ Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/h
 
 ## Additionnal informations
 
+#### `occ` command usage
+
+If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/nextcloud/` folder, then use `sudo -u nextcloud php7.3 occ` instead of `occ` (as an alternative, you can use `/var/www/nextcloud/occ` to run the command from another directory).
+
+*NB: you may need to adapt `php7.3` to the php version that Nextcloud is using. Since Nextcloud 18 Yunohost use php7.3, before it was php7.0.*
+
+¹ See https://docs.nextcloud.com/server/18/admin_manual/configuration_server/occ_command.html. Use this only if you know what you're doing :)
+
 #### Migrate from ownCloud
 
 **This is not considered as stable yet, please do it with care and only for
@@ -104,6 +112,7 @@ sudo yunohost app ssowatconf
 
  * Report a bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues
  * Nextcloud website: https://nextcloud.com/
+ * Nextcloud documentation:  https://docs.nextcloud.com/
  * Nextcloud repository: https://github.com/nextcloud/server
  * YunoHost website: https://yunohost.org/
 

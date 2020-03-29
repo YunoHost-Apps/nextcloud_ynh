@@ -1,6 +1,6 @@
 # Nextcloud for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud)  
+[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
 
 > *This package allow you to install Nextcloud quickly and simply on a YunoHost server.  
@@ -36,13 +36,13 @@ you can synchronize your files over your devices.
 In addition to Nextcloud core features, the following are made available with
 this package:
 
- * Integrate with YunoHost users and SSO - i.e. logout button
+ * Integrate with YunoHost users and SSO - i.e logout button
  * Allow one user to be the administrator (set at the installation)
  * Allow multiple instances of this application
  * Optionally access the user home folder from Nextcloud files (set at the
    installation, the sharing is enabled by default)
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's
-   not already served - i.e. by Baïkal
+   not already served - i.e by Baïkal
 
 #### Multi-users support
 

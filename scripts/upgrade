@@ -137,9 +137,11 @@ path_url=$(ynh_normalize_url_path --path_url=$path_url)
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..." --weight=7
 
-ynh_install_app_dependencies $pkg_dependencies
-
-ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+if [ "$(lsb_release --codename --short)" = "buster" ]; then
+	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
+else
+	ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+fi
 
 #=================================================
 # STANDARD UPGRADE STEPS

@@ -30,6 +30,10 @@ ynh_script_progression --message="Removing dependencies..." --weight=20
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
 
+if [ "$(lsb_release --codename --short)" = "stretch" ]; then
+	ynh_remove_php
+fi
+
 #=================================================
 # REMOVE THE MYSQL DATABASE
 #=================================================

@@ -56,9 +56,11 @@ ynh_app_setting_set --app=$app --key=user_home --value=$user_home
 #=================================================
 ynh_script_progression --message="Installing dependencies..." --weight=60
 
-ynh_install_app_dependencies $pkg_dependencies
-
-ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+if [ "$(lsb_release --codename --short)" = "buster" ]; then
+	pkg_dependencies="$pkg_dependencies $extra_pkg_dependencies"
+else
+	ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+fi
 
 #=================================================
 # CREATE A MYSQL DATABASE

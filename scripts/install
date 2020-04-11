@@ -8,7 +8,6 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
-source _ynh_add_fpm_config
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -54,11 +53,9 @@ ynh_app_setting_set --app=$app --key=user_home --value=$user_home
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..." --weight=60
+ynh_script_progression --message="Installing dependencies..." --weight=10
 
 ynh_install_app_dependencies $pkg_dependencies
-
-ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -115,10 +112,10 @@ ynh_system_user_create --username=$app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring php-fpm..." --weight=2
+ynh_script_progression --message="Configuring php-fpm..." --weight=50
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=medium --footprint=high
+ynh_add_fpm_config --usage=medium --footprint=high --phpversion=$YNH_PHP_VERSION --package="$extra_pkg_dependencies"
 
 #=================================================
 # SPECIFIC SETUP

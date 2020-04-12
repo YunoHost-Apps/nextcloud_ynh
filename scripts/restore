@@ -101,7 +101,7 @@ ynh_script_progression --message="Reconfiguring php-fpm..." --weight=50
 ynh_restore_file --origin_path="/etc/php/$YNH_PHP_VERSION/fpm/pool.d/$app.conf"
 
 # Recreate a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION --package="$extra_pkg_dependencies"
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION --package="$extra_php_dependencies"
 
 #=================================================
 # RESTORE THE CRON FILE

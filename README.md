@@ -70,7 +70,7 @@ Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/h
 
 #### `occ` command usage
 
-If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/nextcloud/` folder, then use `sudo -u nextcloud php7.3 occ` instead of `occ` (as an alternative, you can use `/var/www/nextcloud/occ` to run the command from another directory).
+If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/nextcloud/` folder (or `/var/www/nextcloud__n/` depending on your instance number in case of multiple concurrent installations), then use `sudo -u nextcloud php7.3 occ` instead of `occ` (as an alternative, you can use `/var/www/nextcloud/occ` to run the command from another directory).
 
 *NB: You may need to adapt `php7.3` to the PHP version that Nextcloud is using. Starting from Nextcloud 18, YunoHost uses php7.3, it used before php7.0.*
 

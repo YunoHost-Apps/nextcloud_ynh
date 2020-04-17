@@ -74,7 +74,8 @@ If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/n
 
 *NB: You may need to adapt `php7.3` to the PHP version that Nextcloud is using. Starting from Nextcloud 18, YunoHost uses php7.3, it used before php7.0.*
 
-¹ See https://docs.nextcloud.com/server/18/admin_manual/configuration_server/occ_command.html. Use this only if you know what you're doing :)
+¹ See https://docs.nextcloud.com/server/18/admin_manual/configuration_server/occ_command.html
+ Use this only if you know what you're doing :)
 
 #### Migrate from ownCloud
 

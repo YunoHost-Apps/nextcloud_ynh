@@ -40,6 +40,7 @@ To install and configure it:
 - You can also configure with file formats should be openned by OnlyOffice.
 - Here you go :) You should be able to create new type of documents and open them.
 
+*NB: OnlyOffice is only available for x86 architecture - **ARM** (Raspberry Pi, …) is **not** supported*
 
 ## YunoHost specific features
 

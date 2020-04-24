@@ -35,8 +35,9 @@ you can synchronize your files over your devices.
 
 Starting from Nextcloud 18, it features a direct integration of OnlyOffice (an online rich text document editor) thought a Nextcloud app.
 To install and configure it:
-- Install *Community Document Server* application in your Nextcloud
-- Then in Settings -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), you need to configure its URL with `https://yourdomain.tld/nextcloud/index.php/apps/documentserver_community/`. Keep others server parameters empty. Save it.
+- Install *Community Document Server* application in your Nextcloud. That's the part that runs OnlyOffice server.
+- Install OnlyOffice application. That's the client part that will connect to an OnlyOffice server.
+- Then in Settings -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), you need to configure its URL with `https://yourdomain.tld/nextcloud/index.php/apps/documentserver_community/` (an URL might be defined by default, but is not always correct). Keep others server parameters empty. Save it.
 - You can also configure with file formats should be openned by OnlyOffice.
 - Here you go :) You should be able to create new type of documents and open them.
 

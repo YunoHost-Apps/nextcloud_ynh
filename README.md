@@ -27,7 +27,7 @@ you can synchronize your files over your devices.
 ## Documentation
 
  * Official documentation: https://docs.nextcloud.com/server/18/user_manual/
- * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
+ * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
 
 ## Configuration
 

@@ -33,12 +33,12 @@ you can synchronize your files over your devices.
 
 #### Configure OnlyOffice integration
 
-Starting from Nextcloud 18, it features a direct integration of OnlyOffice (an online rich text document editor) thought a Nextcloud app.
+Starting from Nextcloud 18, it features a direct integration of OnlyOffice (an online rich text document editor) through a Nextcloud app.
 To install and configure it:
 - Install *Community Document Server* application in your Nextcloud. That's the part that runs OnlyOffice server.
 - Install OnlyOffice application. That's the client part that will connect to an OnlyOffice server.
 - Then in Settings -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), you need to configure its URL with `https://yourdomain.tld/nextcloud/index.php/apps/documentserver_community/` (an URL might be defined by default, but is not always correct). Keep others server parameters empty. Save it.
-- You can also configure with file formats should be openned by OnlyOffice.
+- You can also configure which file formats should be opened by OnlyOffice.
 - Here you go :) You should be able to create new type of documents and open them.
 
 *NB: OnlyOffice is only available for x86 architecture - **ARM** (Raspberry Pi, …) is **not** supported*
@@ -125,7 +125,6 @@ sudo yunohost app ssowatconf
 
  * Report a bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues
  * Nextcloud website: https://nextcloud.com/
- * Nextcloud documentation:  https://docs.nextcloud.com/
  * Nextcloud repository: https://github.com/nextcloud/server
  * YunoHost website: https://yunohost.org/
 

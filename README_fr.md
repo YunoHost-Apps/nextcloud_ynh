@@ -68,30 +68,20 @@ Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/h
 
 **La migration n'est pas encore considérée comme stable, merci de la faire prudemment et uniquement pour tester !**
 
-//fin de trad -------------------------------------------------------------------------------------
+Ce package gère la migration de OwnCloud vers Nextcloud. Pour ça, l'application OwnCloud doit **être à jour** dans YunoHost.
 
-This package handle the migration from ownCloud to Nextcloud. For that, your
-ownCloud application must be **up-to-date** in YunoHost.
-
-You will then have to upgrade your ownCloud application with this repository.
-This can only be done from the command-line interface - e.g. through SSH. Once
-you're connected, you simply have to execute the following:
-
+Vous allez ensuite mettre à niveau votre OwnCloud avec ce dépôt.
+Ça ne peut être fait qu'en ligne de commande - par exemple via SSH. Une fois connecté, vous n'avez plus qu'à exécuter la commande suivante :
 ```bash
 sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --debug
 ```
 
-The `--debug` option will let you see the full output. If you encounter any
-issue, please paste it.
+L'option `--debug` va vous permettre de visualiser entièrement les retours de la mise à niveau. Si vous rencontrez un problème, merci de nous le transmettre.
 
-Note that a cron job will be executed at some time after the end of this
-command. You must wait that before doing any other application operations!
-You should see that Nextcloud is installed after that.
+Notez qu'une tâche cron va être exécutée une fois la fin de cette commande. Vous devez attendre qu'elle se fasse avant de faire une autre opération liée aux applications.
+Nous espérons que Nextcloud sera installé après ça.
 
-Note that it does not change the application label nor the URL. To rename
-the label, you can execute the following - replace `Nextcloud` with whatever
-you want:
-
+Notez que ça ne changera pas la label ni l'URL. Pour renommer le label, vous pouvez exécuter la commande suivante (en remplaçant `Nextcloud` par ce que vous voulez) :
 ```bash
 sudo yunohost app setting nextcloud label -v "Nextcloud"
 sudo yunohost app ssowatconf
@@ -99,21 +89,19 @@ sudo yunohost app ssowatconf
 
 ## Links
 
- * Report a bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues
- * Nextcloud website: https://nextcloud.com/
- * Nextcloud repository: https://github.com/nextcloud/server
- * YunoHost website: https://yunohost.org/
-
+ * Signaler un bug : https://github.com/YunoHost-Apps/nextcloud_ynh/issues
+ * Site web de Nextcloud : https://nextcloud.com/
+ * Dpôt de Nextcloud : https://github.com/nextcloud/server
+ * Site web de YunoHost : https://yunohost.org/
+ 
 ---
-
-Developers infos
+Informations pour les développeurs
 ----------------
 
-Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
-
-To try the testing branch, please proceed like that.
+Merci de faire votre « pull request » sur la [branche de test](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+Pour tester la branche de test, faites comme ceci.
 ```
 sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
-or
+ou
 sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```

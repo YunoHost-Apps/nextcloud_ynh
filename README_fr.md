@@ -25,12 +25,24 @@ Avec NextCloud vous pouvez synchroniser vos fichiers sur vos appareils.
 * [Démo YunoHost](https://demo.yunohost.org/nextcloud/)
 * [Démo officielle](https://demo.nextcloud.com/)
 
-## Configuration
-
 ## Documentation
 
  * Documentation officielle : https://docs.nextcloud.com/server/18/user_manual/
  * Documentation YunoHost : https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
+ 
+## Configuration
+
+#### Configurer l'intégration d'OnlyOffice
+
+À partir de sa version 18, Nextcloud intégre une intégration directe de OnlyOffice (un éditeur de texte enrichi en ligne) via une application Nextcloud.
+Pour l'installer et le configurer:
+    - Installez l'application *Community Document Server* dans votre Nextcloud. C'est la partie qui fait tourner un serveur OnlyOffice.
+    - Installez l'application *OnlyOffice*. C'est la partie cliente qui va se connecter au serveur OnlyOffice.
+    - Ensuite dans les Paramètres -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), vous devez le configurer avec l'URL suivante `https://yourdomain.tld/nextcloud/index.php/apps/documentserver_community/` (une URL peut-être préremplie, mais elle n'est pas toujours correcte). Veuillez noter la présence de **`/index.php/`**. Laissez les autres paramètres vides. Sauvegardez.
+    - Vous pouvez aussi configurer quels formats de fichier s'ouvrent avec OnlyOffice.
+    - Et voilà :) Vous devriez pouvoir créer de nouveaux types de documents, et les ouvrir.
+    
+   *NB: OnlyOffice n'est disponible que sous architecture x86 - **ARM** (Raspberry Pi, …) n'est **pas** supporté*
 
 ## Caractéristiques spécifiques YunoHost
 

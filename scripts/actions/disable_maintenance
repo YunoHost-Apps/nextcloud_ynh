@@ -13,7 +13,7 @@ source /usr/share/yunohost/helpers
 # RETRIEVE ARGUMENTS
 #=================================================
 
-app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
+app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 

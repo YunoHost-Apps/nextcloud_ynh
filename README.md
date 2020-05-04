@@ -24,12 +24,24 @@ you can synchronize your files over your devices.
 * [YunoHost demo](https://demo.yunohost.org/nextcloud/)
 * [Official demo](https://demo.nextcloud.com/)
 
-## Configuration
-
 ## Documentation
 
  * Official documentation: https://docs.nextcloud.com/server/18/user_manual/
- * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
+ * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
+
+## Configuration
+
+#### Configure OnlyOffice integration
+
+Starting from Nextcloud 18, it features a direct integration of OnlyOffice (an online rich text document editor) through a Nextcloud app.
+To install and configure it:
+- Install *Community Document Server* application in your Nextcloud. That's the part that runs OnlyOffice server.
+- Install OnlyOffice application. That's the client part that will connect to an OnlyOffice server.
+- Then in Settings -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), you need to configure its URL with `https://yourdomain.tld/nextcloud/index.php/apps/documentserver_community/` (an URL might be defined by default, but is not always correct). Please note the **`/index.php/`**. Keep others server parameters empty. Save it.
+- You can also configure which file formats should be opened by OnlyOffice.
+- Here you go :) You should be able to create new type of documents and open them.
+
+*NB: OnlyOffice is only available for x86 architecture - **ARM** (Raspberry Pi, …) is **not** supported*
 
 ## YunoHost specific features
 
@@ -67,6 +79,15 @@ Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/h
 ```
 
 ## Additionnal informations
+
+#### `occ` command usage
+
+If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/nextcloud/` folder (or `/var/www/nextcloud__n/` depending on your instance number in case of multiple concurrent installations), then use `sudo -u nextcloud php7.3 occ` instead of `occ` (as an alternative, you can use `/var/www/nextcloud/occ` to run the command from another directory).
+
+*NB: You may need to adapt `php7.3` to the PHP version that Nextcloud is using. Starting from Nextcloud 18, YunoHost uses php7.3, it used before php7.0.*
+
+¹ See https://docs.nextcloud.com/server/18/admin_manual/configuration_server/occ_command.html
+ Use this only if you know what you're doing :)
 
 #### Migrate from ownCloud
 

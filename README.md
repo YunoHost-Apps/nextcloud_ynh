@@ -1,8 +1,9 @@
 # Nextcloud for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud)  
+[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
 
+*[Lire ce readme en français.](./README_fr.md)*
 > *This package allow you to install Nextcloud quickly and simply on a YunoHost server.  
 If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
 
@@ -13,7 +14,7 @@ own data. A personal cloud which run on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
 
-**Shipped version:** 18.0.2
+**Shipped version:** 18.0.4
 
 ## Screenshots
 
@@ -24,25 +25,37 @@ you can synchronize your files over your devices.
 * [YunoHost demo](https://demo.yunohost.org/nextcloud/)
 * [Official demo](https://demo.nextcloud.com/)
 
-## Configuration
-
 ## Documentation
 
  * Official documentation: https://docs.nextcloud.com/server/18/user_manual/
- * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
+ * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
+
+## Configuration
+
+#### Configure OnlyOffice integration
+
+Starting from Nextcloud 18, it features a direct integration of OnlyOffice (an online rich text document editor) through a Nextcloud app.
+To install and configure it:
+- Install *Community Document Server* application in your Nextcloud. That's the part that runs OnlyOffice server.
+- Install OnlyOffice application. That's the client part that will connect to an OnlyOffice server.
+- Then in Settings -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), you need to configure its URL with `https://yourdomain.tld/nextcloud/index.php/apps/documentserver_community/` (an URL might be defined by default, but is not always correct). Please note the **`/index.php/`**. Keep others server parameters empty. Save it.
+- You can also configure which file formats should be opened by OnlyOffice.
+- Here you go :) You should be able to create new type of documents and open them.
+
+*NB: OnlyOffice is only available for x86 architecture - **ARM** (Raspberry Pi, …) is **not** supported*
 
 ## YunoHost specific features
 
 In addition to Nextcloud core features, the following are made available with
 this package:
 
- * Integrate with YunoHost users and SSO - i.e. logout button
+ * Integrate with YunoHost users and SSO - i.e logout button
  * Allow one user to be the administrator (set at the installation)
  * Allow multiple instances of this application
  * Optionally access the user home folder from Nextcloud files (set at the
    installation, the sharing is enabled by default)
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's
-   not already served - i.e. by Baïkal
+   not already served - i.e by Baïkal
 
 #### Multi-users support
 
@@ -67,6 +80,15 @@ Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/h
 ```
 
 ## Additionnal informations
+
+#### `occ` command usage
+
+If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/nextcloud/` folder (or `/var/www/nextcloud__n/` depending on your instance number in case of multiple concurrent installations), then use `sudo -u nextcloud php7.3 occ` instead of `occ` (as an alternative, you can use `/var/www/nextcloud/occ` to run the command from another directory).
+
+*NB: You may need to adapt `php7.3` to the PHP version that Nextcloud is using. Starting from Nextcloud 18, YunoHost uses php7.3, it used before php7.0.*
+
+¹ See https://docs.nextcloud.com/server/18/admin_manual/configuration_server/occ_command.html
+ Use this only if you know what you're doing :)
 
 #### Migrate from ownCloud
 

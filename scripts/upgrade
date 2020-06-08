@@ -199,8 +199,15 @@ fi
 
 # Define a function to execute commands with `occ`
 exec_occ() {
+    # Backward compatibility to upgrade from NC14 or older version
+    if [ $current_major_version -lt 15 ]
+    then
+        NEXTCLOUD_PHP_VERSION="7.0"
+    else
+        NEXTCLOUD_PHP_VERSION=$YNH_PHP_VERSION
+    fi
 (cd "$final_path" && exec_as "$app" \
-    php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
+    php$NEXTCLOUD_PHP_VERSION occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage

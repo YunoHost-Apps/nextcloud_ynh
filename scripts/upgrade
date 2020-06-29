@@ -8,7 +8,6 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
-source _ynh_add_fpm_config
 
 #=================================================
 # LOAD SETTINGS
@@ -139,8 +138,6 @@ ynh_script_progression --message="Upgrading dependencies..." --weight=7
 
 ynh_install_app_dependencies $pkg_dependencies
 
-ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
-
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
@@ -182,8 +179,8 @@ ynh_system_user_create --username=$app
 #=================================================
 ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
 
-# Create a dedicated php-fpm config
-ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint
+# Recreate a dedicated php-fpm config
+ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
@@ -199,8 +196,15 @@ fi
 
 # Define a function to execute commands with `occ`
 exec_occ() {
+    # Backward compatibility to upgrade from NC14 or older version
+    if [ $current_major_version = "last" ] || [ $current_major_version -ge 15 ]
+    then
+        NEXTCLOUD_PHP_VERSION=$YNH_PHP_VERSION
+    else
+        NEXTCLOUD_PHP_VERSION="7.0"
+    fi
 (cd "$final_path" && exec_as "$app" \
-    php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
+    php$NEXTCLOUD_PHP_VERSION occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage

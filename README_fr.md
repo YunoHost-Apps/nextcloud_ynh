@@ -6,7 +6,7 @@
 *[Read this readme in english.](./README.md)* 
 
 
-> *Ce package vous permet d'installer Nextcloud rapidement et simplement sur un serveur Yunohost.   
+> *Ce package vous permet d'installer Nextcloud rapidement et simplement sur un serveur YunoHost.   
 Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
 
 ## Vue d'ensemble
@@ -14,7 +14,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 [Nextcloud](https://nextcloud.com) vous donne la liberté et le contrôle sur vos données. Un nuage personnel qui tourne sur votre serveur.
 Avec NextCloud vous pouvez synchroniser vos fichiers sur vos appareils.
 
-**Version incluse :** 18.0.4
+**Version incluse :** 18.0.5
 
 ## Captures d'écran
 
@@ -35,13 +35,13 @@ Avec NextCloud vous pouvez synchroniser vos fichiers sur vos appareils.
 #### Configurer l'intégration d'OnlyOffice
 
 À partir de sa version 18, Nextcloud intégre une intégration directe de OnlyOffice (un éditeur de texte enrichi en ligne) via une application Nextcloud.
-Pour l'installer et le configurer:
+Pour l'installer et le configurer :
     - Installez l'application *Community Document Server* dans votre Nextcloud. C'est la partie qui fait tourner un serveur OnlyOffice.
     - Installez l'application *OnlyOffice*. C'est la partie cliente qui va se connecter au serveur OnlyOffice.
     - Ensuite dans les Paramètres -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec OnlyOffice.
     - Et voilà :) Vous devriez pouvoir créer de nouveaux types de documents, et les ouvrir.
     
-   *NB: OnlyOffice n'est disponible que sous architecture x86 - **ARM** (Raspberry Pi, …) n'est **pas** supporté*
+   *NB : OnlyOffice n'est disponible que sous architecture x86 - **ARM** (Raspberry Pi, …) n'est **pas** supporté*
 
 ## Caractéristiques spécifiques YunoHost
 
@@ -57,7 +57,7 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 
 #### Architectures supportées
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
 
 ## Limitations
@@ -106,6 +106,7 @@ sudo yunohost app ssowatconf
  * Site web de YunoHost : https://yunohost.org/
  
 ---
+
 Informations pour les développeurs
 ----------------
 

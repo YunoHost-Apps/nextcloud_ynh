@@ -10,11 +10,11 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 ## Overview
 
 [Nextcloud](https://nextcloud.com) gives you freedom and control over your
-own data. A personal cloud which run on your own server. With Nextcloud
+own data. A personal cloud which runs on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
 
-**Shipped version:** 18.0.5
+**Shipped version:** 18.0.7
 
 ## Screenshots
 
@@ -48,19 +48,19 @@ To install and configure it:
 In addition to Nextcloud core features, the following are made available with
 this package:
 
- * Integrate with YunoHost users and SSO - i.e logout button
+ * Integrate with YunoHost users and SSO - i.e. logout button
  * Allow one user to be the administrator (set at the installation)
  * Allow multiple instances of this application
  * Optionally access the user home folder from Nextcloud files (set at the
    installation, the sharing is enabled by default)
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's
-   not already served - i.e by Baïkal
+   not already served - i.e. by Baïkal
 
 #### Multi-users support
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
 
 ## Limitations
@@ -94,7 +94,7 @@ If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/n
 **This is not considered as stable yet, please do it with care and only for
 testing!**
 
-This package handle the migration from ownCloud to Nextcloud. For that, your
+This package handles the migration from ownCloud to Nextcloud. For that, your
 ownCloud application must be **up-to-date** in YunoHost.
 
 You will then have to upgrade your ownCloud application with this repository.

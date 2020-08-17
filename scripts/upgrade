@@ -229,6 +229,8 @@ then
     source upgrade.d/upgrade.last.sh
     last_version=$next_version
 
+    last_major_version=${last_version%%.*}
+
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"
 
@@ -240,22 +242,18 @@ then
     do
 
         # The major version is the first part of the version number
-        # major_version=${next_version%%.*}
-        major_version=${last_version%%.*}
         current_major_version=${current_version%%.*}
-
-        # Load the value for this version
-        source upgrade.d/upgrade.$current_major_version.sh
 
         # If the current version has the same major version than the next one,
         # then it's the last upgrade to do
-        # We also cover the case where the last version is the first of the current major version series
-        # (e.g. 19.0.0 is the latest version)
-        if [[ ("$major_version" -eq "$current_major_version") || ( ("$major_version" -eq "$((current_major_version+1))") && ("$next_version" == "$last_version") ) ]]; then
-        current_major_version=last
-        # Execute the commands dedicated to the last upgrade
-        last_upgrade_operations
+        if [ "$last_major_version" -eq "$current_major_version" ]; then
+            current_major_version=last
+            # Enable YunoHost patches on Nextcloud sources
+            cp -a ../sources/patches_last_version/* ../sources/patches
         fi
+
+        # Load the value for this version
+        source upgrade.d/upgrade.$current_major_version.sh
 
         ynh_print_info --message="Upgrade to nextcloud $next_version"
 
@@ -311,6 +309,13 @@ then
         exec_occ -V
     done
 
+    (
+        cd $final_path
+        sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-indices
+        sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-columns
+        sudo -u $app php${YNH_PHP_VERSION} occ db:convert-filecache-bigint -n
+    )
+    
     #=================================================
     # CONFIGURE NEXTCLOUD
     #=================================================

@@ -27,7 +27,7 @@ Avec NextCloud vous pouvez synchroniser vos fichiers sur vos appareils.
 
 ## Documentation
 
- * Documentation officielle : https://docs.nextcloud.com/server/18/user_manual/
+ * Documentation officielle : https://docs.nextcloud.com/server/19/user_manual/
  * Documentation YunoHost : https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
  
 ## Configuration

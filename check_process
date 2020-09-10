@@ -12,7 +12,7 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
-		upgrade=1	from_commit=af36640ee5a5f1fab69651d638d23ebe47198152
+		upgrade=1	from_commit=c864e086625363d91dde6ba78a652011a991a027
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
@@ -24,6 +24,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=af36640ee5a5f1fab69651d638d23ebe47198152
-		name=Merge pull request #320 enh-upgrade-18.0.7
+	; commit=c864e086625363d91dde6ba78a652011a991a027
+		name=[fix] php7.2-mcrypt doesn't exist (#253)
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

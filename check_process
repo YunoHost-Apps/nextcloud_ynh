@@ -12,7 +12,7 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
-		upgrade=1	from_commit=9c57c2f78f3da979d587d708eb9379ffaa41bcfa
+		upgrade=1	from_commit=c864e086625363d91dde6ba78a652011a991a027
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
@@ -24,6 +24,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=9c57c2f78f3da979d587d708eb9379ffaa41bcfa
-		name=Do not use too much process for php (#247)
+	; commit=c864e086625363d91dde6ba78a652011a991a027
+		name=[fix] php7.2-mcrypt doesn't exist (#253)
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

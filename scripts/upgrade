@@ -143,7 +143,7 @@ ynh_install_app_dependencies $pkg_dependencies
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=2
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
 
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
@@ -177,7 +177,7 @@ ynh_system_user_create --username=$app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
+ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
 # Recreate a dedicated php-fpm config
 ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
@@ -223,16 +223,18 @@ datadir="/home/yunohost.app/$app/data"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-    ynh_script_progression --message="Upgrading nextcloud..." --weight=3
+    ynh_script_progression --message="Upgrading Nextcloud..." --weight=3
 
     # Load the last available version
     source upgrade.d/upgrade.last.sh
     last_version=$next_version
 
+    last_major_version=${last_version%%.*}
+
     # Set write access for the following commands
     chown -R $app: "$final_path" "$datadir"
 
-    # Print the current version number of nextcloud
+    # Print the current version number of Nextcloud
     exec_occ -V
 
     # While the current version is not the last version, do an upgrade
@@ -240,16 +242,14 @@ then
     do
 
         # The major version is the first part of the version number
-        # major_version=${next_version%%.*}
-        major_version=${last_version%%.*}
         current_major_version=${current_version%%.*}
 
         # If the current version has the same major version than the next one,
         # then it's the last upgrade to do
-        if [ "$major_version" -eq "$current_major_version" ]; then
-        current_major_version=last
-        # Execute the commands dedicated to the last upgrade
-        last_upgrade_operations
+        if [ "$last_major_version" -eq "$current_major_version" ]; then
+            current_major_version=last
+            # Enable YunoHost patches on Nextcloud sources
+            cp -a ../sources/patches_last_version/* ../sources/patches
         fi
 
         # Load the value for this version
@@ -257,7 +257,7 @@ then
 
         ynh_print_info --message="Upgrade to nextcloud $next_version"
 
-        # Create an app.src for this version of nextcloud
+        # Create an app.src for this version of Nextcloud
         cp ../conf/app.src.default ../conf/app.src
         ynh_replace_string --match_string="__VERSION__" --replace_string="$next_version" --target_file="../conf/app.src"
         ynh_replace_string --match_string="__SHA256_SUM__" --replace_string="$nextcloud_source_sha256" --target_file="../conf/app.src"
@@ -274,7 +274,7 @@ then
         # Backup the config file in the temp dir
         cp -a "$final_path/config/config.php" "$tmpdir/config/config.php"
 
-        # Backup 3rd party applications from the current nextcloud
+        # Backup 3rd party applications from the current Nextcloud
         # But do not overwrite if there is any upgrade
         # (apps directory already exists in Nextcloud archive)
         (
@@ -309,10 +309,17 @@ then
         exec_occ -V
     done
 
+    (
+        cd $final_path
+        sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-indices
+        sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-columns
+        sudo -u $app php${YNH_PHP_VERSION} occ db:convert-filecache-bigint -n
+    )
+    
     #=================================================
     # CONFIGURE NEXTCLOUD
     #=================================================
-    ynh_script_progression --message="Reconfiguring nextcloud..." --weight=9
+    ynh_script_progression --message="Reconfiguring Nextcloud..." --weight=9
 
     # Verify the checksum and backup the file if it's different
     ynh_backup_if_checksum_is_different --file="$final_path/config/config.php"
@@ -402,20 +409,6 @@ exec_occ background:cron
 ynh_replace_string --match_string="__GROUP__" --replace_string="$app" --target_file=../hooks/post_user_create
 
 #=================================================
-# YUNOHOST MULTIMEDIA INTEGRATION
-#=================================================
-ynh_script_progression --message="Updating multimedia directories..." --weight=6
-
-# Build YunoHost multimedia directories
-ynh_multimedia_build_main_dir
-# Mount the user directory in Nextcloud
-exec_occ app:enable files_external
-create_external_storage "/home/yunohost.multimedia/\$user" "Multimedia"
-create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
-# Allow nextcloud to write into these directories
-ynh_multimedia_addaccess $app
-
-#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SECURE FILES AND DIRECTORIES
@@ -452,9 +445,9 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Reconfiguring fail2ban..." --weight=7
+ynh_script_progression --message="Reconfiguring Fail2ban..." --weight=7
 
-# Create a dedicated fail2ban config
+# Create a dedicated Fail2ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
@@ -471,7 +464,7 @@ ynh_app_setting_set --app=$app --key=skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -481,7 +474,7 @@ ynh_systemd_action --service_name=nginx --action=reload
 
 if [ $migration_process -eq 1 ]
 then
-    ynh_print_info --message="ownCloud has been successfully migrated to Nextcloud! \
+    ynh_print_info --message="OwnCloud has been successfully migrated to Nextcloud! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \
 you don't see Nextcloud as installed."

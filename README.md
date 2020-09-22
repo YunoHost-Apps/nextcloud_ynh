@@ -14,7 +14,7 @@ own data. A personal cloud which runs on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
 
-**Shipped version:** 18.0.7
+**Shipped version:** 19.0.3
 
 ## Screenshots
 
@@ -27,7 +27,7 @@ you can synchronize your files over your devices.
 
 ## Documentation
 
- * Official documentation: https://docs.nextcloud.com/server/18/user_manual/
+ * Official documentation: https://docs.nextcloud.com/server/19/user_manual/
  * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
 
 ## Configuration

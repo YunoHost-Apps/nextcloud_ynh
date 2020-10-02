@@ -14,7 +14,7 @@ own data. A personal cloud which runs on your own server. With Nextcloud
 you can synchronize your files over your devices.
 
 
-**Shipped version:** 19.0.3
+**Shipped version:** 20.0.0
 
 ## Screenshots
 

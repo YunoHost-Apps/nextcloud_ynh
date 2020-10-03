@@ -187,7 +187,7 @@ ynh_secure_remove --file="$nc_conf"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config \'\' \
+exec_occ ldap:test-config '' \
   || ynh_die --message="An error occured during LDAP configuration"
 
 #=================================================

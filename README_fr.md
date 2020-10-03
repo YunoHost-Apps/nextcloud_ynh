@@ -41,7 +41,7 @@ Pour l'installer et le configurer :
     - Ensuite dans les Paramètres -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec OnlyOffice.
     - Et voilà :) Vous devriez pouvoir créer de nouveaux types de documents, et les ouvrir.
     
-   *NB : OnlyOffice n'est disponible que sous architecture x86 - **ARM** (Raspberry Pi, …) n'est **pas** supporté*
+   *NB : OnlyOffice n'est disponible que sous architecture x86 - **ARM** (Raspberry Pi...) n'est **pas** supporté*
 
 ## Caractéristiques spécifiques YunoHost
 
@@ -79,9 +79,9 @@ Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/h
 
 **La migration n'est pas encore considérée comme stable, merci de la faire prudemment et uniquement pour tester !**
 
-Ce package gère la migration de OwnCloud vers Nextcloud. Pour ça, l'application OwnCloud doit **être à jour** dans YunoHost.
+Ce package gère la migration de ownCloud vers Nextcloud. Pour ça, l'application ownCloud doit **être à jour** dans YunoHost.
 
-Vous allez ensuite mettre à niveau votre OwnCloud avec ce dépôt.
+Vous allez ensuite mettre à niveau votre ownCloud avec ce dépôt.
 Ça ne peut être fait qu'en ligne de commande - par exemple via SSH. Une fois connecté, vous n'avez plus qu'à exécuter la commande suivante :
 ```bash
 sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --debug
@@ -107,8 +107,7 @@ sudo yunohost app ssowatconf
  
 ---
 
-Informations pour les développeurs
-----------------
+## Informations pour les développeurs
 
 Merci de faire votre « pull request » sur la [branche testing](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 Pour tester la branche testing, faites comme ceci.

@@ -317,9 +317,9 @@ then
         exec_occ -V
     done
 
-        exec_occ db:add-missing-indices
-        exec_occ db:add-missing-columns
-        exec_occ db:convert-filecache-bigint -n
+    exec_occ db:add-missing-indices
+    exec_occ db:add-missing-columns
+    exec_occ db:convert-filecache-bigint -n
     
     #=================================================
     # CONFIGURE NEXTCLOUD

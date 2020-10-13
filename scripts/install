@@ -273,12 +273,9 @@ exec_occ background:cron
 # POST-INSTALL MAINTENANCE
 #=================================================
 
-(
-    cd $final_path
-    sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-indices
-    sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-columns
-    sudo -u $app php${YNH_PHP_VERSION} occ db:convert-filecache-bigint -n
-)
+exec_occ db:add-missing-indices
+exec_occ db:add-missing-columns
+exec_occ db:convert-filecache-bigint -n
 
 #=================================================
 # CONFIGURE THE HOOK FILE FOR USER CREATE

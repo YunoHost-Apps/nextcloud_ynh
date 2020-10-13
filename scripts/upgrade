@@ -212,8 +212,8 @@ exec_occ() {
 create_external_storage() {
 local datadir="$1"
 local mount_name="$2"
-local mount_id=`exec_occ files_external:create --output=json \
-    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+local mount_id=$(exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true)
 ! [[ $mount_id =~ ^[0-9]+$ ]] \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -244,9 +244,17 @@ then
         # The major version is the first part of the version number
         current_major_version=${current_version%%.*}
 
+        if [ ! -f upgrade.d/upgrade.$current_major_version.sh ]; then
+            source upgrade.d/upgrade.last.sh
+        else
+            source upgrade.d/upgrade.$current_major_version.sh
+        fi
+
         # If the current version has the same major version than the next one,
         # then it's the last upgrade to do
-        if [ "$last_major_version" -eq "$current_major_version" ]; then
+        # We also cover the case where the last version is the first of the current major version series
+        # (e.g. 20.0.0 is the latest version)
+        if [[ ("$last_major_version" -eq "$current_major_version") || ( ("$last_major_version" -eq "$((current_major_version+1))") && ("$next_version" == "$last_version") ) ]]; then
             current_major_version=last
             # Enable YunoHost patches on Nextcloud sources
             cp -a ../sources/patches_last_version/* ../sources/patches

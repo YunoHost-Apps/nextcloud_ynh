@@ -147,11 +147,11 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..." -
 
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Delete current nginx configuration to be able to check if .well-known is already served.
+# Delete current NGINX configuration to be able to check if .well-known is already served.
 ynh_remove_nginx_config
 ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
-# Wait untils nginx has fully reloaded
+# Wait untils NGINX has fully reloaded
 ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
 
 # Check if .well-known is available for this domain
@@ -163,7 +163,7 @@ then
     sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "../conf/nginx.conf"
 fi
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config YNH_PHP_VERSION
 
 #=================================================
@@ -179,7 +179,7 @@ ynh_system_user_create --username=$app
 #=================================================
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
-# Recreate a dedicated php-fpm config
+# Recreate a dedicated PHP-FPM config
 ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
 
 # Delete existing ini configuration file (backward compatibility)
@@ -212,8 +212,8 @@ exec_occ() {
 create_external_storage() {
 local datadir="$1"
 local mount_name="$2"
-local mount_id=`exec_occ files_external:create --output=json \
-    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+local mount_id=$(exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true)
 ! [[ $mount_id =~ ^[0-9]+$ ]] \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -244,9 +244,17 @@ then
         # The major version is the first part of the version number
         current_major_version=${current_version%%.*}
 
+        if [ ! -f upgrade.d/upgrade.$current_major_version.sh ]; then
+            source upgrade.d/upgrade.last.sh
+        else
+            source upgrade.d/upgrade.$current_major_version.sh
+        fi
+
         # If the current version has the same major version than the next one,
         # then it's the last upgrade to do
-        if [ "$last_major_version" -eq "$current_major_version" ]; then
+        # We also cover the case where the last version is the first of the current major version series
+        # (e.g. 20.0.0 is the latest version)
+        if [[ ("$last_major_version" -eq "$current_major_version") || ( ("$last_major_version" -eq "$((current_major_version+1))") && ("$next_version" == "$last_version") ) ]]; then
             current_major_version=last
             # Enable YunoHost patches on Nextcloud sources
             cp -a ../sources/patches_last_version/* ../sources/patches
@@ -330,7 +338,7 @@ then
     # Ensure that UpdateNotification app is disabled
     exec_occ app:disable updatenotification
 
-    # Enable plugins
+    # Enable LDAP plugin
     exec_occ app:enable user_ldap
 
     # Load the config file in nextcloud
@@ -442,9 +450,9 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Reconfiguring Fail2ban..." --weight=7
+ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=7
 
-# Create a dedicated Fail2ban config
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
@@ -471,7 +479,7 @@ ynh_systemd_action --service_name=nginx --action=reload
 
 if [ $migration_process -eq 1 ]
 then
-    ynh_print_info --message="OwnCloud has been successfully migrated to Nextcloud! \
+    ynh_print_info --message="ownCloud has been successfully migrated to Nextcloud! \
 A last scheduled operation will run in a couple of minutes to finish the \
 migration in YunoHost side. Do not proceed any application operation while \
 you don't see Nextcloud as installed."

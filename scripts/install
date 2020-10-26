@@ -158,7 +158,7 @@ ynh_script_progression --message="Configuring Nextcloud..." --weight=8
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
-# Enable ldap plugin
+# Enable LDAP plugin
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
 
@@ -187,7 +187,7 @@ ynh_secure_remove --file="$nc_conf"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config \'\' \
+exec_occ ldap:test-config '' \
   || ynh_die --message="An error occured during LDAP configuration"
 
 #=================================================
@@ -324,9 +324,9 @@ ynh_use_logrotate --logfile="$datadir/nextcloud.log"
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Configuring Fail2ban..." --weight=8
+ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
-# Create a dedicated Fail2ban config
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================

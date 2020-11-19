@@ -5,7 +5,6 @@
 
 *[Read this readme in english.](./README.md)* 
 
-
 > *Ce package vous permet d'installer Nextcloud rapidement et simplement sur un serveur YunoHost.   
 Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
 
@@ -98,7 +97,7 @@ sudo yunohost app setting nextcloud label -v "Nextcloud"
 sudo yunohost app ssowatconf
 ```
 
-## Links
+## Liens
 
  * Signaler un bug : https://github.com/YunoHost-Apps/nextcloud_ynh/issues
  * Site web de Nextcloud : https://nextcloud.com/

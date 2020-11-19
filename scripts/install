@@ -138,7 +138,7 @@ ynh_script_progression --message="Installing Nextcloud..." --weight=30
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
+      php${phpversion} occ --no-interaction --no-ansi "$@")
 }
 
 # Set write access for the following commands
@@ -267,7 +267,7 @@ chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
 ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$YNH_PHP_VERSION" --target_file="$cron_path"
+ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$phpversion" --target_file="$cron_path"
 
 exec_occ background:cron
 

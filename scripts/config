@@ -77,7 +77,7 @@ apply_config() {
 
         if [ "$fpm_footprint" != "0" ]
         then
-            ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION
+            ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
         else
             ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
         fi

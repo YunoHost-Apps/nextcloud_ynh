@@ -28,6 +28,7 @@ ynh_script_progression --message="Loading installation settings..."
 
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # CHECK WHICH PARTS SHOULD BE CHANGED
@@ -63,7 +64,7 @@ then
 	domain="$old_domain"
 	path_url="$new_path"
 	# Create a dedicated NGINX config
-	ynh_add_nginx_config YNH_PHP_VERSION
+	ynh_add_nginx_config
 fi
 
 # Change the domain for NGINX
@@ -84,7 +85,7 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php${YNH_PHP_VERSION} occ --no-interaction --no-ansi "$@")
+      php${phpversion} occ --no-interaction --no-ansi "$@")
 }
 
 if [ $change_domain -eq 1 ]

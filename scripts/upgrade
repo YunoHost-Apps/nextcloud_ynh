@@ -141,6 +141,29 @@ ynh_install_app_dependencies $pkg_dependencies
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..."
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
+
+# Recreate a dedicated PHP-FPM config
+ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
+
+# Delete existing ini configuration file (backward compatibility)
+if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
+	ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
+fi
+# Used by ynh_add_nginx_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
@@ -164,28 +187,7 @@ then
 fi
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config YNH_PHP_VERSION
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..."
-
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app
-
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
-
-# Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
-
-# Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
-	ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
-fi
+ynh_add_nginx_config
 
 #=================================================
 # SPECIFIC UPGRADE

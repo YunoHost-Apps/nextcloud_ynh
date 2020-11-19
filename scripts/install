@@ -85,23 +85,6 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 ynh_setup_source --dest_dir="$final_path"
 
 #=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring NGINX web server..." --weight=2
-
-# Check if .well-known is available for this domain
-if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
-then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
-
-    # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "../conf/nginx.conf"
-fi
-
-# Create a dedicated NGINX config
-ynh_add_nginx_config YNH_PHP_VERSION
-
-#=================================================
 # CREATE DEDICATED USER
 #=================================================
 ynh_script_progression --message="Configuring system user..." --weight=3
@@ -116,6 +99,25 @@ ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config --usage=medium --footprint=high --phpversion=$YNH_PHP_VERSION --package="$extra_php_dependencies"
+# Used by ynh_add_nginx_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..." --weight=2
+
+# Check if .well-known is available for this domain
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
+then
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+
+    # Remove lines about .well-known/carddav and caldav with sed.
+    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "../conf/nginx.conf"
+fi
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 #=================================================
 # SPECIFIC SETUP

@@ -154,7 +154,7 @@ ynh_handle_app_migration ()  {
 
     # TODO Handle multi instance apps...
     # Check that there is not already an app installed for this id.
-    (yunohost app list --installed -f "$new_app" | grep -q id) \
+    yunohost app list | grep -q 'id: $appname' \
     && ynh_die "$new_app is already installed"
 
     #=================================================
@@ -360,7 +360,7 @@ ynh_multimedia_build_main_dir () {
         local checksum="806a827ba1902d6911095602a9221181"
 
         # Download yunohost.multimedia scripts
-        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz
+        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 2>&1
 
         # Check the control sum
         echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \

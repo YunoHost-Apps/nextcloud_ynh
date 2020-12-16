@@ -6,7 +6,7 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "20.0.2~ynh1",
+    "version": "20.0.4~ynh1",
     "url": "https://nextcloud.com",
     "license": "AGPL-3.0",
     "maintainer": {
@@ -14,7 +14,7 @@
         "email": "apps@yunohost.org"
     },
     "requirements": {
-        "yunohost": ">= 3.8.0"
+        "yunohost": ">= 3.8.1"
     },
     "multi_instance": true,
     "services": [

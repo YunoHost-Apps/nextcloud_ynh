@@ -84,6 +84,9 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
+# Allow Symlinks for multimedia folder
+ynh_replace_string --match_string="protected \$allowSymlinks = false;" --replace_string="protected \$allowSymlinks = true;" --target_file="$final_path/lib/private/Files/Storage/Local.php"
+
 #=================================================
 # CREATE DEDICATED USER
 #=================================================

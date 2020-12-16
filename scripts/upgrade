@@ -314,8 +314,9 @@ then
         exec_occ -V
     done
 
-    exec_occ db:add-missing-indices
-    exec_occ db:add-missing-columns
+    exec_occ db:add-missing-indices -n
+    exec_occ db:add-missing-columns -n
+    exec_occ db:add-missing-primary-keys -n
     exec_occ db:convert-filecache-bigint -n
     
     #=================================================

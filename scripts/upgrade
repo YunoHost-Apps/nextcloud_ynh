@@ -153,7 +153,9 @@ then
     ynh_backup_if_checksum_is_different --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
     ynh_secure_remove --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
     ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
-    ynh_secure_remove --file="/etc/php/$phpversion/fpm/conf.d/20-$app.ini"
+    if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
+        ynh_secure_remove --file="/etc/php/$phpversion/fpm/conf.d/20-$app.ini"
+    fi
 
     phpversion="$YNH_PHP_VERSION"
 fi
@@ -478,9 +480,10 @@ ynh_app_setting_set --app=$app --key=skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..."
 
 ynh_systemd_action --service_name=nginx --action=reload
+ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
 
 #=================================================
 # FINISH MIGRATION PROCESS

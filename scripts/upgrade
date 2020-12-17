@@ -152,11 +152,11 @@ if [ "$phpversion" != $YNH_PHP_VERSION ]
 then
     ynh_backup_if_checksum_is_different --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
     ynh_secure_remove --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
-    ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
     if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
         ynh_secure_remove --file="/etc/php/$phpversion/fpm/conf.d/20-$app.ini"
     fi
-
+    ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
+    
     phpversion="$YNH_PHP_VERSION"
 fi
 

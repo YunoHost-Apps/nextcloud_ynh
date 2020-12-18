@@ -92,6 +92,10 @@ then
 		# Remove the post migration script before its execution !
 		ynh_exec_warn_less ynh_secure_remove --file="/tmp/owncloud_post_migration.sh"
 
+        # Remove both databases in case script fails during database migration
+        ynh_exec_warn_less ynh_psql_remove_db --db_user=$db_name --db_name=$db_name
+        ynh_exec_warn_less ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+
 		# restore it if the upgrade fails
 		ynh_restore_upgradebackup
     }
@@ -228,26 +232,30 @@ local mount_id=$(exec_occ files_external:create --output=json \
 # Define app's data directory
 datadir="/home/yunohost.app/$app/data"
 
+#=================================================
+# HANDLE DATABASE MIGRATION
+#=================================================
+
+mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+if [ -n "$mysql_db_pwd" ]
+then
+    ynh_script_progression --message="Migrate Database..."
+
+    ynh_backup_if_checksum_is_different --file="$final_path/config/config.php"
+
+    ynh_psql_test_if_first_run
+    ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
+
+    exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+
+    ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+    ynh_app_setting_delete --app=$app --key=mysqlpwd
+
+    ynh_store_file_checksum --file="${final_path}/config/config.php"
+fi
+
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-    #=================================================
-    # HANDLE DATABASE MIGRATION
-    #=================================================
-
-    mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-    if [ -n "$mysql_db_pwd" ]
-    then
-        ynh_script_progression --message="Migrate Database..."
-
-        ynh_psql_test_if_first_run
-        ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
-
-        exec_occ db:convert-type --all-apps pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
-
-        ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
-        ynh_app_setting_delete --app=$app --key=mysqlpwd
-    fi
-
     ynh_script_progression --message="Upgrading Nextcloud..." --weight=3
 
     # Load the last available version

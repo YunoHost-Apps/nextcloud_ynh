@@ -230,6 +230,24 @@ datadir="/home/yunohost.app/$app/data"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
+    #=================================================
+    # HANDLE DATABASE MIGRATION
+    #=================================================
+
+    mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+    if [ -n "$mysql_db_pwd" ]
+    then
+        ynh_script_progression --message="Migrate Database..."
+
+        ynh_psql_test_if_first_run
+        ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
+
+        exec_occ db:convert-type --all-apps pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+
+        ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+        ynh_app_setting_delete --app=$app --key=mysqlpwd
+    fi
+
     ynh_script_progression --message="Upgrading Nextcloud..." --weight=3
 
     # Load the last available version

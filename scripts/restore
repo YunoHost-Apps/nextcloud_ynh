@@ -45,6 +45,14 @@ test ! -d $final_path \
 #=================================================
 # STANDARD RESTORATION STEPS
 #=================================================
+# REINSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Reinstalling dependencies..." --weight=10
+
+# Define and install dependencies
+ynh_install_app_dependencies $pkg_dependencies
+
+#=================================================
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 
@@ -87,14 +95,6 @@ ynh_system_user_create --username=$app
 
 #=================================================
 # SPECIFIC RESTORATION
-#=================================================
-# REINSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Reinstalling dependencies..." --weight=10
-
-# Define and install dependencies
-ynh_install_app_dependencies $pkg_dependencies
-
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================

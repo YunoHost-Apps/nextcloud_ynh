@@ -105,7 +105,7 @@ then
 		ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
 		# Remove lines about .well-known/carddav and caldav with sed.
-		sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
+		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
 		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 	fi
 fi

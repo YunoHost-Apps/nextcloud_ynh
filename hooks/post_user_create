@@ -2,5 +2,4 @@
 
 user=$1
 
-sudo mkdir -p /home/$user
-sudo setfacl -m g:#GROUP#:rwx /home/$user
+sudo setfacl --modify g:__GROUP__:rwx /home/$user

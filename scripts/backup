@@ -3,17 +3,10 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -26,39 +19,44 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get $app final_path)
-domain=$(ynh_app_setting_get $app domain)
-db_name=$(ynh_app_setting_get $app db_name)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
-# STANDARD BACKUP STEPS
+# DECLARE DATA AND CONF FILES TO BACKUP
+#=================================================
+ynh_print_info --message="Declaring files to be backed up..."
+
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
 
-ynh_backup "$final_path"
+ynh_backup --src_path="$final_path"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
-ynh_backup "/etc/php5/fpm/conf.d/20-$app.ini"
+ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP THE POSTGRESQL DATABASE
 #=================================================
+ynh_print_info --message="Backing up the PostgreSQL database..."
 
-ynh_psql_dump_db "$db_name" > db.sql
+ynh_psql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # SPECIFIC BACKUP
@@ -69,20 +67,27 @@ ynh_psql_dump_db "$db_name" > db.sql
 ynh_backup "/etc/logrotate.d/$app"
 
 #=================================================
+# BACKUP FAIL2BAN CONFIGURATION
+#=================================================
+
+ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
+ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
+
+#=================================================
 # BACKUP THE CRON FILE
 #=================================================
 
-ynh_backup "/etc/cron.d/$app"
+ynh_backup --src_path="/etc/cron.d/$app"
 
 #=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
+ynh_print_info --message="Backing up data directory..."
 
-backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
-# If backup_core_only have any value in the settings.yml file, do not backup the data directory
-if [ -z $backup_core_only ]
-then
-	ynh_backup "/home/yunohost.app/${app}/data"
-else
-	echo "Data dir will not be saved, because backup_core_only is set." >&2
-fi
+ynh_backup --src_path="/home/yunohost.app/${app}/data" --is_big
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

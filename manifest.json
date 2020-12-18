@@ -3,23 +3,23 @@
     "name": "Nextcloud",
     "packaging_format": 1,
     "description": {
-        "en": "Access & share your files, calendars, contacts, mail & more from any device, on your terms",
-        "fr": "Consultez et partagez vos fichiers, agendas, carnets d'adresses, emails et bien plus depuis les appareils de votre choix, sous vos conditions"
+        "en": "Online storage, file sharing platform and various other applications",
+        "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "13.0.2~ynh1",
+    "version": "20.0.4~ynh1",
     "url": "https://nextcloud.com",
     "license": "AGPL-3.0",
     "maintainer": {
-        "name": "-",
-        "email": "-"
+        "name": "YunoHost Contributors",
+        "email": "apps@yunohost.org"
     },
     "requirements": {
-        "yunohost": ">= 2.7.2"
+        "yunohost": ">= 3.8.1"
     },
-    "multi_instance": false,
+    "multi_instance": true,
     "services": [
         "nginx",
-        "php5-fpm",
+        "php7.0-fpm",
         "mysql"
     ],
     "arguments": {

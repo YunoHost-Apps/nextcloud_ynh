@@ -3,53 +3,13 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php5-gd php5-json php5-intl php5-mcrypt php5-curl php5-apcu php5-redis php5-ldap php5-imagick imagemagick acl tar smbclient postgresql php-pgsql"
+pkg_dependencies="imagemagick acl tar smbclient at postgresql"
 
-if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-	pkg_dependencies="$pkg_dependencies php-zip php-apcu php-mbstring php-xml"
-fi
-
-#=================================================
-# COMMON HELPERS
-#=================================================
-
-# Execute a command with occ
-exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
-      php occ --no-interaction --no-ansi "$@")
-}
-
-# Create the external storage for the given folders and enable sharing
-create_external_storage() {
-  local datadir="$1"
-  local mount_name="$2"
-  local mount_id=`exec_occ files_external:create --output=json \
-      "$2" 'local' 'null::null' -c "datadir=$datadir" || true`
-  ! [[ $mount_id =~ ^[0-9]+$ ]] \
-    && echo "Unable to create external storage" >&2 \
-    || exec_occ files_external:option "$mount_id" enable_sharing true
-}
-
-# Rename a MySQL database and user
-# Usage: rename_mysql_db DBNAME DBUSER DBPASS NEW_DBNAME_AND_USER
-rename_mysql_db() {
-    local db_name=$1 db_user=$2 db_pwd=$3 new_db_name=$4
-    local sqlpath="/tmp/${db_name}-$(date '+%s').sql"
-
-    # Dump the old database
-    mysqldump -u "$db_user" -p"$db_pwd" --no-create-db "$db_name" > "$sqlpath"
-
-    # Create the new database and user
-    ynh_mysql_create_db "$new_db_name" "$new_db_name" "$db_pwd"
-    ynh_mysql_connect_as "$new_db_name" "$db_pwd" "$new_db_name" < "$sqlpath"
-
-    # Remove the old database
-    ynh_mysql_remove_db $db_name $db_name
-    ynh_secure_remove "$sqlpath"
-}
+YNH_PHP_VERSION="7.3"
+extra_php_dependencies="php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-smbclient php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-igbinary php${YNH_PHP_VERSION}-bcmath php${YNH_PHP_VERSION}-pgsql"
 
 #=================================================
-# COMMON HELPERS -- SHOULD BE ADDED TO YUNOHOST
+# EXPERIMENTAL HELPERS
 #=================================================
 
 # Execute a command as another user
@@ -65,14 +25,41 @@ exec_as() {
   fi
 }
 
+#=================================================
+
 # Check if an URL is already handled
-# usage: is_url_handled URL
+# usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {
-  local output=($(curl -k -s -o /dev/null \
-      -w 'x%{redirect_url} %{http_code}' "$1"))
-  # It's handled if it does not redirect to the SSO nor return 404
-  [[ ! ${output[0]} =~ \/yunohost\/sso\/ && ${output[1]} != 404 ]]
+    # Declare an array to define the options of this helper.
+    local legacy_args=dp
+    declare -Ar args_array=( [d]=domain= [p]=path= )
+    local domain
+    local path
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+
+    # Try to get the url with curl, and keep the http code and an eventual redirection url.
+    local curl_output="$(curl --insecure --silent --output /dev/null \
+      --write-out '%{http_code};%{redirect_url}' https://127.0.0.1$path --header "Host: $domain" --resolve $domain:443:127.0.0.1)"
+
+    # Cut the output and keep only the first part to keep the http code
+    local http_code="${curl_output%%;*}"
+    # Do the same thing but keep the second part, the redirection url
+    local redirection="${curl_output#*;}"
+
+    # Return 1 if the url isn't handled.
+    # Which means either curl got a 404 (or the admin) or the sso.
+    # A handled url should redirect to a publicly accessible url.
+    # Return 1 if the url has returned 404
+    if [ "$http_code" = "404" ] || [[ $redirection =~ "/yunohost/admin" ]]; then
+        return 1
+    # Return 1 if the url is redirected to the SSO
+    elif [[ $redirection =~ "/yunohost/sso" ]]; then
+        return 1
+    fi
 }
+
+#=================================================
 
 # Make the main steps to migrate an app to its fork.
 #
@@ -167,7 +154,7 @@ ynh_handle_app_migration ()  {
 
     # TODO Handle multi instance apps...
     # Check that there is not already an app installed for this id.
-    (yunohost app list --installed -f "$new_app" | grep -q id) \
+    yunohost app list | grep -q 'id: $appname' \
     && ynh_die "$new_app is already installed"
 
     #=================================================
@@ -318,10 +305,49 @@ ynh_handle_app_migration ()  {
   fi
 }
 
+#=================================================
+
+# Check available space before creating a temp directory.
+#
+# usage: ynh_smart_mktemp --min_size="Min size"
+#
+# | arg: -s, --min_size= - Minimal size needed for the temporary directory, in Mb
+ynh_smart_mktemp () {
+        # Declare an array to define the options of this helper.
+        declare -Ar args_array=( [s]=min_size= )
+        local min_size
+        # Manage arguments with getopts
+        ynh_handle_getopts_args "$@"
+
+        min_size="${min_size:-300}"
+        # Transform the minimum size from megabytes to kilobytes
+        min_size=$(( $min_size * 1024 ))
+
+        # Check if there's enough free space in a directory
+        is_there_enough_space () {
+                local free_space=$(df --output=avail "$1" | sed 1d)
+                test $free_space -ge $min_size
+        }
+
+        if is_there_enough_space /tmp; then
+                local tmpdir=/tmp
+        elif is_there_enough_space /var; then
+                local tmpdir=/var
+        elif is_there_enough_space /; then
+                local tmpdir=/
+        elif is_there_enough_space /home; then
+                local tmpdir=/home
+        else
+                ynh_die "Insufficient free space to continue..."
+        fi
+
+        echo "$(mktemp --directory --tmpdir="$tmpdir")"
+}
 
 #=================================================
-# EXPERIMENTAL HELPERS
+# FUTURE OFFICIAL HELPERS
 #=================================================
+
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
@@ -330,15 +356,19 @@ ynh_handle_app_migration ()  {
 #
 # usage: ynh_multimedia_build_main_dir
 ynh_multimedia_build_main_dir () {
-        local ynh_media_release="v1.0"
-        local checksum="4852c8607db820ad51f348da0dcf0c88"
+        local ynh_media_release="v1.2"
+        local checksum="806a827ba1902d6911095602a9221181"
 
         # Download yunohost.multimedia scripts
-        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz
+        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 2>&1
 
-        # Verify checksum
+        # Check the control sum
         echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
                 || ynh_die "Corrupt source"
+
+        # Check if the package acl is installed. Or install it.
+        ynh_package_is_installed 'acl' \
+                || ynh_package_install acl
 
         # Extract
         mkdir yunohost.multimedia-master
@@ -355,159 +385,4 @@ ynh_multimedia_addaccess () {
         local user_name=$1
         groupadd -f multimedia
         usermod -a -G multimedia $user_name
-}
-
-#=================================================
-# POSTGRESQL HELPERS
-#=================================================
-
-# Create a master password and set up global settings
-# Please always call this script in install and restore scripts
-#
-# usage: ynh_psql_test_if_first_run
-ynh_psql_test_if_first_run() {
-	if [ -f /etc/yunohost/psql ];
-	then
-		echo "PostgreSQL is already installed, no need to create master password"
-	else
-		pgsql=$(ynh_string_random)
-		pg_hba=""
-		echo "$pgsql" >> /etc/yunohost/psql
-
-		if [ -e /etc/postgresql/9.4/ ]
-		then
-			pg_hba=/etc/postgresql/9.4/main/pg_hba.conf
-		elif [ -e /etc/postgresql/9.6/ ]
-		then
-			pg_hba=/etc/postgresql/9.6/main/pg_hba.conf
-		else
-			ynh_die "postgresql shoud be 9.4 or 9.6"
-		fi
-
-		systemctl start postgresql
-		sudo --login --user=postgres psql -c"ALTER user postgres WITH PASSWORD '$pgsql'" postgres
-
-		# force all user to connect to local database using passwords
-		# https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html#EXAMPLE-PG-HBA.CONF
-		# Note: we can't use peer since YunoHost create users with nologin
-		#  See: https://github.com/YunoHost/yunohost/blob/unstable/data/helpers.d/user
-		sed -i '/local\s*all\s*all\s*peer/i \
-		local all all password' "$pg_hba"
-		systemctl enable postgresql
-		systemctl reload postgresql
-	fi
-}
-
-# Open a connection as a user
-#
-# example: ynh_psql_connect_as 'user' 'pass' <<< "UPDATE ...;"
-# example: ynh_psql_connect_as 'user' 'pass' < /path/to/file.sql
-#
-# usage: ynh_psql_connect_as user pwd [db]
-# | arg: user - the user name to connect as
-# | arg: pwd - the user password
-# | arg: db - the database to connect to
-ynh_psql_connect_as() {
-	user="$1"
-	pwd="$2"
-	db="$3"
-	sudo --login --user=postgres PGUSER="$user" PGPASSWORD="$pwd" psql "$db"
-}
-
-# # Execute a command as root user
-#
-# usage: ynh_psql_execute_as_root sql [db]
-# | arg: sql - the SQL command to execute
-# | arg: db - the database to connect to
-ynh_psql_execute_as_root () {
-	sql="$1"
-	sudo --login --user=postgres psql <<< "$sql"
-}
-
-# Execute a command from a file as root user
-#
-# usage: ynh_psql_execute_file_as_root file [db]
-# | arg: file - the file containing SQL commands
-# | arg: db - the database to connect to
-ynh_psql_execute_file_as_root() {
-	file="$1"
-	db="$2"
-	sudo --login --user=postgres psql "$db" < "$file"
-}
-
-# Create a database, an user and its password. Then store the password in the app's config
-#
-# After executing this helper, the password of the created database will be available in $db_pwd
-# It will also be stored as "psqlpwd" into the app settings.
-#
-# usage: ynh_psql_setup_db user name [pwd]
-# | arg: user - Owner of the database
-# | arg: name - Name of the database
-# | arg: pwd - Password of the database. If not given, a password will be generated
-ynh_psql_setup_db () {
-	db_user="$1"
-	db_name="$2"
-	new_db_pwd=$(ynh_string_random)	# Generate a random password
-	# If $3 is not given, use new_db_pwd instead for db_pwd.
-	db_pwd="${3:-$new_db_pwd}"
-	ynh_psql_create_db "$db_name" "$db_user" "$db_pwd"	# Create the database
-	ynh_app_setting_set "$app" psqlpwd "$db_pwd"	# Store the password in the app's config
-}
-
-# Create a database and grant privilegies to a user
-#
-# usage: ynh_psql_create_db db [user [pwd]]
-# | arg: db - the database name to create
-# | arg: user - the user to grant privilegies
-# | arg: pwd  - the user password
-ynh_psql_create_db() {
-	db="$1"
-	user="$2"
-	pwd="$3"
-	ynh_psql_create_user "$user" "$pwd"
-	sudo --login --user=postgres createdb --owner="$user" "$db"
-}
-
-# Drop a database
-#
-# usage: ynh_psql_drop_db db
-# | arg: db - the database name to drop
-# | arg: user - the user to drop
-ynh_psql_remove_db() {
-	db="$1"
-	user="$2"
-	sudo --login --user=postgres dropdb "$db"
-	ynh_psql_drop_user "$user"
-}
-
-# Dump a database
-#
-# example: ynh_psql_dump_db 'roundcube' > ./dump.sql
-#
-# usage: ynh_psql_dump_db db
-# | arg: db - the database name to dump
-# | ret: the psqldump output
-ynh_psql_dump_db() {
-	db="$1"
-	sudo --login --user=postgres pg_dump "$db"
-}
-
-
-# Create a user
-#
-# usage: ynh_psql_create_user user pwd [host]
-# | arg: user - the user name to create
-ynh_psql_create_user() {
-	user="$1"
-	pwd="$2"
-        sudo --login --user=postgres psql -c"CREATE USER $user WITH PASSWORD '$pwd'" postgres
-}
-
-# Drop a user
-#
-# usage: ynh_psql_drop_user user
-# | arg: user - the user name to drop
-ynh_psql_drop_user() {
-	user="$1"
-	sudo --login --user=postgres dropuser "$user"
 }

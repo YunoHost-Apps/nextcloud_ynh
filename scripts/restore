@@ -3,17 +3,10 @@
 #=================================================
 # GENERIC START
 #=================================================
-
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -26,23 +19,28 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_script_progression --message="Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-final_path=$(ynh_app_setting_get $app final_path)
-db_name=$(ynh_app_setting_get $app db_name)
-db_pwd=$(ynh_app_setting_get $app db_pwd)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
+ynh_script_progression --message="Validating restoration parameters..." --weight=4
 
-ynh_webpath_available $domain $path_url \
-	|| ynh_die "Path not available: ${domain}${path_url}"
+ynh_webpath_available --domain=$domain --path_url=$path_url \
+	|| ynh_die --message="Path not available: ${domain}${path_url}"
 test ! -d $final_path \
-	|| ynh_die "There is already a directory: $final_path "
+	|| ynh_die --message="There is already a directory: $final_path "
 
 #=================================================
 # STANDARD RESTORATION STEPS
@@ -50,75 +48,87 @@ test ! -d $final_path \
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+
+# Check if .well-known is available for this domain
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
+then
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+
+    # Remove lines about .well-known/carddav and caldav with sed.
+    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+fi
 
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
+ynh_script_progression --message="Restoring the app main directory..."
 
-ynh_restore_file "$final_path"
+ynh_restore_file --origin_path="$final_path"
 
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE
 #=================================================
+ynh_script_progression --message="Restoring the PostgreSQL database..." --weight=9
 
 ynh_psql_test_if_first_run
-ynh_psql_setup_db "$db_name" "$db_name" "$db_pwd"
+db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+ynh_psql_setup_db --db_user=$db_name --db_name=$db_name --db_pwd=$db_pwd
 # Restore dump
-ynh_psql_execute_file_as_root ./db.sql "$db_name"
+ynh_psql_connect_as --user=$db_name --password=$db_pwd --database=$db_name < ./db.sql
 
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
+ynh_script_progression --message="Recreating the dedicated system user..." --weight=3
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create $app
-
-#=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
-#=================================================
-
-ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
-ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
+ynh_system_user_create --username=$app
 
 #=================================================
 # SPECIFIC RESTORATION
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
+ynh_script_progression --message="Reinstalling dependencies..." --weight=10
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
+# RESTORE THE PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Reconfiguring PHP-FPM..." --weight=50
+
+# Restore the file first, so it can have a backup if different
+ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
+
+# Recreate a dedicated php-fpm config
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$phpversion --package="$extra_php_dependencies"
+
+#=================================================
 # RESTORE THE CRON FILE
 #=================================================
 
-ynh_restore_file "/etc/cron.d/$app"
+ynh_restore_file --origin_path="/etc/cron.d/$app"
 
 #=================================================
 # BACKUP THE LOGROTATE CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/logrotate.d/$app"
+ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 
 #=================================================
 # RESTORE THE DATA DIRECTORY
 #=================================================
+ynh_script_progression --message="Restoring data directory..." --weight=2
 
-datadir="/home/yunohost.app/${app}/data"
+datadir="/home/yunohost.app/$app/data"
 
-# The data directory will be restored only if it exists in the backup archive
-# So only if it was backup previously.
-if [ -d "$YNH_BACKUP_DIR/apps/$app/backup/home/yunohost.app/$app" ]
-then
-	ynh_restore_file "$datadir"
-else
-	# Create app folders
-	mkdir -p "$datadir"
-fi
-# Remove the option backup_core_only if it's in the settings.yml file
-ynh_app_setting_delete $app backup_core_only
+# Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
+ynh_restore_file --origin_path="$datadir" --not_mandatory
+
+mkdir -p "$datadir"
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -126,19 +136,20 @@ ynh_app_setting_delete $app backup_core_only
 
 # Fix app ownerships & permissions
 chown -R $app: "$final_path" "$datadir"
-chmod 640 "${final_path}/config/config.php"
+chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
-    mkdir -p "${datadir}/${u}"
-    setfacl -m g:$app:rwx "/home/$u" || true
+    mkdir -p "$datadir/$u"
+    setfacl --modify g:$app:rwx "/home/$u" || true
 done
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
+ynh_script_progression --message="Adding multimedia directories..." --weight=4
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -146,10 +157,33 @@ ynh_multimedia_build_main_dir
 ynh_multimedia_addaccess $app
 
 #=================================================
+# RESTORE THE FAIL2BAN CONFIGURATION
+#=================================================
+ynh_script_progression --message="Restoring the Fail2Ban configuration..." --weight=7
+
+ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
+ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
+
+# Make sure a log file exists (mostly for CI tests)
+logfile="/home/yunohost.app/$app/data/nextcloud.log"
+if [ ! -f "$logfile" ]; then
+	touch "$logfile"
+	chown $app: "$logfile"
+fi
+
+ynh_systemd_action --action=restart --service_name=fail2ban
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PHP-FPM
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..."
+
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
 #=================================================
 
-systemctl reload php5-fpm
-systemctl reload nginx
+ynh_script_progression --message="Restoration completed for $app" --last

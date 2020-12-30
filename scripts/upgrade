@@ -245,7 +245,8 @@ then
     exec_occ -V
 
     # Upgrade may fail if this app is enabled
-    exec_occ app:list | grep -q -w mail
+    # Take all apps enabled, and check if mail is one of them
+    exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w mail
     mail_app_is_active=$?
     
     # Temporary disable the mail app

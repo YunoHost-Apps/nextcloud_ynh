@@ -8,13 +8,14 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
-source _ynh_add_fpm_config
 
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
 
-app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
+app=$YNH_APP_INSTANCE_NAME
+
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # LOAD VALUES
@@ -78,7 +79,7 @@ apply_config() {
 
         if [ "$fpm_footprint" != "0" ]
         then
-            ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
+            ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
         else
             ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
         fi

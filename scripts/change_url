@@ -28,6 +28,7 @@ ynh_script_progression --message="Loading installation settings..."
 
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # CHECK WHICH PARTS SHOULD BE CHANGED
@@ -50,23 +51,23 @@ fi
 #=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
-ynh_script_progression --message="Updating nginx web server configuration..." --weight=2
+ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
 
 nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
 
-# Change the path in the nginx config file
+# Change the path in the NGINX config file
 if [ $change_path -eq 1 ]
 then
-	# Make a backup of the original nginx config file if modified
+	# Make a backup of the original NGINX config file if modified
 	ynh_backup_if_checksum_is_different --file="$nginx_conf_path"
-	# Set global variables for nginx helper
+	# Set global variables for NGINX helper
 	domain="$old_domain"
 	path_url="$new_path"
-	# Create a dedicated nginx config
-	ynh_add_nginx_config YNH_PHP_VERSION
+	# Create a dedicated NGINX config
+	ynh_add_nginx_config
 fi
 
-# Change the domain for nginx
+# Change the domain for NGINX
 if [ $change_domain -eq 1 ]
 then
 	# Delete file checksum for the old conf file location
@@ -84,7 +85,7 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php${YNH_PHP_VERSION} occ --no-interaction --no-ansi "$@")
+      php${phpversion} occ --no-interaction --no-ansi "$@")
 }
 
 if [ $change_domain -eq 1 ]
@@ -104,7 +105,7 @@ then
 		ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
 		# Remove lines about .well-known/carddav and caldav with sed.
-		sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
+		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
 		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 	fi
 fi
@@ -114,7 +115,7 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 

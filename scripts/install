@@ -8,7 +8,6 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
-source _ynh_add_fpm_config
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -54,11 +53,9 @@ ynh_app_setting_set --app=$app --key=user_home --value=$user_home
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..." --weight=60
+ynh_script_progression --message="Installing dependencies..." --weight=10
 
 ynh_install_app_dependencies $pkg_dependencies
-
-ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -87,22 +84,8 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring nginx web server..." --weight=2
-
-# Check if .well-known is available for this domain
-if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
-then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
-
-    # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "../conf/nginx.conf"
-fi
-
-# Create a dedicated nginx config
-ynh_add_nginx_config YNH_PHP_VERSION
+# Allow Symlinks for multimedia folder
+ynh_replace_string --match_string="protected \$allowSymlinks = false;" --replace_string="protected \$allowSymlinks = true;" --target_file="$final_path/lib/private/Files/Storage/Local.php"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -115,10 +98,29 @@ ynh_system_user_create --username=$app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring php-fpm..." --weight=2
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=medium --footprint=high
+ynh_add_fpm_config --usage=medium --footprint=high --phpversion=$YNH_PHP_VERSION --package="$extra_php_dependencies"
+# Used by ynh_add_nginx_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..." --weight=2
+
+# Check if .well-known is available for this domain
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
+then
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+
+    # Remove lines about .well-known/carddav and caldav with sed.
+    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
+fi
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 #=================================================
 # SPECIFIC SETUP
@@ -134,12 +136,12 @@ mkdir -p "$datadir"
 #=================================================
 # INSTALL NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Installing nextcloud..." --weight=30
+ynh_script_progression --message="Installing Nextcloud..." --weight=30
 
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
+      php${phpversion} occ --no-interaction --no-ansi "$@")
 }
 
 # Set write access for the following commands
@@ -156,16 +158,16 @@ exec_occ maintenance:install \
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Configuring nextcloud..." --weight=8
+ynh_script_progression --message="Configuring Nextcloud..." --weight=8
 
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
-# Enable ldap plugin
+# Enable LDAP plugin
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
 
-# Load the installation config file in nextcloud
+# Load the installation config file in Nextcloud
 nc_conf="$final_path/config_install.json"
 cp ../conf/config_install.json "$nc_conf"
 
@@ -191,7 +193,7 @@ ynh_secure_remove --file="$nc_conf"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config \'\' \
+exec_occ ldap:test-config '' \
   || ynh_die --message="An error occured during LDAP configuration"
 
 #=================================================
@@ -269,7 +271,7 @@ chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
 ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$YNH_PHP_VERSION" --target_file="$cron_path"
+ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$phpversion" --target_file="$cron_path"
 
 exec_occ background:cron
 
@@ -277,7 +279,9 @@ exec_occ background:cron
 # POST-INSTALL MAINTENANCE
 #=================================================
 
-(cd /tmp ; at now + 10 minutes <<< "(cd $final_path ; sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-indices ; sudo -u $app php${YNH_PHP_VERSION} occ db:convert-filecache-bigint -n) > /tmp/${app}_maintenance.log")
+exec_occ db:add-missing-indices
+exec_occ db:add-missing-columns
+exec_occ db:convert-filecache-bigint -n
 
 #=================================================
 # CONFIGURE THE HOOK FILE FOR USER CREATE
@@ -326,9 +330,9 @@ ynh_use_logrotate --logfile="$datadir/nextcloud.log"
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Configuring fail2ban..." --weight=8
+ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
-# Create a dedicated fail2ban config
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
@@ -342,7 +346,7 @@ ynh_app_setting_set --app=$app --key=skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 

@@ -8,7 +8,6 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-source _ynh_add_fpm_config
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -28,6 +27,10 @@ domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
@@ -53,7 +56,7 @@ then
     ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
 #=================================================
@@ -81,22 +84,25 @@ ynh_script_progression --message="Recreating the dedicated system user..." --wei
 ynh_system_user_create --username=$app
 
 #=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
-#=================================================
-
-ynh_restore_file --origin_path="/etc/php/$YNH_PHP_VERSION/fpm/pool.d/$app.conf"
-
-#=================================================
 # SPECIFIC RESTORATION
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Reinstalling dependencies..." --weight=60
+ynh_script_progression --message="Reinstalling dependencies..." --weight=10
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
 
-ynh_install_php --phpversion="$YNH_PHP_VERSION" --package="$extra_pkg_dependencies"
+#=================================================
+# RESTORE THE PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Reconfiguring PHP-FPM..." --weight=50
+
+# Restore the file first, so it can have a backup if different
+ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
+
+# Recreate a dedicated php-fpm config
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$phpversion --package="$extra_php_dependencies"
 
 #=================================================
 # RESTORE THE CRON FILE
@@ -151,7 +157,7 @@ ynh_multimedia_addaccess $app
 #=================================================
 # RESTORE THE FAIL2BAN CONFIGURATION
 #=================================================
-ynh_script_progression --message="Restoring the fail2ban configuration..." --weight=7
+ynh_script_progression --message="Restoring the Fail2Ban configuration..." --weight=7
 
 ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
@@ -168,11 +174,10 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PHP-FPM
+# RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server and php-fpm..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
-ynh_systemd_action --service_name=php${YNH_PHP_VERSION}-fpm --action=reload
 ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================

@@ -134,6 +134,12 @@ then
     ynh_replace_string "\('datadirectory' =>.*\)$old_app" "\1$app" "$final_path/config/config.php"
 fi
 
+if ynh_legacy_permissions_exists; then
+    ynh_legacy_permissions_delete_all
+    
+    ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+fi
+
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
@@ -476,14 +482,6 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
-
-ynh_app_setting_set --app=$app --key=skipped_regex \
-    --value="$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
-
 #=================================================
 # RELOAD NGINX
 #=================================================

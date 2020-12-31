@@ -386,3 +386,22 @@ ynh_multimedia_addaccess () {
         groupadd -f multimedia
         usermod -a -G multimedia $user_name
 }
+
+ynh_legacy_permissions_exists () {
+    for permission in "skipped" "unprotected" "protected"
+    do
+        if ynh_permission_exists --permission="legacy_${permission}_uris"; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+ynh_legacy_permissions_delete_all () {
+    for permission in "skipped" "unprotected" "protected"
+    do
+        if ynh_permission_exists --permission="legacy_${permission}_uris"; then
+            ynh_permission_delete --permission="legacy_${permission}_uris"
+        fi
+    done
+}

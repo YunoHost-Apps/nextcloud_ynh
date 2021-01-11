@@ -244,16 +244,17 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
+
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them
-    exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w mail
-    mail_app_is_active=$?
+    # Then temporary disable the mail app
+    mail_app_must_be_reactived=0
     
-    # Temporary disable the mail app
-    if [ $mail_app_is_active -eq 0 ]; then
+    if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w mail; then
         exec_occ app:disable mail
+        mail_app_must_be_reactived=1
     fi
-
+    
     # While the current version is not the last version, do an upgrade
     while [ "$last_version" != "$current_version" ]
     do
@@ -357,7 +358,7 @@ then
     ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$nc_conf"
 
     # Reneable the mail app
-    if [ $mail_app_is_active -eq 0 ]; then
+    if [ $mail_app_must_be_reactived -eq 1 ]; then
         exec_occ app:enable mail
     fi
 

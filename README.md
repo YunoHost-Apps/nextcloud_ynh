@@ -1,20 +1,18 @@
 # Nextcloud for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
-[![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nextcloud)
+[![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Lire ce readme en français.](./README_fr.md)*
+
 > *This package allow you to install Nextcloud quickly and simply on a YunoHost server.  
 If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
 
 ## Overview
 
-[Nextcloud](https://nextcloud.com) gives you freedom and control over your
-own data. A personal cloud which runs on your own server. With Nextcloud
-you can synchronize your files over your devices.
+[Nextcloud](https://nextcloud.com) gives you freedom and control over your own data. A personal cloud which runs on your own server. With Nextcloud you can synchronize your files over your devices.
 
-
-**Shipped version:** 19.0.3
+**Shipped version:** 20.0.4
 
 ## Screenshots
 
@@ -37,11 +35,11 @@ you can synchronize your files over your devices.
 Starting from Nextcloud 18, it features a direct integration of OnlyOffice (an online rich text document editor) through a Nextcloud app.
 To install and configure it:
 - Install *Community Document Server* application in your Nextcloud. That's the part that runs OnlyOffice server.
-- Install OnlyOffice application. That's the client part that will connect to an OnlyOffice server.
-- Then in Settings -> OnlyOffice (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), if you want to configure which file formats should be opened by OnlyOffice.
+- Install *ONLYOFFICE* application. That's the client part that will connect to an OnlyOffice server.
+- Then in Settings -> ONLYOFFICE (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), if you want to configure which file formats should be opened by OnlyOffice.
 - Here you go :) You should be able to create new type of documents and open them.
 
-*NB: OnlyOffice is only available for x86 architecture - **ARM** (Raspberry Pi, …) is **not** supported*
+*NB: OnlyOffice is only available for x86 architecture - **ARM** architecture is **not** supported (Raspberry Pi, OLinuXino...)*
 
 ## YunoHost specific features
 
@@ -51,10 +49,8 @@ this package:
  * Integrate with YunoHost users and SSO - i.e. logout button
  * Allow one user to be the administrator (set at the installation)
  * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the
-   installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's
-   not already served - i.e. by Baïkal
+ * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
+ * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 #### Multi-users support
 
@@ -65,13 +61,9 @@ this package:
 
 ## Limitations
 
-To integrate the logout button to the SSO, we have to patch Nextcloud sources.
-In waiting an upstream integration, the source code integrity checking has been
-disabled to prevent the warning message.
+To integrate the logout button to the SSO, we have to patch Nextcloud sources. In waiting an upstream integration, the source code integrity checking has been disabled to prevent the warning message.
 
-Also, note we made the choice to disable third-parties applications at the
-upgrade. It allows to prevent an unstable - and sometimes broken - Nextcloud
-installation. You will just have to manually activate them after the upgrade.
+Also, note we made the choice to disable third-parties applications at the upgrade. It allows to prevent an unstable - and sometimes broken - Nextcloud installation. You will just have to manually activate them after the upgrade.
 
 Finally, the following error message in Nextcloud logs can be safely ignored:
 ```
@@ -91,15 +83,11 @@ If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/n
 
 #### Migrate from ownCloud
 
-**This is not considered as stable yet, please do it with care and only for
-testing!**
+**This is not considered as stable yet, please do it with care and only for testing!**
 
-This package handles the migration from ownCloud to Nextcloud. For that, your
-ownCloud application must be **up-to-date** in YunoHost.
+This package handles the migration from ownCloud to Nextcloud. For that, your ownCloud application must be **up-to-date** in YunoHost.
 
-You will then have to upgrade your ownCloud application with this repository.
-This can only be done from the command-line interface - e.g. through SSH. Once
-you're connected, you simply have to execute the following:
+You will then have to upgrade your ownCloud application with this repository. This can only be done from the command-line interface - e.g. through SSH. Once you're connected, you simply have to execute the following:
 
 ```bash
 sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --debug
@@ -108,13 +96,9 @@ sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh ownc
 The `--debug` option will let you see the full output. If you encounter any
 issue, please paste it.
 
-Note that a cron job will be executed at some time after the end of this
-command. You must wait that before doing any other application operations!
-You should see that Nextcloud is installed after that.
+Note that a cron job will be executed at some time after the end of this command. You must wait that before doing any other application operations! You should see that Nextcloud is installed after that.
 
-Note that it does not change the application label nor the URL. To rename
-the label, you can execute the following - replace `Nextcloud` with whatever
-you want:
+Note that it does not change the application label nor the URL. To rename the label, you can execute the following - replace `Nextcloud` with whatever you want:
 
 ```bash
 sudo yunohost app setting nextcloud label -v "Nextcloud"
@@ -130,8 +114,7 @@ sudo yunohost app ssowatconf
 
 ---
 
-Developers infos
-----------------
+## Developers infos
 
 Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 

@@ -18,8 +18,6 @@
 		incorrect_path=1
 		port_already_use=0
 		change_url=1
-;;; Levels
-	Level 5=auto
 ;;; Options
 Email=
 Notification=none

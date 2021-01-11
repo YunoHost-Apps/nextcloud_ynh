@@ -81,30 +81,6 @@ If you need/want to use Nextcloud `occ` command¹, you need to be in `/var/www/n
 ¹ See https://docs.nextcloud.com/server/18/admin_manual/configuration_server/occ_command.html
  Use this only if you know what you're doing :)
 
-#### Migrate from ownCloud
-
-**This is not considered as stable yet, please do it with care and only for testing!**
-
-This package handles the migration from ownCloud to Nextcloud. For that, your ownCloud application must be **up-to-date** in YunoHost.
-
-You will then have to upgrade your ownCloud application with this repository. This can only be done from the command-line interface - e.g. through SSH. Once you're connected, you simply have to execute the following:
-
-```bash
-sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --debug
-```
-
-The `--debug` option will let you see the full output. If you encounter any
-issue, please paste it.
-
-Note that a cron job will be executed at some time after the end of this command. You must wait that before doing any other application operations! You should see that Nextcloud is installed after that.
-
-Note that it does not change the application label nor the URL. To rename the label, you can execute the following - replace `Nextcloud` with whatever you want:
-
-```bash
-sudo yunohost app setting nextcloud label -v "Nextcloud"
-sudo yunohost app ssowatconf
-```
-
 ## Links
 
  * Report a bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues

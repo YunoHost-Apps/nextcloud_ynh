@@ -72,31 +72,6 @@ Et enfin, le message d'erreur suivant dans les logs de Nextcloud peut être igno
 Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/home/yunohost.multimedia/share/' not inside '/home/yunohost.multimedia/user/')
 ```
 
-## Informations supplémentaires
-
-#### Migrer depuis ownCloud
-
-**La migration n'est pas encore considérée comme stable, merci de la faire prudemment et uniquement pour tester !**
-
-Ce package gère la migration de ownCloud vers Nextcloud. Pour ça, l'application ownCloud doit **être à jour** dans YunoHost.
-
-Vous allez ensuite mettre à niveau votre ownCloud avec ce dépôt.
-Ça ne peut être fait qu'en ligne de commande - par exemple via SSH. Une fois connecté, vous n'avez plus qu'à exécuter la commande suivante :
-```bash
-sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/nextcloud_ynh owncloud --debug
-```
-
-L'option `--debug` va vous permettre de visualiser entièrement les retours de la mise à niveau. Si vous rencontrez un problème, merci de nous le transmettre.
-
-Notez qu'une tâche cron va être exécutée une fois la fin de cette commande. Vous devez attendre qu'elle se fasse avant de faire une autre opération liée aux applications.
-Vous devriez constater que Nextcloud sera installé après ça.
-
-Notez que ça ne changera pas le label ni l'URL. Pour renommer le label, vous pouvez exécuter la commande suivante (en remplaçant `Nextcloud` par ce que vous voulez) :
-```bash
-sudo yunohost app setting nextcloud label -v "Nextcloud"
-sudo yunohost app ssowatconf
-```
-
 ## Liens
 
  * Signaler un bug : https://github.com/YunoHost-Apps/nextcloud_ynh/issues

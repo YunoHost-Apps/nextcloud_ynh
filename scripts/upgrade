@@ -87,6 +87,11 @@ then
 
     # Remove the option backup_core_only after the backup.
     ynh_app_setting_delete $app backup_core_only
+
+    ynh_clean_setup () {
+        # restore it if the upgrade fails
+        ynh_restore_upgradebackup
+    }
 fi
 
 # Exit if an error occurs during the execution of the script

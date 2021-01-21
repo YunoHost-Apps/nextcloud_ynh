@@ -65,6 +65,11 @@ if [ -z "$fpm_usage" ]; then
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 fi
 
+# If phpversion doesn't exist, create it
+if [ -z "$phpversion" ]; then
+    phpversion="$YNH_PHP_VERSION"
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================

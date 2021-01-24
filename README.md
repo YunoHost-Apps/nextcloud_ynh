@@ -25,7 +25,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 ## Documentation
 
- * Official documentation: https://docs.nextcloud.com/server/19/user_manual/
+ * Official documentation: https://docs.nextcloud.com/server/20/user_manual/en/
  * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
 
 ## Configuration

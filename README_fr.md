@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 [Nextcloud](https://nextcloud.com) vous donne la liberté et le contrôle sur vos données. Un nuage personnel qui tourne sur votre serveur.
 Avec NextCloud vous pouvez synchroniser vos fichiers sur vos appareils.
 
-**Version incluse :** 20.0.5
+**Version incluse :** 20.0.6
 
 ## Captures d'écran
 

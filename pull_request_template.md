@@ -18,7 +18,7 @@
 - [ ] **Code review** : 
 - [ ] **Approval (LGTM)** : 
 - [ ] **Approval (LGTM)** : 
-- **CI succeeded** : 
-[![Build Status](https://ci-apps-hq.yunohost.org/jenkins/job/nextcloud_ynh%20PR-NUM-/badge/icon)](https://ci-apps-hq.yunohost.org/jenkins/job/nextcloud_ynh%20PR-NUM-/)  
-*Please replace '-NUM-' in this link by the PR number.*  
-When the PR is marked as ready to merge, you have to wait for 3 days before really merging it.
+
+## Package_check results
+---
+* An automatic package_check will be launch at https://ci-apps-dev.yunohost.org/, when you add a specific comment to your Pull Request: "!testme", "!gogogadgetoci" or "By the power of systemd, I invoke The Great App CI to test this Pull Request!"*

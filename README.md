@@ -12,7 +12,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 [Nextcloud](https://nextcloud.com) gives you freedom and control over your own data. A personal cloud which runs on your own server. With Nextcloud you can synchronize your files over your devices.
 
-**Shipped version:** 20.0.5
+**Shipped version:** 20.0.7
 
 ## Screenshots
 
@@ -25,7 +25,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 ## Documentation
 
- * Official documentation: https://docs.nextcloud.com/server/19/user_manual/
+ * Official documentation: https://docs.nextcloud.com/server/20/user_manual/en/
  * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
 
 ## Configuration

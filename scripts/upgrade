@@ -221,6 +221,7 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
+    exec_occ db:convert-mysql-charset
 
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them

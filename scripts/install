@@ -66,6 +66,9 @@ db_name=$(ynh_sanitize_dbid --db_name=$app)
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name
 
+ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name \
+    <<< "ALTER DATABASE $db_name CHARACTER SET utf8 COLLATE utf8_general_ci;"
+
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================

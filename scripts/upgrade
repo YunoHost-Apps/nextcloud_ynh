@@ -405,8 +405,8 @@ chown root: "$cron_path"
 chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
-ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$phpversion" --target_file="$cron_path"
+ynh_replace_string --match_string="__FINALPATH__" --replace_string="$final_path" --target_file="$cron_path"
+ynh_replace_string --match_string="__PHPVERSION__" --replace_string="$phpversion" --target_file="$cron_path"
 
 exec_occ background:cron
 

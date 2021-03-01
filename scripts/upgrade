@@ -22,6 +22,7 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
@@ -64,6 +65,11 @@ if [ -z "$fpm_usage" ]; then
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 fi
 
+# If phpversion doesn't exist, create it
+if [ -z "$phpversion" ]; then
+    phpversion="$YNH_PHP_VERSION"
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -88,48 +94,13 @@ then
     ynh_app_setting_delete $app backup_core_only
 
     ynh_clean_setup () {
-		# Remove the post migration script before its execution !
-		ynh_exec_warn_less ynh_secure_remove --file="/tmp/owncloud_post_migration.sh"
-
-		# restore it if the upgrade fails
-		ynh_restore_upgradebackup
+        # restore it if the upgrade fails
+        ynh_restore_upgradebackup
     }
 fi
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-#=================================================
-# HANDLE MIGRATION FROM OWNCLOUD
-#=================================================
-
-ynh_handle_app_migration "owncloud" "owncloud_migration"
-if [ $migration_process -eq 1 ]
-then
-    # If a migration has been performed
-    # Reload some values changed by the migration process
-    final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-    db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-
-    # Remove the old fake package for owncloud.
-    # Its name is specific, so the migration process can't remove it
-    ynh_package_autopurge owncloud-deps
-
-    # Change the database access in the config
-    ynh_replace_string "\('dbname' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
-    ynh_replace_string "\('dbuser' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
-
-    # Change the path of the data directory
-    ynh_replace_string "\('dbuser' =>\).*" "\1 '$db_name'," "$final_path/config/config.php"
-    ynh_replace_string "\('datadirectory' =>.*\)$old_app" "\1$app" "$final_path/config/config.php"
-fi
-
-#=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -140,32 +111,6 @@ ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # STANDARD UPGRADE STEPS
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
-
-ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-# Delete current nginx configuration to be able to check if .well-known is already served.
-ynh_remove_nginx_config
-ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
-
-# Wait untils nginx has fully reloaded
-ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
-
-# Check if .well-known is available for this domain
-if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
-then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
-
-    # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "../conf/nginx.conf"
-fi
-
-# Create a dedicated nginx config
-ynh_add_nginx_config YNH_PHP_VERSION
-
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
@@ -179,13 +124,52 @@ ynh_system_user_create --username=$app
 #=================================================
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
-# Recreate a dedicated php-fpm config
-ynh_add_fpm_config --phpversion="$YNH_PHP_VERSION" --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
+# If php has changed, remove the old fpm config file
+if [ "$phpversion" != $YNH_PHP_VERSION ]
+then
+    ynh_backup_if_checksum_is_different --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
+    ynh_secure_remove --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
+    if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
+        ynh_secure_remove --file="/etc/php/$phpversion/fpm/conf.d/20-$app.ini"
+    fi
+    ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
+    
+    phpversion="$YNH_PHP_VERSION"
+fi
+
+# Recreate a dedicated PHP-FPM config
+ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
 
 # Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
-	ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
+if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
+    ynh_secure_remove --file=/etc/php/$phpversion/fpm/conf.d/20-$app.ini
 fi
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
+
+ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+
+# Delete current NGINX configuration to be able to check if .well-known is already served.
+ynh_remove_nginx_config
+ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
+
+# Wait untils NGINX has fully reloaded
+ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
+
+# Check if .well-known is available for this domain
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
+then
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+
+    # Remove lines about .well-known/carddav and caldav with sed.
+    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
+fi
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -199,7 +183,7 @@ exec_occ() {
     # Backward compatibility to upgrade from NC14 or older version
     if [ $current_major_version = "last" ] || [ $current_major_version -ge 15 ]
     then
-        NEXTCLOUD_PHP_VERSION=$YNH_PHP_VERSION
+        NEXTCLOUD_PHP_VERSION=$phpversion
     else
         NEXTCLOUD_PHP_VERSION="7.0"
     fi
@@ -212,8 +196,8 @@ exec_occ() {
 create_external_storage() {
 local datadir="$1"
 local mount_name="$2"
-local mount_id=`exec_occ files_external:create --output=json \
-    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+local mount_id=$(exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true)
 ! [[ $mount_id =~ ^[0-9]+$ ]] \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -237,6 +221,17 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
+
+    # Upgrade may fail if this app is enabled
+    # Take all apps enabled, and check if mail is one of them
+    # Then temporary disable the mail app
+    mail_app_must_be_reactived=0
+    
+    if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w mail; then
+        exec_occ app:disable mail
+        mail_app_must_be_reactived=1
+    fi
+    
     # While the current version is not the last version, do an upgrade
     while [ "$last_version" != "$current_version" ]
     do
@@ -244,9 +239,17 @@ then
         # The major version is the first part of the version number
         current_major_version=${current_version%%.*}
 
+        if [ ! -f upgrade.d/upgrade.$current_major_version.sh ]; then
+            source upgrade.d/upgrade.last.sh
+        else
+            source upgrade.d/upgrade.$current_major_version.sh
+        fi
+
         # If the current version has the same major version than the next one,
         # then it's the last upgrade to do
-        if [ "$last_major_version" -eq "$current_major_version" ]; then
+        # We also cover the case where the last version is the first of the current major version series
+        # (e.g. 20.0.0 is the latest version)
+        if [[ ("$last_major_version" -eq "$current_major_version") || ( ("$last_major_version" -eq "$((current_major_version+1))") && ("$next_version" == "$last_version") ) ]]; then
             current_major_version=last
             # Enable YunoHost patches on Nextcloud sources
             cp -a ../sources/patches_last_version/* ../sources/patches
@@ -267,6 +270,9 @@ then
 
         # Install the next nextcloud version in $tmpdir
         ynh_setup_source --dest_dir="$tmpdir"
+
+        # Allow Symlinks for multimedia folder
+        ynh_replace_string --match_string="protected \$allowSymlinks = false;" --replace_string="protected \$allowSymlinks = true;" --target_file="$tmpdir/lib/private/Files/Storage/Local.php"
 
         # Enable maintenance mode
         exec_occ maintenance:mode --on
@@ -309,12 +315,10 @@ then
         exec_occ -V
     done
 
-    (
-        cd $final_path
-        sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-indices
-        sudo -u $app php${YNH_PHP_VERSION} occ db:add-missing-columns
-        sudo -u $app php${YNH_PHP_VERSION} occ db:convert-filecache-bigint -n
-    )
+    exec_occ db:add-missing-indices -n
+    exec_occ db:add-missing-columns -n
+    exec_occ db:add-missing-primary-keys -n
+    exec_occ db:convert-filecache-bigint -n
     
     #=================================================
     # CONFIGURE NEXTCLOUD
@@ -330,10 +334,15 @@ then
     ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$nc_conf"
     ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$nc_conf"
 
+    # Reneable the mail app
+    if [ $mail_app_must_be_reactived -eq 1 ]; then
+        exec_occ app:enable mail
+    fi
+
     # Ensure that UpdateNotification app is disabled
     exec_occ app:disable updatenotification
 
-    # Enable plugins
+    # Enable LDAP plugin
     exec_occ app:enable user_ldap
 
     # Load the config file in nextcloud
@@ -397,7 +406,7 @@ chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
 ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$YNH_PHP_VERSION" --target_file="$cron_path"
+ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$phpversion" --target_file="$cron_path"
 
 exec_occ background:cron
 
@@ -445,9 +454,9 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Reconfiguring Fail2ban..." --weight=7
+ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=7
 
-# Create a dedicated Fail2ban config
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
@@ -464,30 +473,10 @@ ynh_app_setting_set --app=$app --key=skipped_regex \
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..."
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# FINISH MIGRATION PROCESS
-#=================================================
-
-if [ $migration_process -eq 1 ]
-then
-    ynh_print_info --message="OwnCloud has been successfully migrated to Nextcloud! \
-A last scheduled operation will run in a couple of minutes to finish the \
-migration in YunoHost side. Do not proceed any application operation while \
-you don't see Nextcloud as installed."
-
-    # Execute a post migration script after the end of this upgrade.
-    # Mainly for some cleaning
-    script_post_migration=owncloud_post_migration.sh
-    ynh_replace_string --match_string="__OLD_APP__" --replace_string="$old_app" --target_file=../conf/$script_post_migration
-    ynh_replace_string --match_string="__NEW_APP__" --replace_string="$app" --target_file=../conf/$script_post_migration
-    cp ../conf/$script_post_migration /tmp
-    chmod +x /tmp/$script_post_migration
-    (cd /tmp; echo "/tmp/$script_post_migration > /tmp/$script_post_migration.log 2>&1" | at now + 2 minutes)
-fi
+ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
 
 #=================================================
 # END OF SCRIPT

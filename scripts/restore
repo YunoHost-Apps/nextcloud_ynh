@@ -27,6 +27,7 @@ domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
@@ -55,7 +56,7 @@ then
     ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/^location = \/\.well\-known\/(caldav|carddav) \{/,/\}/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
 #=================================================
@@ -98,10 +99,10 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_script_progression --message="Reconfiguring PHP-FPM..." --weight=50
 
 # Restore the file first, so it can have a backup if different
-ynh_restore_file --origin_path="/etc/php/$YNH_PHP_VERSION/fpm/pool.d/$app.conf"
+ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 # Recreate a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION --package="$extra_php_dependencies"
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$phpversion --package="$extra_php_dependencies"
 
 #=================================================
 # RESTORE THE CRON FILE
@@ -156,7 +157,7 @@ ynh_multimedia_addaccess $app
 #=================================================
 # RESTORE THE FAIL2BAN CONFIGURATION
 #=================================================
-ynh_script_progression --message="Restoring the Fail2ban configuration..." --weight=7
+ynh_script_progression --message="Restoring the Fail2Ban configuration..." --weight=7
 
 ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"

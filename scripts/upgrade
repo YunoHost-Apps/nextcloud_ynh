@@ -27,8 +27,6 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
-unprotected_uris=$(ynh_app_setting_get $app unprotected_uris)
-
 #=================================================
 # CHECK VERSION
 #=================================================
@@ -65,13 +63,6 @@ fi
 if [ -z "$fpm_usage" ]; then
 	fpm_usage=medium
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
-fi
-
-# Delete unprotected_uris if it exists
-if [ -n "$unprotected_uris" ]; then
-	ynh_app_setting_delete $app unprotected_uris
-    # Delete unprotected_uris implicitly remove visitors, add it again.
-    ynh_permission_update --permission "main" --add "visitors"
 fi
 
 # If phpversion doesn't exist, create it

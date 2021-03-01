@@ -25,9 +25,9 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 ## Documentation
 
- * Official documentation: https://docs.nextcloud.com/server/20/user_manual/en/
- * YunoHost documentation: https://github.com/YunoHost/doc/blob/master/app_nextcloud.md
-
+ * Official documentation: https://docs.nextcloud.com/server/21/user_manual/en/
+ * YunoHost documentation: https://yunohost.org/en/app_nextcloud
+ 
 ## Configuration
 
 #### Configure OnlyOffice integration

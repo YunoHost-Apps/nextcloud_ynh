@@ -67,11 +67,6 @@ En attendant un intégration de leur part, la vérification d'intégrité du cod
 Notez également que nous avons choisi de désactiver les applications tierces-parties lors des mises à jour. Ça permet d'éviter une installation de Nextcloud instable - ou qui pourrait planter.
 Vous devrez juste les réactiver manuellement après chaque mise à jour.
 
-Et enfin, le message d'erreur suivant dans les logs de Nextcloud peut être ignoré sans problème :
-```
-Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/home/yunohost.multimedia/share/' not inside '/home/yunohost.multimedia/user/')
-```
-
 ## Liens
 
  * Signaler un bug : https://github.com/YunoHost-Apps/nextcloud_ynh/issues

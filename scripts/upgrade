@@ -271,9 +271,6 @@ then
         # Install the next nextcloud version in $tmpdir
         ynh_setup_source --dest_dir="$tmpdir"
 
-        # Allow Symlinks for multimedia folder
-        ynh_replace_string --match_string="protected \$allowSymlinks = false;" --replace_string="protected \$allowSymlinks = true;" --target_file="$tmpdir/lib/private/Files/Storage/Local.php"
-
         # Enable maintenance mode
         exec_occ maintenance:mode --on
 

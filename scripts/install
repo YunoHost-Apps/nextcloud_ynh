@@ -338,9 +338,10 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 # SETUP SSOWAT
 #=================================================
 ynh_script_progression --message="Configuring SSOwat..."
+ynh_permission_update --permission="main" --add="visitors"
 
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-ynh_app_setting_set --app=$app --key=skipped_regex \
+
+
     --value="$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
 
 #=================================================

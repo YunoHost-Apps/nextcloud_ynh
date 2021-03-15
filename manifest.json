@@ -10,8 +10,8 @@
     "url": "https://nextcloud.com",
     "license": "AGPL-3.0",
     "maintainer": {
-        "name": "",
-        "email": ""
+        "name": "Kay0u",
+        "email": "pierre@kayou.io"
     },
     "requirements": {
         "yunohost": ">= 4.1.6"

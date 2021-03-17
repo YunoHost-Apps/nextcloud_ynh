@@ -147,11 +147,16 @@ exec_occ() {
 # Set write access for the following commands
 chown -R $app: "$final_path" "$datadir"
 
+# Define password in an intermediate var
+# The fact that it's called _password allows it to be
+# picked up by Yunohost's auto-redact mecanism
+admin_password="$(ynh_string_random --length=6)"
+
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
     --database "mysql" --database-name $db_name \
     --database-user $db_name --database-pass "$db_pwd" \
-    --admin-user "admin" --admin-pass "$(ynh_string_random --length=6)" \
+    --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$datadir" \
     || ynh_die --message="Unable to install Nextcloud"
 

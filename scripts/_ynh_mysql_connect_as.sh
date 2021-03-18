@@ -28,6 +28,8 @@ ynh_mysql_connect_as() {
     if [ -n "$default_character_set" ]
     then
         default_character_set="--default-character-set=$default_character_set"
+    else
+        default_character_set="--default-character-set=latin1"
     fi
 
     mysql --user="$user" --password="$password" "$default_character_set" --batch "$database"

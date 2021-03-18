@@ -5,7 +5,7 @@
 # example: ynh_mysql_dump_db --database=roundcube --default_character_set="utf8mb4" > ./dump.sql
 #
 # usage: ynh_mysql_dump_db --database=database
-# | arg: -d, --database=    - the database name to dump
+# | arg: -d, --database=                    - the database name to dump
 # | arg: -c, --default_character_set=       - the charset to use
 # | ret: the mysqldump output
 #
@@ -23,7 +23,14 @@ ynh_mysql_dump_db() {
     if [ -n "$default_character_set" ]
     then
         default_character_set="--default-character-set=$default_character_set"
+    else
+        # By default, default character set is "latin1"
+        default_character_set="--default-character-set=latin1"
     fi
-
-    mysqldump --user="root" --password="$(cat $MYSQL_ROOT_PWD_FILE)" --single-transaction --skip-dump-date "$default_character_set" "$database"
+    
+    if [ -f "$MYSQL_ROOT_PWD_FILE" ]; then
+        mysqldump --user="root" --password="$(cat $MYSQL_ROOT_PWD_FILE)" --single-transaction --skip-dump-date "$default_character_set" "$database"
+    else
+        mysqldump --single-transaction --skip-dump-date "$default_character_set" "$database"
+    fi
 }

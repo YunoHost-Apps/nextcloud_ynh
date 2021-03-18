@@ -221,7 +221,9 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
-    exec_occ db:convert-mysql-charset
+    if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
+        exec_occ db:convert-mysql-charset
+    fi
 
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them

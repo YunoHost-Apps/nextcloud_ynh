@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source _ynh_mysql_connect_as.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -250,7 +251,7 @@ ynh_replace_string --match_string="'overwrite.cli.url' => 'http://localhost'," -
 #=================================================
 
 # Set the user as admin
-ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name \
+ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name --default_character_set="utf8mb4" \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 # And delete admin user
 exec_occ user:delete admin

@@ -56,8 +56,8 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 
 #### Architectures supportées
 
-* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
 
 ## Limitations
 

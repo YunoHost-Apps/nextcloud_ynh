@@ -202,8 +202,8 @@ local mount_id=$(exec_occ files_external:create --output=json \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
-# Define app's data directory
-datadir="/home/yunohost.app/$app/data"
+# Define app's data directory (defined in _common.sh)
+set_datadir
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then

@@ -26,6 +26,12 @@ Online storage, file sharing platform and various other applications
 **Demo:** https://demo.nextcloud.com/
 
 
+## Screenshots
+
+
+   ![](./doc/screenshots/screenshot.png)
+
+
 
 
 ## Disclaimers / important information

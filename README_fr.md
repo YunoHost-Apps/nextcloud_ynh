@@ -18,6 +18,12 @@ Stockage en ligne, plateforme de partage de fichiers et diverses autres applicat
 **Démo:** https://demo.nextcloud.com/
 
 
+## Captures d'écran
+
+
+   ![](./doc/screenshots/screenshot.png)
+
+
 
 
 ## Avertissements / informations importantes

@@ -8,6 +8,14 @@
     },
     "version": "21.0.2~ynh1",
     "url": "https://nextcloud.com",
+    "upstream": {
+        "license": "AGPL-3.0",
+        "website": "https://nextcloud.com",
+        "demo": "https://demo.nextcloud.com/",
+        "admindoc": "https://docs.nextcloud.com/server/21/user_manual/en/",
+        "userdoc": "https://yunohost.org/en/app_nextcloud",
+        "code": "https://github.com/nextcloud/server"
+    },
     "license": "AGPL-3.0",
     "maintainer": {
         "name": "Kay0u",

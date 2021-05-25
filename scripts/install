@@ -184,6 +184,7 @@ ynh_secure_remove --file="$nc_conf"
 nc_conf="$final_path/config.json"
 cp ../conf/config.json "$nc_conf"
 
+ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$nc_conf"
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
@@ -341,9 +342,7 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 ynh_script_progression --message="Configuring SSOwat..."
 
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-ynh_app_setting_set --app=$app --key=skipped_regex \
-    --value="$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
+ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 
 #=================================================
 # RELOAD NGINX

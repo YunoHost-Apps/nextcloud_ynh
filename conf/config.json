@@ -30,7 +30,7 @@
       "ldap_groupfilter_objectclass": "posixGroup",
       "ldap_group_member_assoc_attribute": "memberUid",
       "ldap_host": "localhost",
-      "ldap_login_filter": "(&(|(objectclass=posixAccount))(uid=%uid))",
+      "ldap_login_filter": "(&(|(objectclass=posixAccount))(uid=%uid)(permission=cn=__APP__.main,ou=permission,dc=yunohost,dc=org))",
       "ldap_login_filter_mode": "0",
       "ldap_port": "389",
       "ldap_quota_attr": "userquota",

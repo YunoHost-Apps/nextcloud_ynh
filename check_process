@@ -1,8 +1,8 @@
 ;; Test complet
 	; Manifest
-		domain="domain.tld"	(DOMAIN)
-		path="/path"	(PATH)
-		admin="homer"	(USER)
+		domain="domain.tld"
+		path="/path"
+		admin="homer"
 		user_home="1"
 	; Checks
 		pkg_linter=1

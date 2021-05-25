@@ -11,7 +11,8 @@
       "timeout": "0.0",
       "password": ""
      },
-    "hashing_default_password": true
+    "hashing_default_password": true,
+    "localstorage.allowsymlinks": true
   },
   "apps": {
     "user_ldap": {

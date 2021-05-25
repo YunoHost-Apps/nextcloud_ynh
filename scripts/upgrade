@@ -271,9 +271,6 @@ then
         # Install the next nextcloud version in $tmpdir
         ynh_setup_source --dest_dir="$tmpdir"
 
-        # Allow Symlinks for multimedia folder
-        ynh_replace_string --match_string="protected \$allowSymlinks = false;" --replace_string="protected \$allowSymlinks = true;" --target_file="$tmpdir/lib/private/Files/Storage/Local.php"
-
         # Enable maintenance mode
         exec_occ maintenance:mode --on
 
@@ -405,8 +402,8 @@ chown root: "$cron_path"
 chmod 644 "$cron_path"
 
 ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
-ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$phpversion" --target_file="$cron_path"
+ynh_replace_string --match_string="__FINALPATH__" --replace_string="$final_path" --target_file="$cron_path"
+ynh_replace_string --match_string="__PHPVERSION__" --replace_string="$phpversion" --target_file="$cron_path"
 
 exec_occ background:cron
 

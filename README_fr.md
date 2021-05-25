@@ -1,34 +1,33 @@
 # Nextcloud pour YunoHost
 
-[![Niveau d'integration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
-[![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
+[![Niveau d'intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg)  ![](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Installer nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
-*[Read this readme in english.](./README.md)* 
+*[Read this readme in english.](./README.md)*
+*[Lire ce readme en français.](./README_fr.md)*
 
-> *Ce package vous permet d'installer Nextcloud rapidement et simplement sur un serveur YunoHost.   
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *This package allows you to install nextcloud quickly and simply on a YunoHost server.
+If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
 
 ## Vue d'ensemble
 
-[Nextcloud](https://nextcloud.com) vous donne la liberté et le contrôle sur vos données. Un nuage personnel qui tourne sur votre serveur.
-Avec NextCloud vous pouvez synchroniser vos fichiers sur vos appareils.
+Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
-**Version incluse :** 20.0.8
+**Version incluse:** 21.0.2~ynh1
+
+**Démo:** https://demo.nextcloud.com/
+
 
 ## Captures d'écran
 
-![](https://raw.githubusercontent.com/nextcloud/screenshots/master/files/Files%20Overview.png)
 
-## Démo
+   ![](./doc/screenshots/screenshot.png)
 
-* [Démo YunoHost](https://demo.yunohost.org/nextcloud/)
-* [Démo officielle](https://demo.nextcloud.com/)
 
-## Documentation
 
- * Documentation officielle : https://docs.nextcloud.com/server/20/user_manual/fr/
- * Documentation YunoHost : https://github.com/YunoHost/doc/blob/master/app_nextcloud_fr.md
- 
+
+## Avertissements / informations importantes
+
 ## Configuration
 
 #### Configurer l'intégration d'OnlyOffice
@@ -52,41 +51,26 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Accès optionnel au répertoire home depuis les fichiers Nextcloud (à activer à l'installation, le partage étant activé par défaut)
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, baikal
 
-#### Support multi-utilisateurs
 
-#### Architectures supportées
 
-* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nextcloud%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nextcloud/)
+## Documentations et ressources
 
-## Limitations
-
-Pour intégrer le bouton de déconnexion du SSO, nous devons patcher les sources de Nextcloud.
-En attendant un intégration de leur part, la vérification d'intégrité du code source est désactivée pour ne pas avoir de message d'avertissement.
-
-Notez également que nous avons choisi de désactiver les applications tierces-parties lors des mises à jour. Ça permet d'éviter une installation de Nextcloud instable - ou qui pourrait planter.
-Vous devrez juste les réactiver manuellement après chaque mise à jour.
-
-Et enfin, le message d'erreur suivant dans les logs de Nextcloud peut être ignoré sans problème :
-```
-Following symlinks is not allowed ('/home/yunohost.multimedia/user/Share' -> '/home/yunohost.multimedia/share/' not inside '/home/yunohost.multimedia/user/')
-```
-
-## Liens
-
- * Signaler un bug : https://github.com/YunoHost-Apps/nextcloud_ynh/issues
- * Site web de Nextcloud : https://nextcloud.com/
- * Dépôt de Nextcloud : https://github.com/nextcloud/server
- * Site web de YunoHost : https://yunohost.org/
- 
----
+* Site official de l'app : https://nextcloud.com
+* Documentation officielle utilisateur: https://yunohost.org/en/app_nextcloud
+* Documentation officielle de l'admin: https://docs.nextcloud.com/server/21/user_manual/en/
+* Dépôt de code officiel de l'app:  https://github.com/nextcloud/server
+* Documentation YunoHost pour cette app: https://yunohost.org/app_nextcloud
+* Signaler un bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues
 
 ## Informations pour les développeurs
 
-Merci de faire votre « pull request » sur la [branche testing](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
-Pour tester la branche testing, faites comme ceci.
+Merci de faire vos pull request sur la [branche testing](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+
+Pour essayer la branche testing, procédez comme suit.
 ```
 sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
-ou
+or
 sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
+
+**Plus d'infos sur le packaging d'applications:** https://yunohost.org/packaging_apps

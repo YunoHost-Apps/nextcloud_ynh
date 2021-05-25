@@ -22,7 +22,7 @@
         "email": "pierre@kayou.io"
     },
     "requirements": {
-        "yunohost": ">= 4.1.6"
+        "yunohost": ">= 4.2"
     },
     "multi_instance": true,
     "services": [

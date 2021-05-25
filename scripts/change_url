@@ -111,7 +111,7 @@ then
 	exec_occ config:system:set trusted_domains 1 --value=$new_domain
 
 	# Change hostname for activity notifications
-	ynh_replace_string --match_string="'overwrite.cli.url' => 'http://${old_domain}'," --replace_string="'overwrite.cli.url' => 'https://${new_domain}'," --target_file="${final_path}/config/config.php"
+    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}"
 fi
 
 if [ $change_domain -eq 1 ]

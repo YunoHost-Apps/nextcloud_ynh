@@ -193,7 +193,7 @@ exec_occ() {
     else
         NEXTCLOUD_PHP_VERSION="7.0"
     fi
-(cd "$final_path" && exec_as "$app" \
+(cd "$final_path" && ynh_exec_as "$app" \
     php$NEXTCLOUD_PHP_VERSION occ --no-interaction --no-ansi "$@")
 }
 

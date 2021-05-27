@@ -12,21 +12,6 @@ extra_php_dependencies="php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php
 # EXPERIMENTAL HELPERS
 #=================================================
 
-# Execute a command as another user
-# usage: exec_as USER COMMAND [ARG ...]
-exec_as() {
-  local USER=$1
-  shift 1
-
-  if [[ $USER = $(whoami) ]]; then
-    eval "$@"
-  else
-    sudo -u "$USER" "$@"
-  fi
-}
-
-#=================================================
-
 # Check if an URL is already handled
 # usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {

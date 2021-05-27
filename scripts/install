@@ -142,7 +142,7 @@ ynh_script_progression --message="Installing Nextcloud..." --weight=30
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
+  (cd "$final_path" && ynh_exec_as "$app" \
       php${phpversion} occ --no-interaction --no-ansi "$@")
 }
 

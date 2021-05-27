@@ -73,10 +73,15 @@ ynh_script_progression --message="Setting up source files..."
 
 # Load the last available version
 source upgrade.d/upgrade.last.sh
+
 # Create an app.src for the last version of nextcloud
-cp ../conf/app.src.default ../conf/app.src
-ynh_replace_string --match_string="__VERSION__" --replace_string="$next_version" --target_file="../conf/app.src"
-ynh_replace_string --match_string="__SHA256_SUM__" --replace_string="$nextcloud_source_sha256" --target_file="../conf/app.src"
+cat > ../conf/app.src << EOF
+SOURCE_URL=https://download.nextcloud.com/server/releases/nextcloud-$next_version.tar.bz2
+SOURCE_SUM=$nextcloud_source_sha256
+SOURCE_SUM_PRG=sha256sum
+SOURCE_FORMAT=tar.bz2
+SOURCE_IN_SUBDIR=true
+EOF
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Enable YunoHost patches on Nextcloud sources
@@ -171,10 +176,8 @@ exec_occ ldap:create-empty-config
 
 # Load the installation config file in Nextcloud
 nc_conf="$final_path/config_install.json"
-cp ../conf/config_install.json "$nc_conf"
+ynh_add_config --template="../conf/config_install.json" --destination="$nc_conf"
 
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$nc_conf"
-ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$nc_conf"
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
@@ -182,9 +185,8 @@ ynh_secure_remove --file="$nc_conf"
 
 # Load the additional config file (used also for upgrade)
 nc_conf="$final_path/config.json"
-cp ../conf/config.json "$nc_conf"
+ynh_add_config --template="../conf/config.json" --destination="$nc_conf"
 
-ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$nc_conf"
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
@@ -243,7 +245,7 @@ exec_occ config:system:get logout_url >/dev/null 2>&1 \
 # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
 #=================================================
 
-ynh_replace_string --match_string="'overwrite.cli.url' => 'http://localhost'," --replace_string="'overwrite.cli.url' => 'https://${domain}'," --target_file="${final_path}/config/config.php"
+exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
 
 #=================================================
 # REMOVE THE TEMPORARY ADMIN AND SET THE TRUE ONE
@@ -267,13 +269,9 @@ ynh_store_file_checksum --file="$final_path/config/config.php"
 #=================================================
 
 cron_path="/etc/cron.d/$app"
-cp -a ../conf/nextcloud.cron "$cron_path"
+ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
-
-ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
-ynh_replace_string --match_string="__FINALPATH__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__PHPVERSION__" --replace_string="$phpversion" --target_file="$cron_path"
 
 exec_occ background:cron
 
@@ -284,13 +282,6 @@ exec_occ background:cron
 exec_occ db:add-missing-indices
 exec_occ db:add-missing-columns
 exec_occ db:convert-filecache-bigint -n
-
-#=================================================
-# CONFIGURE THE HOOK FILE FOR USER CREATE
-#=================================================
-
-# Set system group in hooks
-ynh_replace_string --match_string="__GROUP__" --replace_string="$app" --target_file=../hooks/post_user_create
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION

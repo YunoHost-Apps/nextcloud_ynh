@@ -13,6 +13,7 @@
 		setup_public=0
 		upgrade=1
 		upgrade=1	from_commit=c864e086625363d91dde6ba78a652011a991a027
+		upgrade=1	from_commit=e9e7015ed7667352c1c191fc632a9f6f382dd9d2
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
@@ -24,4 +25,7 @@ Notification=none
 ;;; Upgrade options
 	; commit=c864e086625363d91dde6ba78a652011a991a027
 		name=[fix] php7.2-mcrypt doesn't exist (#253)
+		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&
+	; commit=e9e7015ed7667352c1c191fc632a9f6f382dd9d2
+		name=[fix] Upgrade to 20.0.4 (#346)
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

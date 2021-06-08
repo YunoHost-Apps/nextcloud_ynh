@@ -1,0 +1,12 @@
+[Unit]
+Description = Push daemon for Nextcloud clients
+
+[Service]
+Environment=SOCKET_PATH=/var/run/__APP__/notify-push.sock
+Environment=NEXTCLOUD_URL=https://__DOMAIN____PATH__
+ExecStart=__FINAL_PATH__/apps/notify_push/bin/x86_64/notify_push __FINAL_PATH__/config/config.php
+User=__APP__
+Group=__APP__
+
+[Install]
+WantedBy = multi-user.target

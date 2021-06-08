@@ -367,6 +367,28 @@ chmod 644 "$cron_path"
 exec_occ background:cron
 
 #=================================================
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    # If notify_push is disabled, reenable it
+    if exec_occ app:list | awk '/Disabled/{f=1;next} f' | grep -q -w notify_push; then
+        exec_occ app:enable notify_push
+    # If notify_push is not installed, install it
+    elif exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
+        exec_occ app:install notify_push
+    fi
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    ynh_add_systemd_config --service="${app}-notify-push"
+
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+fi
+
+#=================================================
 # LOGROTATE
 #=================================================
 

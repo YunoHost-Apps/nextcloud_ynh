@@ -22,6 +22,9 @@ ynh_remove_logrotate
 # Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
 
+# Remove notify push
+ynh_remove_systemd_config --service="${app}-notify-push"
+
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
 ynh_secure_remove --file="/etc/cron.d/$app"

@@ -147,6 +147,17 @@ ynh_script_progression --message="Reloading NGINX web server..." --weight=3
 ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    if ! ynh_exec_as "$app" nextcloud php7.3 $final_path/occ notify_push:self-test; then
+        ynh_print_warn --message="High Performance Backend is not working correctly, try to repair it or contact YNH support."
+    fi
+fi
+
+#=================================================
 # END OF SCRIPT
 #=================================================
 

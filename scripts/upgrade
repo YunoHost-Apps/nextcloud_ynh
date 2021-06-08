@@ -402,6 +402,17 @@ ynh_use_logrotate --non-append
 ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    if ! ynh_exec_as "$app" nextcloud php7.3 $final_path/occ notify_push:self-test; then
+        ynh_print_warn --message="High Performance Backend is not working correctly, try to repair it or contact YNH support."
+    fi
+fi
+
+#=================================================
 # END OF SCRIPT
 #=================================================
 

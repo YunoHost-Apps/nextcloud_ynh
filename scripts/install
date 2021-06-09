@@ -239,13 +239,12 @@ ynh_multimedia_addaccess $app
 if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain$path_url/push
 
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/
 
     ynh_add_systemd_config --service="${app}-notify-push"
-
-    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
 fi
 
 #=================================================
@@ -264,6 +263,10 @@ find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
 chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
+if [ $enable_notify_push -eq 1 ]
+then
+    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
+fi
 
 #=================================================
 # SETUP LOGROTATE
@@ -282,13 +285,26 @@ ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
-# CHECK IF NOTIFY_PUSH WORKS
+# CONFIGURE NOTIFY_PUSH APP
 #=================================================
 
 if [ $use_notify_push -eq 1 ]
 then
-    if ! ynh_exec_as "$app" nextcloud php7.3 $final_path/occ notify_push:self-test; then
-        ynh_print_warn --message="High Performance Backend is not working correctly, try to repair it or contact YNH support."
+    ynh_permission_create --permission="hpb" --label="High Performance Backend" --url="/push" --additional_urls="/index.php/apps/notify_push/" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
+fi
+
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 

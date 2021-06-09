@@ -320,6 +320,11 @@ chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 
+if [ $enable_notify_push -eq 1 ]
+then
+    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
+fi
+
 #=================================================
 # REGEN SYSTEM CONFIGURATIONS
 #=================================================
@@ -354,6 +359,12 @@ fi
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
+
+
+if [ $enable_notify_push -eq 1 ]
+then
+    ynh_add_nginx_config "${app}-notify-push"
+fi
 
 #=================================================
 # CRON JOB
@@ -407,8 +418,10 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 
 if [ $use_notify_push -eq 1 ]
 then
-    if ! ynh_exec_as "$app" nextcloud php7.3 $final_path/occ notify_push:self-test; then
-        ynh_print_warn --message="High Performance Backend is not working correctly, try to repair it or contact YNH support."
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 

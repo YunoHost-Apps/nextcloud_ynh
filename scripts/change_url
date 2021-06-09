@@ -16,6 +16,8 @@ ynh_script_progression --message="Updating NGINX web server configuration..." --
 
 ynh_change_url_nginx_config
 
+ynh_change_url_nginx_config
+
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
@@ -47,17 +49,13 @@ then
         sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
         ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
     fi
-fi
 
-#=================================================
-# CONFIGURE NOTIFY_PUSH APP
-#=================================================
+    if [ $enable_notify_push -eq 1 ]
+    then
+        ynh_add_systemd_config --service="${app}-notify-push"
 
-if [ $use_notify_push -eq 1 ]
-then
-    ynh_add_systemd_config --service="${app}-notify-push"
-
-    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+        ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+    fi
 fi
 
 #=================================================

@@ -75,7 +75,7 @@ ynh_script_progression --message="Restoring data directory..." --weight=2
 ynh_restore_file --origin_path="$data_dir" --not_mandatory
 
 #=================================================
-# CONFIGURE NOTIFY_PUSH APP
+# RESTORE THE NOTIFY_PUSH APP
 #=================================================
 
 if [ $use_notify_push -eq 1 ]
@@ -83,8 +83,9 @@ then
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/
 
-    ynh_add_systemd_config --service="${app}-notify-push"
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push.service"
 
+    systemctl enable $app.service --quiet
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart
 fi
 
@@ -150,7 +151,7 @@ ynh_systemd_action --service_name=nginx --action=reload
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
 
-if [ $use_notify_push -eq 1 ]
+if [ $enable_notify_push -eq 1 ]
 then
     if ! ynh_exec_as "$app" nextcloud php7.3 $final_path/occ notify_push:self-test; then
         ynh_print_warn --message="High Performance Backend is not working correctly, try to repair it or contact YNH support."

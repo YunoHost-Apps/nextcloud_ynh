@@ -22,6 +22,7 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
+use_notify_push=$(ynh_app_setting_get --app=$app --key=use_notify_push)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
@@ -70,6 +71,12 @@ if [ -z "$phpversion" ]; then
     phpversion="$YNH_PHP_VERSION"
 fi
 
+# If final_path doesn't exist, create it
+if [ -z "$use_notify_push" ]; then
+	use_notify_push=0
+    ynh_app_setting_set --app=$app --key=use_notify_push --value=$use_notify_push
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -107,6 +114,15 @@ if ynh_legacy_permissions_exists; then
 
     ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 fi
+
+if [ $use_notify_push -eq 1 ] && ! ynh_permission_exists --permission="hpb"
+then
+    ynh_permission_create --permission="hpb" --label="High Performance Backend" --url="/push" --additional_urls="/index.php/apps/notify_push/" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
+elif [ $use_notify_push -eq 0 ] && ynh_permission_exists --permission="hpb"
+then
+    ynh_permission_delete --permission="hpb"
+fi
+
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -172,6 +188,13 @@ then
 
     # Remove lines about .well-known/carddav and caldav with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
+fi
+
+if [ $use_notify_push -eq 1 ]
+then
+    string_use_notify_push=""
+else
+    string_use_notify_push="#"
 fi
 
 # Create a dedicated NGINX config
@@ -411,6 +434,28 @@ chmod 644 "$cron_path"
 exec_occ background:cron
 
 #=================================================
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    # If notify_push is disabled, reenable it
+    if exec_occ app:list | awk '/Disabled/{f=1;next} f' | grep -q -w notify_push; then
+        exec_occ app:enable notify_push
+    # If notify_push is not installed, install it
+    elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
+        exec_occ app:install notify_push
+    fi
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    ynh_add_systemd_config --service="${app}-notify-push"
+
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+fi
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SECURE FILES AND DIRECTORIES
@@ -424,6 +469,10 @@ find $datadir/ -type f -print0 | xargs -0 chmod 0640
 find $datadir/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
+if [ $use_notify_push -eq 1 ]
+then
+    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
+fi
 
 #=================================================
 # WARNING ABOUT THIRD-PARTY APPS
@@ -461,6 +510,19 @@ ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
+
+#=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
+    fi
+fi
 
 #=================================================
 # END OF SCRIPT

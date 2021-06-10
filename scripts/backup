@@ -26,6 +26,7 @@ app=$YNH_APP_INSTANCE_NAME
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+use_notify_push=$(ynh_app_setting_get --app=$app --key=use_notify_push)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
@@ -85,6 +86,15 @@ ynh_backup --src_path="/etc/cron.d/$app"
 ynh_print_info --message="Backing up data directory..."
 
 ynh_backup --src_path="/home/yunohost.app/${app}/data" --is_big
+
+#=================================================
+# BACKUP THE NOTIFY_PUSH APP
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    ynh_backup --src_path="/etc/systemd/system/${app}-notify-push.service"
+fi
 
 #=================================================
 # END OF SCRIPT

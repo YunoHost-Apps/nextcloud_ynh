@@ -12,7 +12,8 @@
       "password": ""
      },
     "hashing_default_password": true,
-    "localstorage.allowsymlinks": true
+    "localstorage.allowsymlinks": true,
+    "trusted_proxies": [ "127.0.0.1", "::1" ]
   },
   "apps": {
     "user_ldap": {

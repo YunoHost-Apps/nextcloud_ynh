@@ -24,6 +24,7 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 user_home=$YNH_APP_ARG_USER_HOME
+use_notify_push=$YNH_APP_ARG_USE_NOTIFY_PUSH
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -47,6 +48,7 @@ ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=path --value=$path_url
 ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=user_home --value=$user_home
+ynh_app_setting_set --app=$app --key=use_notify_push --value=$use_notify_push
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -119,6 +121,13 @@ then
 
     # Remove lines about .well-known/carddav and caldav with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
+fi
+
+if [ $use_notify_push -eq 1 ]
+then
+    string_use_notify_push=""
+else
+    string_use_notify_push="#"
 fi
 
 # Create a dedicated NGINX config
@@ -298,6 +307,21 @@ create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
 ynh_multimedia_addaccess $app
 
 #=================================================
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    exec_occ app:install notify_push
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain$path_url/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    ynh_add_systemd_config --service="${app}-notify-push"
+fi
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SECURE FILES AND DIRECTORIES
@@ -311,6 +335,10 @@ find $datadir/ -type f -print0 | xargs -0 chmod 0640
 find $datadir/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
+if [ $use_notify_push -eq 1 ]
+then
+    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
+fi
 
 #=================================================
 # SETUP LOGROTATE
@@ -333,7 +361,11 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 ynh_script_progression --message="Configuring SSOwat..."
 
-ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+
+if [ $use_notify_push -eq 1 ]
+then
+    ynh_permission_create --permission="hpb" --label="High Performance Backend" --url="/push" --additional_urls="/index.php/apps/notify_push/" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
+fi
 
 #=================================================
 # RELOAD NGINX
@@ -341,6 +373,19 @@ ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]
 ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
+    fi
+fi
 
 #=================================================
 # END OF SCRIPT

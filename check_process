@@ -4,6 +4,7 @@
 		path="/path"
 		admin="homer"
 		user_home="1"
+		use_notify_push="1"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1

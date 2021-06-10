@@ -19,6 +19,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+use_notify_push=$(ynh_app_setting_get --app=$app --key=use_notify_push)
 
 #=================================================
 # STANDARD REMOVE
@@ -77,6 +78,14 @@ ynh_script_progression --message="Removing Fail2Ban configuration..." --weight=8
 
 # Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
+
+#=================================================
+# STOP AND REMOVE SERVICE
+#=================================================
+ynh_script_progression --message="Stopping and removing the systemd service..."
+
+ynh_remove_systemd_config --service="${app}-notify-push"
+ynh_secure_remove --file="/var/run/$app"
 
 #=================================================
 # SPECIFIC REMOVE

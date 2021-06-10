@@ -40,6 +40,10 @@ To install and configure it:
 
 *NB: OnlyOffice is only available for x86 architecture - **ARM** architecture is **not** supported (Raspberry Pi, OLinuXino...)*
 
+#### High Performance Backend
+
+This is an application on Nextcloud that should speed up the instance, more information here: https://github.com/nextcloud/notify_push#about
+
 ## YunoHost specific features
 
 In addition to Nextcloud core features, the following are made available with

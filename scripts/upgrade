@@ -387,7 +387,7 @@ then
     if exec_occ app:list | awk '/Disabled/{f=1;next} f' | grep -q -w notify_push; then
         exec_occ app:enable notify_push
     # If notify_push is not installed, install it
-    elif exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
+    elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
         exec_occ app:install notify_push
     fi
 

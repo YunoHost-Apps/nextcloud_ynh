@@ -104,6 +104,11 @@ chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 
+if [ $enable_notify_push -eq 1 ]
+then
+    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
+fi
+
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
@@ -150,6 +155,11 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
+
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as "$app" \
+      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
 
 if [ $enable_notify_push -eq 1 ]
 then

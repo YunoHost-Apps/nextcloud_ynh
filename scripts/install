@@ -333,7 +333,7 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 ynh_script_progression --message="Configuring SSOwat..."
 
-ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 
 #=================================================
 # RELOAD NGINX

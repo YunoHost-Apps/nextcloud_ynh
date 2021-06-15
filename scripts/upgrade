@@ -105,7 +105,7 @@ ynh_abort_if_errors
 if ynh_legacy_permissions_exists; then
     ynh_legacy_permissions_delete_all
 
-    ynh_permission_create --permission="api" --label="api" --url="re:$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+    ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 fi
 
 #=================================================

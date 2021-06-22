@@ -6,15 +6,23 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "20.0.8~ynh1",
+    "version": "21.0.2~ynh1",
     "url": "https://nextcloud.com",
+    "upstream": {
+        "license": "AGPL-3.0",
+        "website": "https://nextcloud.com",
+        "demo": "https://demo.nextcloud.com/",
+        "admindoc": "https://docs.nextcloud.com/server/21/user_manual/en/",
+        "userdoc": "https://yunohost.org/en/app_nextcloud",
+        "code": "https://github.com/nextcloud/server"
+    },
     "license": "AGPL-3.0",
     "maintainer": {
         "name": "Kay0u",
         "email": "pierre@kayou.io"
     },
     "requirements": {
-        "yunohost": ">= 4.1.6"
+        "yunohost": ">= 4.2"
     },
     "multi_instance": true,
     "services": [
@@ -27,29 +35,17 @@
             {
                 "name": "domain",
                 "type": "domain",
-                "ask": {
-                    "en": "Choose a domain for Nextcloud",
-                    "fr": "Choisissez un domaine pour Nextcloud"
-                },
                 "example": "domain.org"
             },
             {
                 "name": "path",
                 "type": "path",
-                "ask": {
-                    "en": "Choose a path for Nextcloud",
-                    "fr": "Choisissez un chemin pour Nextcloud"
-                },
                 "example": "/nextcloud",
                 "default": "/nextcloud"
             },
             {
                 "name": "admin",
                 "type": "user",
-                "ask": {
-                    "en": "Choose the Nextcloud administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur de Nextcloud (doit être un utilisateur YunoHost existant)"
-                },
                 "example": "homer"
             },
             {

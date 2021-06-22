@@ -1,1 +1,1 @@
-*/15  *  *  *  * __USER__ /usr/bin/php__YNH_PHP_VERSION__ -f __DESTDIR__/cron.php
+*/15  *  *  *  * __APP__ /usr/bin/php__PHPVERSION__ -f __FINAL_PATH__/cron.php

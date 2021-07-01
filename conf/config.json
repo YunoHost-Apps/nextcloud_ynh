@@ -1,7 +1,7 @@
 {
   "system": {
     "updatechecker": false,
-    "memcache.local": "\\OC\\Memcache\\APCu",
+    "memcache.local": "\\OC\\Memcache\\Redis",
     "integrity.check.disabled": true,
     "filelocking.enabled": true,
     "memcache.locking": "\\OC\\Memcache\\Redis",

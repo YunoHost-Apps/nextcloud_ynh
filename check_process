@@ -12,7 +12,10 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
-		upgrade=1	from_commit=c864e086625363d91dde6ba78a652011a991a027
+		#19.0.3 
+		upgrade=1	from_commit=a03e25fac417e2e03e53ed3a7b7ed05185637360
+		#21.0.2 
+		upgrade=1	from_commit=fa1f0da48d3edbdf5bcb3b8b70a0687b4e878d11
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
@@ -22,6 +25,8 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=c864e086625363d91dde6ba78a652011a991a027
-		name=[fix] php7.2-mcrypt doesn't exist (#253)
+	; commit=a03e25fac417e2e03e53ed3a7b7ed05185637360
+		name=Merge pull request #333 from ericgaspar/Upgrade-to-version-19.0.3 
+	; commit=fa1f0da48d3edbdf5bcb3b8b70a0687b4e878d11
+		name=Merge pull request #408 from YunoHost-Apps/21.0.2 
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

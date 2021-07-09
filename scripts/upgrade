@@ -194,7 +194,7 @@ exec_occ() {
         NEXTCLOUD_PHP_VERSION="7.0"
     fi
 (cd "$final_path" && ynh_exec_as "$app" \
-    php$NEXTCLOUD_PHP_VERSION occ --no-interaction --no-ansi "$@")
+    php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage

@@ -6,13 +6,13 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "21.0.3~ynh1",
+    "version": "22.0.0~ynh1",
     "url": "https://nextcloud.com",
     "upstream": {
         "license": "AGPL-3.0",
         "website": "https://nextcloud.com",
         "demo": "https://demo.nextcloud.com/",
-        "admindoc": "https://docs.nextcloud.com/server/21/user_manual/en/",
+        "admindoc": "https://docs.nextcloud.com/server/22/user_manual/en/",
         "userdoc": "https://yunohost.org/en/app_nextcloud",
         "code": "https://github.com/nextcloud/server"
     },

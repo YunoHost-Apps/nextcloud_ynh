@@ -98,8 +98,7 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
+chmod 755 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app: "$final_path"
 
@@ -140,9 +139,8 @@ ynh_add_nginx_config
 datadir="/home/yunohost.app/$app/data"
 # Create app folders
 mkdir -p "$datadir"
+chmod 755 "$datadir"
 chown -R $app: "$datadir"
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
 
 #=================================================
 # INSTALL NEXTCLOUD

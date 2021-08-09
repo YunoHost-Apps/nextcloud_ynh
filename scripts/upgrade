@@ -406,10 +406,7 @@ EOF
     ynh_store_file_checksum --file="${final_path}/config/config.php"
 fi
 
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
+chmod 755 "$final_path" "$datadir"
 chmod -R o-rwx "$final_path"
 chown -R $app: "$final_path" "$datadir"
 chmod 640 "$final_path/config/config.php"

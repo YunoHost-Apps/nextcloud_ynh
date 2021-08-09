@@ -28,7 +28,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 # Define a function to execute commands with `occ`
 exec_occ() {
   (cd "$final_path" && exec_as "$app" \
-      php$YNH_PHP_VERSION occ --no-interaction --no-ansi "$@")
+      php$YNH_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage

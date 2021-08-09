@@ -42,7 +42,7 @@ ynh_script_progression --message="Disabling maintenance mode..." --weight=3
 
 (
 cd "$final_path" && exec_as "$app" \
-    php$YNH_PHP_VERSION occ --no-interaction --no-ansi maintenance:mode --off
+    php$YNH_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off
 )
 
 #=================================================

@@ -49,6 +49,15 @@
                 "example": "homer"
             },
             {
+                "name": "is_public",
+                "type": "boolean",
+                "help": {
+                    "en": "If enabled, Nextcloud will be accessible by Nextcloud Desktop and by users without a YunoHost account. This can be changed later in the webadmin.",
+                    "fr": "Si cette case est cochée, Nextcloud sera accessible par Nextcloud Desktop et par les utilisateurs n’ayant pas de compte YunoHost. Vous pourrez changer dans la webadmin."
+                },
+                "default": true
+            },
+            {
                 "name": "user_home",
                 "type": "boolean",
                 "ask": {

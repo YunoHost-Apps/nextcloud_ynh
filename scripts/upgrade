@@ -130,7 +130,7 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_script_progression --message="Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -406,6 +406,15 @@ EOF
     ynh_store_file_checksum --file="${final_path}/config/config.php"
 fi
 
+find $final_path/ -type f -print0 | xargs -0 chmod 0644
+find $final_path/ -type d -print0 | xargs -0 chmod 0755
+find $datadir/ -type f -print0 | xargs -0 chmod 0640
+find $datadir/ -type d -print0 | xargs -0 chmod 0750
+chmod -R o-rwx "$final_path"
+chown -R $app: "$final_path" "$datadir"
+chmod 640 "$final_path/config/config.php"
+chmod 755 /home/yunohost.app/$app
+
 #=================================================
 # UPDATE THE CRON JOB
 #=================================================
@@ -416,21 +425,6 @@ chown root: "$cron_path"
 chmod 644 "$cron_path"
 
 exec_occ background:cron
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-
-# Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
-chmod 640 "$final_path/config/config.php"
-chmod 755 /home/yunohost.app
 
 #=================================================
 # WARNING ABOUT THIRD-PARTY APPS

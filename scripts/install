@@ -68,6 +68,14 @@ ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..." --weight=3
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path"
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..."
@@ -90,13 +98,10 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..." --weight=3
-
-# Create a system user
-ynh_system_user_create --username=$app
+find $final_path/ -type f -print0 | xargs -0 chmod 0644
+find $final_path/ -type d -print0 | xargs -0 chmod 0755
+chmod -R o-rwx "$final_path"
+chown -R $app: "$final_path"
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -135,6 +140,9 @@ ynh_add_nginx_config
 datadir="/home/yunohost.app/$app/data"
 # Create app folders
 mkdir -p "$datadir"
+chown -R $app: "$datadir"
+find $datadir/ -type f -print0 | xargs -0 chmod 0640
+find $datadir/ -type d -print0 | xargs -0 chmod 0750
 
 #=================================================
 # INSTALL NEXTCLOUD
@@ -146,9 +154,6 @@ exec_occ() {
   (cd "$final_path" && ynh_exec_as "$app" \
       php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
-
-# Set write access for the following commands
-chown -R $app: "$final_path" "$datadir"
 
 # Define password in an intermediate var
 # The fact that it's called _password allows it to be
@@ -305,13 +310,8 @@ ynh_multimedia_addaccess $app
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "$final_path/config/config.php"
-chmod 755 /home/yunohost.app
+chmod 755 /home/yunohost.app/$app
 
 #=================================================
 # SETUP LOGROTATE

@@ -3,6 +3,7 @@
 		domain="domain.tld"
 		path="/path"
 		admin="homer"
+		is_public=1
 		user_home="1"
 	; Checks
 		pkg_linter=1

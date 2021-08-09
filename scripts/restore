@@ -134,6 +134,7 @@ mkdir -p "$datadir"
 
 # Fix app ownerships & permissions
 chown -R $app: "$final_path" "$datadir"
+chmod -R o-rwx "$final_path"
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 

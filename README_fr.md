@@ -49,8 +49,8 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 ## Documentations et ressources
 
 * Site officiel de l'app : https://nextcloud.com
-* Documentation officielle utilisateur : https://yunohost.org/en/app_nextcloud
-* Documentation officielle de l'admin : https://docs.nextcloud.com/server/21/user_manual/en/
+* Documentation officielle utilisateur : https://docs.nextcloud.com/server/latest/user_manual/en/
+* Documentation officielle de l'admin : https://docs.nextcloud.com/server/stable/admin_manual/
 * Dépôt de code officiel de l'app : https://github.com/nextcloud/server
 * Documentation YunoHost pour cette app : https://yunohost.org/app_nextcloud
 * Signaler un bug : https://github.com/YunoHost-Apps/nextcloud_ynh/issues

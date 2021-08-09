@@ -12,8 +12,8 @@
         "license": "AGPL-3.0",
         "website": "https://nextcloud.com",
         "demo": "https://demo.nextcloud.com/",
-        "admindoc": "https://docs.nextcloud.com/server/22/user_manual/en/",
-        "userdoc": "https://yunohost.org/en/app_nextcloud",
+        "admindoc": "https://docs.nextcloud.com/server/stable/admin_manual/",
+        "userdoc": "https://docs.nextcloud.com/server/latest/user_manual/en/",
         "code": "https://github.com/nextcloud/server"
     },
     "license": "AGPL-3.0",

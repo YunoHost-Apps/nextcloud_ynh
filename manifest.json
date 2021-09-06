@@ -12,8 +12,8 @@
         "license": "AGPL-3.0",
         "website": "https://nextcloud.com",
         "demo": "https://demo.nextcloud.com/",
-        "admindoc": "https://docs.nextcloud.com/server/21/user_manual/en/",
-        "userdoc": "https://yunohost.org/en/app_nextcloud",
+        "admindoc": "https://docs.nextcloud.com/server/stable/admin_manual/",
+        "userdoc": "https://docs.nextcloud.com/server/latest/user_manual/en/",
         "code": "https://github.com/nextcloud/server"
     },
     "license": "AGPL-3.0",
@@ -47,6 +47,15 @@
                 "name": "admin",
                 "type": "user",
                 "example": "homer"
+            },
+            {
+                "name": "is_public",
+                "type": "boolean",
+                "help": {
+                    "en": "If enabled, Nextcloud will be accessible by Nextcloud Desktop and by users without a YunoHost account. This can be changed later in the webadmin.",
+                    "fr": "Si cette case est cochée, Nextcloud sera accessible par Nextcloud Desktop et par les utilisateurs n’ayant pas de compte YunoHost. Vous pourrez changer dans la webadmin."
+                },
+                "default": true
             },
             {
                 "name": "user_home",

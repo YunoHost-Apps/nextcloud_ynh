@@ -54,8 +54,8 @@ this package:
 ## Documentation and resources
 
 * Official app website: https://nextcloud.com
-* Official user documentation: https://yunohost.org/en/app_nextcloud
-* Official admin documentation: https://docs.nextcloud.com/server/21/user_manual/en/
+* Official user documentation: https://docs.nextcloud.com/server/latest/user_manual/en/
+* Official admin documentation: https://docs.nextcloud.com/server/stable/admin_manual/
 * Upstream app code repository: https://github.com/nextcloud/server
 * YunoHost documentation for this app: https://yunohost.org/app_nextcloud
 * Report a bug: https://github.com/YunoHost-Apps/nextcloud_ynh/issues

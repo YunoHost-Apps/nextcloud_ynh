@@ -64,7 +64,7 @@ ynh_mysql_dump_db --database="$db_name" > db.sql
 # BACKUP LOGROTATE
 #=================================================
 
-ynh_backup "/etc/logrotate.d/$app"
+ynh_backup --src_path="/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP FAIL2BAN CONFIGURATION

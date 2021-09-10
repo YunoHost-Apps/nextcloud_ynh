@@ -137,7 +137,7 @@ ynh_add_nginx_config
 ynh_script_progression --message="Creating a data directory..." --weight=1
 
 # Define app's data directory
-datadir="/home/yunohost.app/$app"
+datadir="/home/yunohost.app/$app/data"
 ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 # Create app folders
@@ -168,7 +168,7 @@ exec_occ maintenance:install \
     --database "mysql" --database-name $db_name \
     --database-user $db_name --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
-    --data-dir "$datadir/data" \
+    --data-dir "$datadir" \
     || ynh_die --message="Unable to install Nextcloud"
 
 #=================================================
@@ -219,7 +219,7 @@ create_external_storage() {
   local datadir="$1"
   local mount_name="$2"
   local mount_id=`exec_occ files_external:create --output=json \
-      "$mount_name" 'local' 'null::null' -c "datadir=$datadir/data" || true`
+      "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
       && ynh_print_warn --message="Unable to create external storage" \
       || exec_occ files_external:option "$mount_id" enable_sharing true

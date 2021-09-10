@@ -138,14 +138,9 @@ ynh_script_progression --message="Creating a data directory..." --weight=1
 
 # Define app's data directory
 datadir="/home/yunohost.app/$app/data"
-ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 # Create app folders
 mkdir -p "$datadir"
-
-chmod 750 "$datadir"
-chmod -R o-rwx "$datadir"
-chown -R $app:www-data "$datadir"
 
 #=================================================
 # INSTALL NEXTCLOUD
@@ -311,6 +306,10 @@ ynh_multimedia_addaccess $app
 #=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
+
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 # # Fix app ownerships & permissions
 # chown -R $app: "$final_path" "$datadir"

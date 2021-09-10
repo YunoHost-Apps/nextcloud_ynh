@@ -158,6 +158,10 @@ if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
     ynh_secure_remove --file=/etc/php/$phpversion/fpm/conf.d/20-$app.ini
 fi
 
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
@@ -423,14 +427,19 @@ exec_occ background:cron
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
-chmod 640 "$final_path/config/config.php"
-chmod 755 /home/yunohost.app
+# # Fix app ownerships & permissions
+# chown -R $app: "$final_path" "$datadir"
+# find $final_path/ -type f -print0 | xargs -0 chmod 0644
+# find $final_path/ -type d -print0 | xargs -0 chmod 0755
+# find $datadir/ -type f -print0 | xargs -0 chmod 0640
+# find $datadir/ -type d -print0 | xargs -0 chmod 0750
+# chmod 640 "$final_path/config/config.php"
+# chmod 755 /home/yunohost.app
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+
 
 #=================================================
 # WARNING ABOUT THIRD-PARTY APPS

@@ -59,6 +59,14 @@ ynh_script_progression --message="Installing dependencies..." --weight=10
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..." --weight=3
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path"
+
+#=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
 ynh_script_progression --message="Creating a MySQL database..." --weight=2
@@ -90,13 +98,9 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..." --weight=3
-
-# Create a system user
-ynh_system_user_create --username=$app
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -130,11 +134,18 @@ ynh_add_nginx_config
 #=================================================
 # CREATE THE DATA DIRECTORY
 #=================================================
+ynh_script_progression --message="Creating a data directory..." --weight=1
 
 # Define app's data directory
-datadir="/home/yunohost.app/$app/data"
+datadir="/home/yunohost.app/$app"
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
 # Create app folders
 mkdir -p "$datadir"
+
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # INSTALL NEXTCLOUD
@@ -147,9 +158,6 @@ exec_occ() {
       php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
-# Set write access for the following commands
-chown -R $app: "$final_path" "$datadir"
-
 # Define password in an intermediate var
 # The fact that it's called _password allows it to be
 # picked up by Yunohost's auto-redact mecanism
@@ -160,7 +168,7 @@ exec_occ maintenance:install \
     --database "mysql" --database-name $db_name \
     --database-user $db_name --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
-    --data-dir "$datadir" \
+    --data-dir "$datadir/data" \
     || ynh_die --message="Unable to install Nextcloud"
 
 #=================================================
@@ -211,7 +219,7 @@ create_external_storage() {
   local datadir="$1"
   local mount_name="$2"
   local mount_id=`exec_occ files_external:create --output=json \
-      "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+      "$mount_name" 'local' 'null::null' -c "datadir=$datadir/data" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
       && ynh_print_warn --message="Unable to create external storage" \
       || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -304,14 +312,14 @@ ynh_multimedia_addaccess $app
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
-chmod 640 "$final_path/config/config.php"
-chmod 755 /home/yunohost.app
+# # Fix app ownerships & permissions
+# chown -R $app: "$final_path" "$datadir"
+# find $final_path/ -type f -print0 | xargs -0 chmod 0644
+# find $final_path/ -type d -print0 | xargs -0 chmod 0755
+# find $datadir/ -type f -print0 | xargs -0 chmod 0640
+# find $datadir/ -type d -print0 | xargs -0 chmod 0750
+# chmod 640 "$final_path/config/config.php"
+# chmod 755 /home/yunohost.app
 
 #=================================================
 # SETUP LOGROTATE

@@ -153,6 +153,10 @@ exec_occ() {
       php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
+# Set write access for the following commands
+chown -R $app: "$final_path" "$datadir"
+
+
 # Define password in an intermediate var
 # The fact that it's called _password allows it to be
 # picked up by Yunohost's auto-redact mecanism

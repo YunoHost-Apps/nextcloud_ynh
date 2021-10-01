@@ -312,7 +312,7 @@ find $datadir/ -type f -print0 | xargs -0 chmod 0640
 find $datadir/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
-chmod 750 $fina_path
+chmod 750 $final_path
 
 #=================================================
 # SETUP LOGROTATE

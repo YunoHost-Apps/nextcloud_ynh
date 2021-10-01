@@ -13,8 +13,6 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		#19.0.3 
-		upgrade=1	from_commit=a03e25fac417e2e03e53ed3a7b7ed05185637360
 		#21.0.2 
 		upgrade=1	from_commit=fa1f0da48d3edbdf5bcb3b8b70a0687b4e878d11
 		backup_restore=1
@@ -26,8 +24,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=a03e25fac417e2e03e53ed3a7b7ed05185637360
-		name=Merge pull request #333 from ericgaspar/Upgrade-to-version-19.0.3 
 	; commit=fa1f0da48d3edbdf5bcb3b8b70a0687b4e878d11
 		name=Merge pull request #408 from YunoHost-Apps/21.0.2 
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

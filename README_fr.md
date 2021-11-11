@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
-**Version incluse :** 22.2.0~ynh1
+**Version incluse :** 22.2.1~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 

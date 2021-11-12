@@ -4,4 +4,4 @@
 next_version="22.2.1"
 
 # Nextcloud tarball checksum sha256
-nextcloud_source_sha256="6dc8d7f66e74110e4669eeb97d092c86dbb61079cc6d231bca90602c7b8a50ee"
+nextcloud_source_sha256="d01b50b7bb225181a21151a451899dd208df71cab890884255a39347d7ebbf2b"

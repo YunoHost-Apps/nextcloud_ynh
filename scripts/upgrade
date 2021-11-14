@@ -151,7 +151,7 @@ then
 fi
 
 # Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
+ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then

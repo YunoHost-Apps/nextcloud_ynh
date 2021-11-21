@@ -130,9 +130,12 @@ ynh_add_nginx_config
 #=================================================
 # CREATE THE DATA DIRECTORY
 #=================================================
+ynh_script_progression --message="Creating a data directory..." --weight=1
 
 # Define app's data directory
 datadir="/home/yunohost.app/$app/data"
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
 # Create app folders
 mkdir -p "$datadir"
 

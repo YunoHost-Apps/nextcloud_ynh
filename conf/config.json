@@ -12,7 +12,8 @@
       "password": ""
      },
     "hashing_default_password": true,
-    "localstorage.allowsymlinks": true
+    "localstorage.allowsymlinks": true,
+    "simpleSignUpLink.shown": false
   },
   "apps": {
     "user_ldap": {

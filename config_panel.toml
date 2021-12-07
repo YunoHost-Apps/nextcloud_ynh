@@ -1,5 +1,4 @@
-version = "0.1"
-name = "Nextcloud configuration panel"
+version = "1.0"
 
 [main]
 name = "Nextcloud configuration"

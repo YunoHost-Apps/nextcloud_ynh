@@ -14,7 +14,7 @@
 		setup_public=1
 		upgrade=1
 		#21.0.2 
-		upgrade=1	from_commit=fa1f0da48d3edbdf5bcb3b8b70a0687b4e878d11
+		upgrade=1	from_commit=e249cced99423d8e6743312361f140c1fbdc3a1d
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
@@ -24,6 +24,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=fa1f0da48d3edbdf5bcb3b8b70a0687b4e878d11
-		name=Merge pull request #408 from YunoHost-Apps/21.0.2 
+	; commit=e249cced99423d8e6743312361f140c1fbdc3a1d
+		name=Merge pull request #446 from YunoHost-Apps/22.2.0 
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&

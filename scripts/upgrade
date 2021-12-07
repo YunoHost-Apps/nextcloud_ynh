@@ -50,6 +50,12 @@ if [ -z "$final_path" ]; then
 	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
+# If datadir doesn't exist, create it
+if [ -z "$datadir" ]; then
+    datadir=/home/yunohost.app/$app
+    ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
@@ -75,6 +81,11 @@ if ynh_legacy_permissions_exists; then
     ynh_legacy_permissions_delete_all
 
     ynh_app_setting_delete --app=$app --key=is_public
+fi
+
+# Create a permission if needed
+if ! ynh_permission_exists --permission="api"; then
+    ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 fi
 
 #=================================================
@@ -151,7 +162,7 @@ then
 fi
 
 # Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
+ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then

@@ -28,6 +28,7 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
@@ -100,7 +101,7 @@ ynh_script_progression --message="Reconfiguring PHP-FPM..." --weight=50
 ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 # Recreate a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$phpversion --package="$extra_php_dependencies"
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$phpversion
 
 #=================================================
 # RESTORE THE CRON FILE
@@ -118,8 +119,6 @@ ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 # RESTORE THE DATA DIRECTORY
 #=================================================
 ynh_script_progression --message="Restoring data directory..." --weight=2
-
-datadir="/home/yunohost.app/$app/data"
 
 # Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
 ynh_restore_file --origin_path="$datadir" --not_mandatory

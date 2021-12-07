@@ -104,7 +104,7 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=medium --footprint=high --phpversion=$YNH_PHP_VERSION --package="$extra_php_dependencies"
+ynh_add_fpm_config --usage=medium --footprint=high --phpversion=$YNH_PHP_VERSION
 # Used by ynh_add_nginx_config
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
@@ -130,9 +130,12 @@ ynh_add_nginx_config
 #=================================================
 # CREATE THE DATA DIRECTORY
 #=================================================
+ynh_script_progression --message="Creating a data directory..." --weight=1
 
 # Define app's data directory
 datadir="/home/yunohost.app/$app/data"
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
 # Create app folders
 mkdir -p "$datadir"
 

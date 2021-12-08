@@ -6,8 +6,8 @@
 		is_public=1
 		user_home="1"
 	; Config_panel
-		main.php_fpm_config.fpm_footprint=low|medium|high|specific
-		main.php_fpm_config.free_footprint=0|1
+		main.php_fpm_config.fpm_footprint=low|medium|high
+		main.php_fpm_config.free_footprint=20
 		main.php_fpm_config.fpm_usage=low|medium|high
 	; Checks
 		pkg_linter=1

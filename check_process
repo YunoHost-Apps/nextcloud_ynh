@@ -17,7 +17,7 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		#21.0.2 
+		#22.2.0 
 		upgrade=1	from_commit=e249cced99423d8e6743312361f140c1fbdc3a1d
 		backup_restore=1
 		multi_instance=1

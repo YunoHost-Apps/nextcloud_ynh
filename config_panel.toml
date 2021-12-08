@@ -22,4 +22,4 @@ name = "Nextcloud configuration"
         ask = "Expected usage of the service?"
         choices = ["low", "medium", "high"]
         default = "low"
-        help = "low: Personal usage, behind the sso. No RAM footprint when not used, but the impact on the processor can be high if many users are using the service.<br>medium: Low usage, few people or/and publicly accessible. Low RAM footprint, medium processor footprint when used.<br>high: High usage, frequently visited website. High RAM footprint, but lower on processor usage and quickly responding."
+        help = "low: Personal usage, behind the SSO. No RAM footprint when not used, but the impact on the processor can be high if many users are using the service.<br>medium: Low usage, few people or/and publicly accessible. Low RAM footprint, medium processor footprint when used.<br>high: High usage, frequently visited website. High RAM footprint, but lower on processor usage and quickly responding."

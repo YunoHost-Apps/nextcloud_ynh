@@ -5,6 +5,10 @@
 		admin="homer"
 		is_public=1
 		user_home="1"
+	; Config_panel
+		main.php_fpm_config.fpm_footprint=low|medium|high|specific
+		main.php_fpm_config.free_footprint=0|1
+		main.php_fpm_config.fpm_usage=low|medium|high
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1
@@ -20,6 +24,7 @@
 		incorrect_path=1
 		port_already_use=0
 		change_url=1
+		config_panel=1
 ;;; Options
 Email=
 Notification=none

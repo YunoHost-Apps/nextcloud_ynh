@@ -19,8 +19,6 @@
 		upgrade=1	from_commit=892f02888f31b6a0da850a5f8b2e66a151f84750
 		backup_restore=1
 		multi_instance=1
-		incorrect_path=1
-		port_already_use=0
 		change_url=1
 ;;; Options
 Email=

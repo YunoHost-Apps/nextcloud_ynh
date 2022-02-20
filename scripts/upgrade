@@ -22,7 +22,6 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
-phpversion=$YNH_PHP_VERSION
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
@@ -84,8 +83,8 @@ if ! ynh_permission_exists --permission="api"; then
 fi
 
 # Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/7.3/fpm/conf.d/20-$app.ini ]; then
-    ynh_secure_remove --file=/etc/php/7.3/fpm/conf.d/20-$app.ini
+if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
+    ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
 fi
 
 #=================================================
@@ -150,6 +149,8 @@ ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
 # Recreate a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
+
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION

@@ -90,40 +90,16 @@ fi
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=30
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=10
 
-# Made a backup only after the version 11.0.0
-# Before, the datas will be always saved.
-# Get the current version number of nextcloud/owncloud
-current_version=$(grep OC_VersionString "$final_path/version.php" | cut -d\' -f2)
-current_major_version=${current_version%%.*}
-
-if [ $current_major_version -gt 11 ]
-then
-    # Inform the backup/restore process that it should not save the data directory
-    # Use only for the previous backup script that doesn't set 'is_big'
-    ynh_app_setting_set --app=$app --key=backup_core_only --value=1
-
-    # Backup the current version of the app
-    ynh_backup_before_upgrade
-
-    # Remove the option backup_core_only after the backup.
-    ynh_app_setting_delete $app backup_core_only
-
-    ynh_clean_setup () {
-        # restore it if the upgrade fails
-        ynh_restore_upgradebackup
-    }
-fi
-
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+    # Restore it if the upgrade fails
+    ynh_restore_upgradebackup
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-if ynh_legacy_permissions_exists; then
-    ynh_legacy_permissions_delete_all
-
-    ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
-fi
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -149,8 +125,6 @@ ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
 # Recreate a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
-
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -190,9 +164,9 @@ exec_occ() {
     # Backward compatibility to upgrade from NC14 or older version
     if [ $current_major_version = "last" ] || [ $current_major_version -ge 15 ]
     then
-        NEXTCLOUD_PHP_VERSION=$phpversion
+        NEXTCLOUD_PHP_VERSION=$YNH_PHP_VERSION
     else
-        NEXTCLOUD_PHP_VERSION="7.0"
+        NEXTCLOUD_PHP_VERSION="7.3"
     fi
 (cd "$final_path" && ynh_exec_as "$app" \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")

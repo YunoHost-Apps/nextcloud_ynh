@@ -84,9 +84,9 @@ if ! ynh_permission_exists --permission="api"; then
 fi
 
 # Delete existing ini configuration file (backward compatibility)
-#if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
-#    ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
-#fi
+if [ -f /etc/php/7.3/fpm/conf.d/20-$app.ini ]; then
+    ynh_secure_remove --file=/etc/php/7.3/fpm/conf.d/20-$app.ini
+fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP

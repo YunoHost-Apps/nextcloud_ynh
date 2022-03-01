@@ -22,6 +22,7 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
+phpversion=$YNH_PHP_VERSION
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
@@ -83,9 +84,9 @@ if ! ynh_permission_exists --permission="api"; then
 fi
 
 # Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
-    ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
-fi
+#if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
+#    ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
+#fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -160,16 +161,17 @@ ynh_add_nginx_config
 #=================================================
 
 # Define a function to execute commands with `occ`
-exec_occ() {
+#exec_occ() {
     # Backward compatibility to upgrade from NC14 or older version
-    if [ $current_major_version = "last" ] || [ $current_major_version -ge 15 ]
-    then
-        NEXTCLOUD_PHP_VERSION=$YNH_PHP_VERSION
-    else
-        NEXTCLOUD_PHP_VERSION="7.3"
-    fi
+#    if [ $current_major_version = "last" ] || [ $current_major_version -ge 15 ]
+#    then
+#        NEXTCLOUD_PHP_VERSION=$YNH_PHP_VERSION
+#   else
+#        NEXTCLOUD_PHP_VERSION="7.3"
+#    fi
+
 (cd "$final_path" && ynh_exec_as "$app" \
-    php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+    php$YNH_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage

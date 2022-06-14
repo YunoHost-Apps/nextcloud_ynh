@@ -21,6 +21,7 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)

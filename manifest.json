@@ -6,50 +6,54 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "20.0.7~ynh1",
+    "version": "23.0.4~ynh1",
     "url": "https://nextcloud.com",
+    "upstream": {
+        "license": "AGPL-3.0",
+        "website": "https://nextcloud.com",
+        "demo": "https://demo.nextcloud.com/",
+        "admindoc": "https://docs.nextcloud.com/server/stable/admin_manual/",
+        "userdoc": "https://docs.nextcloud.com/server/latest/user_manual/en/",
+        "code": "https://github.com/nextcloud/server"
+    },
     "license": "AGPL-3.0",
     "maintainer": {
-        "name": "YunoHost Contributors",
-        "email": "apps@yunohost.org"
+        "name": "kay0u",
+        "email": "pierre@kayou.io"
     },
     "requirements": {
-        "yunohost": ">= 4.1.6"
+        "yunohost": ">= 11.0.4"
     },
     "multi_instance": true,
     "services": [
         "nginx",
-        "php7.3-fpm"
+        "php8.0-fpm",
+        "mysql"
     ],
     "arguments": {
         "install" : [
             {
                 "name": "domain",
-                "type": "domain",
-                "ask": {
-                    "en": "Choose a domain for Nextcloud",
-                    "fr": "Choisissez un domaine pour Nextcloud"
-                },
-                "example": "domain.org"
+                "type": "domain"
             },
             {
                 "name": "path",
                 "type": "path",
-                "ask": {
-                    "en": "Choose a path for Nextcloud",
-                    "fr": "Choisissez un chemin pour Nextcloud"
-                },
                 "example": "/nextcloud",
                 "default": "/nextcloud"
             },
             {
                 "name": "admin",
-                "type": "user",
-                "ask": {
-                    "en": "Choose the Nextcloud administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur de Nextcloud (doit être un utilisateur YunoHost existant)"
+                "type": "user"
+            },
+            {
+                "name": "is_public",
+                "type": "boolean",
+                "help": {
+                    "en": "If enabled, Nextcloud will be accessible by Nextcloud Desktop and by users without a YunoHost account. This can be changed later in the webadmin.",
+                    "fr": "Si cette case est cochée, Nextcloud sera accessible par Nextcloud Desktop et par les utilisateurs n’ayant pas de compte YunoHost. Vous pourrez changer dans la webadmin."
                 },
-                "example": "homer"
+                "default": true
             },
             {
                 "name": "user_home",

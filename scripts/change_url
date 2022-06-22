@@ -31,6 +31,23 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_script_progression --message="Backing up the app before changing its URL (may take a while)..." --weight=1
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# Remove the new domain config file, the remove script won't do it as it doesn't know yet its location.
+	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+
+	# Restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
 # CHECK WHICH PARTS SHOULD BE CHANGED
 #=================================================
 
@@ -84,8 +101,8 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
-      php${phpversion} occ --no-interaction --no-ansi "$@")
+  (cd "$final_path" && ynh_exec_as "$app" \
+      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 if [ $change_domain -eq 1 ]
@@ -94,15 +111,15 @@ then
 	exec_occ config:system:set trusted_domains 1 --value=$new_domain
 
 	# Change hostname for activity notifications
-	ynh_replace_string --match_string="'overwrite.cli.url' => 'http://${old_domain}'," --replace_string="'overwrite.cli.url' => 'https://${new_domain}'," --target_file="${final_path}/config/config.php"
+    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}"
 fi
 
 if [ $change_domain -eq 1 ]
 then
 	# Check if .well-known is available for this domain
-	if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
+	if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
 	then
-		ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+		ynh_print_warn --message="Another app already uses the domain $new_domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
 		# Remove lines about .well-known/carddav and caldav with sed.
 		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"

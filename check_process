@@ -1,30 +1,33 @@
 ;; Test complet
 	; Manifest
-		domain="domain.tld"	(DOMAIN)
-		path="/path"	(PATH)
-		admin="homer"	(USER)
+		domain="domain.tld"
+		path="/path"
+		admin="homer"
+		is_public=1
 		user_home="1"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1
 		setup_root=1
 		setup_nourl=0
-		setup_private=0
-		setup_public=0
+		setup_private=1
+		setup_public=1
 		upgrade=1
-		upgrade=1	from_commit=c864e086625363d91dde6ba78a652011a991a027
-		upgrade=1	from_commit=e9e7015ed7667352c1c191fc632a9f6f382dd9d2
+		#21.0.2 
+		upgrade=1	from_commit=e249cced99423d8e6743312361f140c1fbdc3a1d
+		#22.2.3
+		upgrade=1	from_commit=892f02888f31b6a0da850a5f8b2e66a151f84750
 		backup_restore=1
 		multi_instance=1
-		incorrect_path=1
-		port_already_use=0
 		change_url=1
 ;;; Options
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=c864e086625363d91dde6ba78a652011a991a027
-		name=[fix] php7.2-mcrypt doesn't exist (#253)
+	; commit=e249cced99423d8e6743312361f140c1fbdc3a1d
+		name=Merge pull request #446 from YunoHost-Apps/22.2.0
+	; commit=892f02888f31b6a0da850a5f8b2e66a151f84750
+		name=Merge pull request #457 from YunoHost-Apps/testing
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&
 	; commit=e9e7015ed7667352c1c191fc632a9f6f382dd9d2
 		name=[fix] Upgrade to 20.0.4 (#346)

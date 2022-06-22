@@ -1,5 +1,6 @@
 #!/bin/bash
 
-user=$1
+user="$1"
+app="$(basename $0 | cut -d- -f 2-)" # Extract the app name from the script name, which is supposed to be something like "50-app_id"
 
-sudo setfacl --modify g:__GROUP__:rwx /home/$user
+setfacl --modify g:$app:rwx /home/$user

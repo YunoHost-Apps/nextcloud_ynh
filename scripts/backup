@@ -27,6 +27,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
@@ -64,7 +65,7 @@ ynh_mysql_dump_db --database="$db_name" > db.sql
 # BACKUP LOGROTATE
 #=================================================
 
-ynh_backup "/etc/logrotate.d/$app"
+ynh_backup --src_path="/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP FAIL2BAN CONFIGURATION
@@ -83,8 +84,6 @@ ynh_backup --src_path="/etc/cron.d/$app"
 # BACKUP THE DATA DIRECTORY
 #=================================================
 ynh_print_info --message="Backing up data directory..."
-
-set_datadir
 
 ynh_backup --src_path="$datadir" --is_big
 

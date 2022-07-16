@@ -162,6 +162,9 @@ chown -R $app: "$final_path" "$datadir"
 # picked up by Yunohost's auto-redact mecanism
 admin_password="$(ynh_string_random --length=6)"
 
+# Set the mysql.utf8mb4 config to true in config.php
+exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
     --database "mysql" --database-name $db_name \

@@ -246,7 +246,7 @@ then
     exec_occ -V
 
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-        exec_occ db:convert-mysql-charset
+        exec_occ maintenance:repair
     fi
 
     # Upgrade may fail if this app is enabled

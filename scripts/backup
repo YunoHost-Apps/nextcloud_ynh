@@ -85,6 +85,8 @@ ynh_backup --src_path="/etc/cron.d/$app"
 #=================================================
 ynh_print_info --message="Backing up data directory..."
 
+set_datadir
+
 ynh_backup --src_path="$datadir" --is_big
 
 #=================================================

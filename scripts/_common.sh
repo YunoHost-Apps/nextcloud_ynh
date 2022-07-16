@@ -3,10 +3,8 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="imagemagick acl tar smbclient at"
-
 YNH_PHP_VERSION="7.3"
-extra_php_dependencies="php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-smbclient php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-igbinary php${YNH_PHP_VERSION}-bcmath"
+pkg_dependencies="imagemagick libmagickcore-6.q16-6-extra acl tar smbclient at php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-igbinary php${YNH_PHP_VERSION}-bcmath"
 
 
 set_datadir() {
@@ -20,21 +18,6 @@ set_datadir() {
 
 #=================================================
 # EXPERIMENTAL HELPERS
-#=================================================
-
-# Execute a command as another user
-# usage: exec_as USER COMMAND [ARG ...]
-exec_as() {
-  local USER=$1
-  shift 1
-
-  if [[ $USER = $(whoami) ]]; then
-    eval "$@"
-  else
-    sudo -u "$USER" "$@"
-  fi
-}
-
 #=================================================
 
 # Check if an URL is already handled
@@ -112,42 +95,3 @@ ynh_smart_mktemp () {
 #=================================================
 # FUTURE OFFICIAL HELPERS
 #=================================================
-
-#=================================================
-# YUNOHOST MULTIMEDIA INTEGRATION
-#=================================================
-
-# Install or update the main directory yunohost.multimedia
-#
-# usage: ynh_multimedia_build_main_dir
-ynh_multimedia_build_main_dir () {
-        local ynh_media_release="v1.2"
-        local checksum="806a827ba1902d6911095602a9221181"
-
-        # Download yunohost.multimedia scripts
-        wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/${ynh_media_release}.tar.gz 2>&1
-
-        # Check the control sum
-        echo "${checksum} ${ynh_media_release}.tar.gz" | md5sum -c --status \
-                || ynh_die "Corrupt source"
-
-        # Check if the package acl is installed. Or install it.
-        ynh_package_is_installed 'acl' \
-                || ynh_package_install acl
-
-        # Extract
-        mkdir yunohost.multimedia-master
-        tar -xf ${ynh_media_release}.tar.gz -C yunohost.multimedia-master --strip-components 1
-        ./yunohost.multimedia-master/script/ynh_media_build.sh
-}
-
-# Grant write access to multimedia directories to a specified user
-#
-# usage: ynh_multimedia_addaccess user_name
-#
-# | arg: user_name - User to be granted write access
-ynh_multimedia_addaccess () {
-        local user_name=$1
-        groupadd -f multimedia
-        usermod -a -G multimedia $user_name
-}

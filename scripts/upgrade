@@ -50,6 +50,12 @@ if [ -z "$final_path" ]; then
 	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
+# If datadir doesn't exist, create it
+if [ -z "$datadir" ]; then
+    datadir=/home/yunohost.app/$app
+    ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
@@ -68,6 +74,18 @@ fi
 # If phpversion doesn't exist, create it
 if [ -z "$phpversion" ]; then
     phpversion="$YNH_PHP_VERSION"
+fi
+
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+    ynh_legacy_permissions_delete_all
+
+    ynh_app_setting_delete --app=$app --key=is_public
+fi
+
+# Create a permission if needed
+if ! ynh_permission_exists --permission="api"; then
+    ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 fi
 
 #=================================================
@@ -101,6 +119,12 @@ fi
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
+
+if ynh_legacy_permissions_exists; then
+    ynh_legacy_permissions_delete_all
+
+    ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+fi
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -138,7 +162,7 @@ then
 fi
 
 # Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
+ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
@@ -187,8 +211,8 @@ exec_occ() {
     else
         NEXTCLOUD_PHP_VERSION="7.0"
     fi
-(cd "$final_path" && exec_as "$app" \
-    php$NEXTCLOUD_PHP_VERSION occ --no-interaction --no-ansi "$@")
+(cd "$final_path" && ynh_exec_as "$app" \
+    php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 # Define a function to add an external storage
@@ -261,18 +285,19 @@ then
         ynh_print_info --message="Upgrade to nextcloud $next_version"
 
         # Create an app.src for this version of Nextcloud
-        cp ../conf/app.src.default ../conf/app.src
-        ynh_replace_string --match_string="__VERSION__" --replace_string="$next_version" --target_file="../conf/app.src"
-        ynh_replace_string --match_string="__SHA256_SUM__" --replace_string="$nextcloud_source_sha256" --target_file="../conf/app.src"
+        cat > ../conf/app.src << EOF
+SOURCE_URL=https://download.nextcloud.com/server/releases/nextcloud-$next_version.tar.bz2
+SOURCE_SUM=$nextcloud_source_sha256
+SOURCE_SUM_PRG=sha256sum
+SOURCE_FORMAT=tar.bz2
+SOURCE_IN_SUBDIR=true
+EOF
 
         # Create a temporary directory
         tmpdir="$(ynh_smart_mktemp min_size=300)"
 
         # Install the next nextcloud version in $tmpdir
         ynh_setup_source --dest_dir="$tmpdir"
-
-        # Allow Symlinks for multimedia folder
-        ynh_replace_string --match_string="protected \$allowSymlinks = false;" --replace_string="protected \$allowSymlinks = true;" --target_file="$tmpdir/lib/private/Files/Storage/Local.php"
 
         # Enable maintenance mode
         exec_occ maintenance:mode --on
@@ -329,10 +354,7 @@ then
     ynh_backup_if_checksum_is_different --file="$final_path/config/config.php"
 
     nc_conf="${final_path}/config.json"
-    cp ../conf/config.json "$nc_conf"
-
-    ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$nc_conf"
-    ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$nc_conf"
+    ynh_add_config --template="../conf/config.json" --destination="$nc_conf"
 
     # Reneable the mail app
     if [ $mail_app_must_be_reactived -eq 1 ]; then
@@ -369,7 +391,7 @@ then
     # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
     #=================================================
 
-    ynh_replace_string --match_string="'overwrite.cli.url' => 'http://localhost'," --replace_string="'overwrite.cli.url' => 'https://${domain}'," --target_file="${final_path}/config/config.php"
+    exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
 
     #=================================================
     # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
@@ -400,22 +422,11 @@ fi
 #=================================================
 
 cron_path="/etc/cron.d/$app"
-cp -a ../conf/nextcloud.cron "$cron_path"
+ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 
-ynh_replace_string --match_string="__USER__" --replace_string="$app" --target_file="$cron_path"
-ynh_replace_string --match_string="__DESTDIR__" --replace_string="$final_path" --target_file="$cron_path"
-ynh_replace_string --match_string="__YNH_PHP_VERSION__" --replace_string="$phpversion" --target_file="$cron_path"
-
 exec_occ background:cron
-
-#=================================================
-# UPDATE THE HOOK FILE FOR USER CREATE
-#=================================================
-
-# Set system group in hooks
-ynh_replace_string --match_string="__GROUP__" --replace_string="$app" --target_file=../hooks/post_user_create
 
 #=================================================
 # GENERIC FINALIZATION
@@ -424,13 +435,15 @@ ynh_replace_string --match_string="__GROUP__" --replace_string="$app" --target_f
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app: "$final_path" "$datadir"
+chown -R $app:www-data "$final_path"
+chown -R $app: "$datadir"
 find $final_path/ -type f -print0 | xargs -0 chmod 0644
 find $final_path/ -type d -print0 | xargs -0 chmod 0755
 find $datadir/ -type f -print0 | xargs -0 chmod 0640
 find $datadir/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
+chmod 750 $final_path
 
 #=================================================
 # WARNING ABOUT THIRD-PARTY APPS
@@ -461,15 +474,6 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
-
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-ynh_app_setting_set --app=$app --key=skipped_regex \
-    --value="$(sed 's/[\.\-]/\%&/g' <<< $domain)/%.well%-known/.*"
-
 #=================================================
 # RELOAD NGINX
 #=================================================

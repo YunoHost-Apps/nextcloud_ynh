@@ -246,6 +246,8 @@ then
     exec_occ -V
 
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
+        # Set the mysql.utf8mb4 config to true in config.php
+        exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
         exec_occ maintenance:repair
     fi
 

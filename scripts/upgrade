@@ -21,6 +21,7 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
@@ -246,7 +247,13 @@ then
     exec_occ -V
 
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-        exec_occ db:convert-mysql-charset
+        db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+        # Change your databases character set and collation
+        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+        # Set the mysql.utf8mb4 config to true in config.php
+        exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+        exec_occ maintenance:repair
     fi
 
     # Upgrade may fail if this app is enabled

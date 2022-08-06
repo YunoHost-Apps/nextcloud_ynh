@@ -19,6 +19,7 @@ ynh_mysql_dump_db() {
     # Manage arguments with getopts
     ynh_handle_getopts_args "$@"
     default_character_set="${default_character_set:-}"
+    MYSQL_ROOT_PWD_FILE=/etc/yunohost/mysql
 
     if [ -n "$default_character_set" ]
     then

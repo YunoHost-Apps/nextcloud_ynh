@@ -20,10 +20,11 @@ name = "Nextcloud configuration"
         choices.low = "Low, <= 20Mb per pool"
         choices.medium = "Medium, between 20Mb and 40Mb per pool"
         choices.high = "High, > 40Mb per pool"
-        choices.specific = "Use specific value from the next option"
+        choices.specific = "Use specific value"
         default = "low"
 
         [main.php_fpm_config.fpm_free_footprint]
+        visible = "fpm_footprint == 'specific'"
         ask = "Memory footprint of the service?"
         type = "number"
         default = "0"

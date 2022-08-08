@@ -15,7 +15,7 @@ name = "Nextcloud configuration"
     name = "PHP-FPM configuration"
 
         [main.php_fpm_config.fpm_footprint]
-        ask = "Memory footprint of the service?"
+        ask = "Memory footprint"
 	type = "select"
         choices.low = "Low, <= 20Mb per pool"
         choices.medium = "Medium, between 20Mb and 40Mb per pool"
@@ -31,7 +31,7 @@ name = "Nextcloud configuration"
         help = "Free field to specify exactly the footprint in Mb if you don't want to use one of the three previous values."
 
         [main.php_fpm_config.fpm_usage]
-        ask = "Expected usage of the service?"
+        ask = "Expected usage"
 	type = "select"
         choices = ["low", "medium", "high"]
         default = "low"

@@ -14,7 +14,8 @@
         "demo": "https://demo.nextcloud.com/",
         "admindoc": "https://docs.nextcloud.com/server/stable/admin_manual/",
         "userdoc": "https://docs.nextcloud.com/server/latest/user_manual/en/",
-        "code": "https://github.com/nextcloud/server"
+        "code": "https://github.com/nextcloud/server",
+        "cpe": "cpe:2.3:a:nextcloud:nextcloud"
     },
     "license": "AGPL-3.0",
     "maintainer": {
@@ -31,7 +32,7 @@
         "mysql"
     ],
     "arguments": {
-        "install" : [
+        "install": [
             {
                 "name": "domain",
                 "type": "domain"

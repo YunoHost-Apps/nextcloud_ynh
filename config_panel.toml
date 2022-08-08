@@ -7,7 +7,7 @@ name = "Nextcloud configuration"
     name = "Maintenance mode"
 
         [main.maintenance_mode.maintenance_mode]
-        ask = "Enable Nextcloud's maintenance mode?"
+        ask = "Enable maintenance mode"
         type = "boolean"
         default = "0"
 

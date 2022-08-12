@@ -6,7 +6,7 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "22.2.10~ynh1",
+    "version": "23.0.7~ynh1",
     "url": "https://nextcloud.com",
     "upstream": {
         "license": "AGPL-3.0",
@@ -14,24 +14,25 @@
         "demo": "https://demo.nextcloud.com/",
         "admindoc": "https://docs.nextcloud.com/server/stable/admin_manual/",
         "userdoc": "https://docs.nextcloud.com/server/latest/user_manual/en/",
-        "code": "https://github.com/nextcloud/server"
+        "code": "https://github.com/nextcloud/server",
+        "cpe": "cpe:2.3:a:nextcloud:nextcloud"
     },
     "license": "AGPL-3.0",
     "maintainer": {
-        "name": "Kay0u",
+        "name": "kay0u",
         "email": "pierre@kayou.io"
     },
     "requirements": {
-        "yunohost": ">= 4.3.0"
+        "yunohost": ">= 11.0.9"
     },
     "multi_instance": true,
     "services": [
         "nginx",
-        "php7.3-fpm",
+        "php8.0-fpm",
         "mysql"
     ],
     "arguments": {
-        "install" : [
+        "install": [
             {
                 "name": "domain",
                 "type": "domain"

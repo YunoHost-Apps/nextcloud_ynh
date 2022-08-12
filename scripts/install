@@ -25,6 +25,7 @@ path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 user_home=$YNH_APP_ARG_USER_HOME
 is_public=$YNH_APP_ARG_IS_PUBLIC
+phpversion=$YNH_PHP_VERSION
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -104,9 +105,7 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=medium --footprint=high --phpversion=$YNH_PHP_VERSION
-# Used by ynh_add_nginx_config
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+ynh_add_fpm_config --usage=medium --footprint=high
 
 #=================================================
 # NGINX CONFIGURATION

@@ -22,7 +22,6 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
@@ -71,11 +70,6 @@ if [ -z "$fpm_usage" ]; then
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 fi
 
-# If phpversion doesn't exist, create it
-if [ -z "$phpversion" ]; then
-    phpversion="$YNH_PHP_VERSION"
-fi
-
 # Cleaning legacy permissions
 if ynh_legacy_permissions_exists; then
     ynh_legacy_permissions_delete_all
@@ -86,6 +80,11 @@ fi
 # Create a permission if needed
 if ! ynh_permission_exists --permission="api"; then
     ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+fi
+
+# Delete existing ini configuration file (backward compatibility)
+if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
+    ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
 fi
 
 #=================================================
@@ -148,26 +147,10 @@ ynh_system_user_create --username=$app
 #=================================================
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
-# If php has changed, remove the old fpm config file
-if [ "$phpversion" != $YNH_PHP_VERSION ]
-then
-    ynh_backup_if_checksum_is_different --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
-    ynh_secure_remove --file="/etc/php/$phpversion/fpm/pool.d/$app.conf"
-    if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
-        ynh_secure_remove --file="/etc/php/$phpversion/fpm/conf.d/20-$app.ini"
-    fi
-    ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
-    
-    phpversion="$YNH_PHP_VERSION"
-fi
-
 # Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
-# Delete existing ini configuration file (backward compatibility)
-if [ -f /etc/php/$phpversion/fpm/conf.d/20-$app.ini ]; then
-    ynh_secure_remove --file=/etc/php/$phpversion/fpm/conf.d/20-$app.ini
-fi
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION

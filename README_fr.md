@@ -19,7 +19,6 @@ Stockage en ligne, plateforme de partage de fichiers et diverses autres applicat
 
 **Version incluse :** 24.0.3~ynh1
 
-
 **Démo :** https://demo.nextcloud.com/
 
 ## Captures d'écran

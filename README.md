@@ -19,7 +19,6 @@ Online storage, file sharing platform and various other applications
 
 **Shipped version:** 24.0.3~ynh1
 
-
 **Demo:** https://demo.nextcloud.com/
 
 ## Screenshots

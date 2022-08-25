@@ -16,7 +16,7 @@ name = "Nextcloud configuration"
 
         [main.php_fpm_config.fpm_footprint]
         ask = "Memory footprint"
-	type = "select"
+        type = "select"
         choices.low = "Low, <= 20Mb per pool"
         choices.medium = "Medium, between 20Mb and 40Mb per pool"
         choices.high = "High, > 40Mb per pool"
@@ -32,7 +32,7 @@ name = "Nextcloud configuration"
 
         [main.php_fpm_config.fpm_usage]
         ask = "Expected usage"
-	type = "select"
+        type = "select"
         choices = ["low", "medium", "high"]
         default = "low"
-        help = "low: Personal usage, behind the sso. No RAM footprint when not used, but the impact on the processor can be high if many users are using the service.<br>medium: Low usage, few people or/and publicly accessible. Low RAM footprint, medium processor footprint when used.<br>high: High usage, frequently visited website. High RAM footprint, but lower on processor usage and quickly responding."
+        help = "low: Personal usage, behind the SSO. No RAM footprint when not used, but the impact on the processor can be high if many users are using the service.<br>medium: Low usage, few people or/and publicly accessible. Low RAM footprint, medium processor footprint when used.<br>high: High usage, frequently visited website. High RAM footprint, but lower on processor usage and quickly responding."

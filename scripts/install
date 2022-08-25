@@ -25,6 +25,7 @@ path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 user_home=$YNH_APP_ARG_USER_HOME
 is_public=$YNH_APP_ARG_IS_PUBLIC
+phpversion=$YNH_PHP_VERSION
 
 app=$YNH_APP_INSTANCE_NAME
 

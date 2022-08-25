@@ -20,7 +20,6 @@ Online storage, file sharing platform and various other applications
 **Shipped version:** 23.0.8~ynh1
 
 
-
 **Demo:** https://demo.nextcloud.com/
 
 ## Screenshots

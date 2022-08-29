@@ -24,6 +24,7 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
 user_home=$(ynh_app_setting_get --app=$app --key=user_home)
 
+maintenance_mode=$(ynh_app_setting_get --app=$app --key=maintenance_mode)
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
@@ -59,10 +60,22 @@ fi
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
+# If maintenance_mode doesn't exist, create it
+if [ -z "$maintenance_mode" ]; then
+	maintenance_mode=0
+	ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
+fi
+
 # If fpm_footprint doesn't exist, create it
 if [ -z "$fpm_footprint" ]; then
 	fpm_footprint=high
 	ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
+fi
+
+# If fpm_free_footprint doesn't exist, create it
+if [ -z "$fpm_free_footprint" ]; then
+	fpm_free_footprint=0
+	ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
 fi
 
 # If fpm_usage doesn't exist, create it

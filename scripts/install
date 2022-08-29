@@ -50,6 +50,9 @@ ynh_app_setting_set --app=$app --key=path --value=$path_url
 ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=user_home --value=$user_home
 
+maintenance_mode=0
+ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
+
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
@@ -105,8 +108,18 @@ ynh_system_user_create --username=$app
 #=================================================
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
 
+fpm_footprint="high"
+fpm_free_footprint=0
+fpm_usage="medium"
+
+ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
+ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
+ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=medium --footprint=high
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION
+# Used by ynh_add_nginx_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION

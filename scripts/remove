@@ -18,6 +18,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
@@ -37,7 +38,7 @@ ynh_remove_app_dependencies
 ynh_script_progression --message="Removing the MySQL database..." --weight=5
 
 # Remove a database if it exists, along with the associated user
-ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # REMOVE APP MAIN DIR

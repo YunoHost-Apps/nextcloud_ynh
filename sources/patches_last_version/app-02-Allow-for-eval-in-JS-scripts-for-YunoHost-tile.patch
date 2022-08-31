@@ -12,6 +12,6 @@ index e9ecf00036..8e69c8d2dc 100644
 -	protected $evalScriptAllowed = false;
 +	// YunoHost patch: allow for eval in JS scripts for YunoHost tile
 +	protected $evalScriptAllowed = true;
- 	/** @var array Domains from which scripts can get loaded */
- 	protected $allowedScriptDomains = [
- 		'\'self\'',
+	/** @var bool Whether strict-dynamic should be set */
+	protected $strictDynamicAllowed = null;
+	/** @var array Domains from which scripts can get loaded */

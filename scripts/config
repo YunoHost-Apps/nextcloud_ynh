@@ -9,90 +9,118 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
-
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 
 #=================================================
-# LOAD VALUES
+# SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
 
-# Load the real value from the app config or elsewhere.
-# Then get the value from the form.
-# If the form has a value for a variable, take the value from the form,
-# Otherwise, keep the value from the app config.
+get__maintenance_mode() {
+    # Maintenance mode status
+    maintenance_mode_status="$(cd "$final_path" && ynh_exec_as "$app" \
+        php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
+    if echo $maintenance_mode_status | grep -q "disabled"
+    then
+        echo "0"
+    elif echo $maintenance_mode_status | grep -q "enabled"
+    then
+        echo "1"
+    else
+        ynh_print_err --message="Unexpected output from maintenance status check command."
+        exit 0
+    fi
+}
 
-# Footprint for php-fpm
-old_fpm_footprint="$(ynh_app_setting_get --app=$app --key=fpm_footprint)"
-fpm_footprint="${YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FOOTPRINT:-$old_fpm_footprint}"
+get__fpm_footprint() {
+    # Free footprint value for php-fpm
+    # Check if current_fpm_footprint is an integer
+    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
+    then
+        echo "specific"
+    else
+        echo "$current_fpm_footprint"
+    fi
+}
 
-# Free footprint value for php-fpm
-# Check if fpm_footprint is an integer
-if [ "$fpm_footprint" -eq "$fpm_footprint" ] 2> /dev/null
-then
-    # If fpm_footprint is an integer, that's a numeric value for the footprint
-    old_free_footprint=$fpm_footprint
-    fpm_footprint=specific
-else
-    old_free_footprint=0
-fi
-free_footprint="${YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FREE_FOOTPRINT:-$old_free_footprint}"
-
-# Usage for php-fpm
-old_fpm_usage="$(ynh_app_setting_get --app=$app --key=fpm_usage)"
-fpm_usage="${YNH_CONFIG_MAIN_PHP_FPM_CONFIG_USAGE:-$old_fpm_usage}"
-
-#=================================================
-# SHOW_CONFIG FUNCTION FOR 'SHOW' COMMAND
-#=================================================
-
-show_config() {
-	# here you are supposed to read some config file/database/other then print the values
-	# ynh_return "YNH_CONFIG_${PANEL_ID}_${SECTION_ID}_${OPTION_ID}=value"
-
-	ynh_return "YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FOOTPRINT=$fpm_footprint"
-	ynh_return "YNH_CONFIG_MAIN_PHP_FPM_CONFIG_FREE_FOOTPRINT=$free_footprint"
-	ynh_return "YNH_CONFIG_MAIN_PHP_FPM_CONFIG_USAGE=$fpm_usage"
+get__free_footprint() {
+    # Free footprint value for php-fpm
+    # Check if current_fpm_footprint is an integer
+    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
+    then
+        # If current_fpm_footprint is an integer, that's a numeric value for the footprint
+        echo "$current_fpm_footprint"
+    else
+        echo "0"
+    fi
 }
 
 #=================================================
-# MODIFY THE CONFIGURATION
+# SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 
-apply_config() {
+set__maintenance_mode() {
+    if [ "$maintenance_mode" -eq "0" ]; then
+        # If maintenance_mode was set to 0, disable maintenance mode
+        (cd "$final_path" && ynh_exec_as "$app" \
+            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
+        ynh_print_info "Maintenance mode disabled"
+    elif [ "$maintenance_mode" -eq "1" ]; then
+        # If maintenance_mode was set to 1, enable maintenance mode
+        (cd "$final_path" && ynh_exec_as "$app" \
+            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
+        ynh_print_info "Maintenance mode enabled"
+    fi
+    ynh_app_setting_set --app=$app --key=maintenance_mode --value="$maintenance_mode"
+}
 
-    #=================================================
-    # RECONFIGURE PHP-FPM
-    #=================================================
-
-    if [ "$fpm_usage" != "$old_fpm_usage" ] || [ "$fpm_footprint" != "$old_fpm_footprint" ] || [ "$free_footprint" != "$old_free_footprint" ]
+set__fpm_footprint() {
+    if [ "$fpm_footprint" != "specific" ]
     then
-        # If fpm_footprint is set to 'specific', use $free_footprint value.
-        if [ "$fpm_footprint" = "specific" ]
-        then
-            fpm_footprint=$free_footprint
-        fi
+        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_footprint"
+    fi
+}
 
-        if [ "$fpm_footprint" != "0" ]
-        then
-            ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint --package="$extra_php_dependencies"
-        else
-            ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
-        fi
+set__fpm_free_footprint() {
+    if [ "$fpm_footprint" = "specific" ]
+    then
+        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_free_footprint"
     fi
 }
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# SELECT THE ACTION FOLLOWING THE GIVEN ARGUMENT
-#=================================================
 
-case $1 in
-  show) show_config;;
-  apply) apply_config;;
-esac
+ynh_app_config_validate() {
+    _ynh_app_config_validate
+
+    if [ "${changed[fpm_usage]}" == "true" ] || [ "${changed[fpm_footprint]}" == "true" ] || [ "${changed[fpm_free_footprint]}" == "true" ]; then
+        # If fpm_footprint is set to 'specific', use $fpm_free_footprint value.
+        if [ "$fpm_footprint" = "specific" ]
+        then
+            fpm_footprint=$fpm_free_footprint
+        fi
+
+        if [ "$fpm_footprint" == "0" ]
+        then
+            ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
+
+            exit 0
+        fi
+    fi
+}
+
+ynh_app_config_apply() {
+    _ynh_app_config_apply
+
+    ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
+}
+
+ynh_app_config_run $1

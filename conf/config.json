@@ -13,7 +13,8 @@
      },
     "hashing_default_password": true,
     "localstorage.allowsymlinks": true,
-    "simpleSignUpLink.shown": false
+    "simpleSignUpLink.shown": false,
+    "enabledPreviewProviders": "\\OC\\Preview\\Movie"
   },
   "apps": {
     "user_ldap": {

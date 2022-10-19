@@ -17,8 +17,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
-**Version incluse :** 24.0.6~ynh1 *(:warning: Il s'agit de la branche `testing`. La [branche `master`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/master) utilisée dans le catalogue est actuellement en 24.0.5\~ynh1.)*
-
+**Version incluse :** 25.0.0~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 

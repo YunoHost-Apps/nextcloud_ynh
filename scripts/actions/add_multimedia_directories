@@ -15,7 +15,7 @@ source /usr/share/yunohost/helpers
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 
 #=================================================
 # CHECK IF ARGUMENTS ARE CORRECT
@@ -27,7 +27,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$final_path" && exec_as "$app" \
+  (cd "$install_dir" && exec_as "$app" \
       php$YNH_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 

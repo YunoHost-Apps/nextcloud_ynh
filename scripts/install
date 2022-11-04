@@ -10,73 +10,21 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
-
-#=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-#REMOVEME? domain=$YNH_APP_ARG_DOMAIN
-#REMOVEME? path=$YNH_APP_ARG_PATH
-#REMOVEME? admin=$YNH_APP_ARG_ADMIN
-#REMOVEME? user_home=$YNH_APP_ARG_USER_HOME
-#REMOVEME? is_public=$YNH_APP_ARG_IS_PUBLIC
+user_home=$YNH_APP_ARG_USER_HOME
 phpversion=$YNH_PHP_VERSION
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#=================================================
-# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
-#=================================================
-#REMOVEME? ynh_script_progression --message="Validating installation parameters..."
-
-#REMOVEME? install_dir=/var/www/$app
-#REMOVEME? test ! -e "$install_dir" || ynh_die --message="This path already contains a folder"
-
-# Register (book) web path
-#REMOVEME? ynh_webpath_register --app=$app --domain=$domain --path=$path
-
-# Check machine architecture (Seens 25.0 Nextcloud doesn't support 32bit machines)
-if [ $YNH_ARCH == "i386" ];
-then
-    ynh_die --message="Sorry, Nextcloud has deprecated 32-bit support"
-fi
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-#REMOVEME? ynh_script_progression --message="Storing installation settings..."
+ynh_script_progression --message="Storing installation settings..."
 
-#REMOVEME? ynh_app_setting_set --app=$app --key=domain --value=$domain
-#REMOVEME? ynh_app_setting_set --app=$app --key=path --value=$path
-#REMOVEME? ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=user_home --value=$user_home
 
 maintenance_mode=0
 ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Installing dependencies..." --weight=10
-
-#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
-#REMOVEME? ynh_script_progression --message="Creating a MySQL database..." --weight=2
-
-#REMOVEME? db_name=$(ynh_sanitize_dbid --db_name=$app)
-#REMOVEME? db_user=$db_name
-#REMOVEME? ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-#REMOVEME? ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -95,19 +43,10 @@ SOURCE_FORMAT=tar.bz2
 SOURCE_IN_SUBDIR=true
 EOF
 
-#REMOVEME? ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
 # Enable YunoHost patches on Nextcloud sources
 cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Configuring system user..." --weight=3
-
-# Create a system user
-#REMOVEME? ynh_system_user_create --username=$app
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -124,8 +63,6 @@ ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION
-# Used by ynh_add_nginx_config
-#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -143,20 +80,6 @@ fi
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# SPECIFIC SETUP
-#=================================================
-# CREATE THE DATA DIRECTORY
-#=================================================
-ynh_script_progression --message="Creating a data directory..." --weight=1
-
-# Define app's data directory
-#REMOVEME? data_dir="/home/yunohost.app/$app/data"
-#REMOVEME? ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
-
-# Create app folders
-mkdir -p "$data_dir"
 
 #=================================================
 # INSTALL NEXTCLOUD
@@ -356,15 +279,9 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 # SETUP SSOWAT
 #=================================================
-#REMOVEME? ynh_script_progression --message="Configuring permissions..."
+ynh_script_progression --message="Configuring permissions..."
 
-# Make app public if necessary
-#REMOVEME? if [ $is_public -eq 1 ]
-then
-#REMOVEME?   ynh_permission_update --permission="main" --add="visitors"
-fi
-
-#REMOVEME? ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 
 #=================================================
 # RELOAD NGINX

@@ -22,6 +22,22 @@ current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
 
+get__maintenance_mode() {
+    # Maintenance mode status
+    maintenance_mode_status="$(cd "$final_path" && ynh_exec_as "$app" \
+        php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
+    if echo $maintenance_mode_status | grep -q "disabled"
+    then
+        echo "0"
+    elif echo $maintenance_mode_status | grep -q "enabled"
+    then
+        echo "1"
+    else
+        ynh_print_err --message="Unexpected output from maintenance status check command."
+        exit 0
+    fi
+}
+
 get__fpm_footprint() {
     # Free footprint value for php-fpm
     # Check if current_fpm_footprint is an integer
@@ -49,6 +65,21 @@ get__free_footprint() {
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 
+set__maintenance_mode() {
+    if [ "$maintenance_mode" -eq "0" ]; then
+        # If maintenance_mode was set to 0, disable maintenance mode
+        (cd "$final_path" && ynh_exec_as "$app" \
+            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
+        ynh_print_info "Maintenance mode disabled"
+    elif [ "$maintenance_mode" -eq "1" ]; then
+        # If maintenance_mode was set to 1, enable maintenance mode
+        (cd "$final_path" && ynh_exec_as "$app" \
+            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
+        ynh_print_info "Maintenance mode enabled"
+    fi
+    ynh_app_setting_set --app=$app --key=maintenance_mode --value="$maintenance_mode"
+}
+
 set__fpm_footprint() {
     if [ "$fpm_footprint" != "specific" ]
     then
@@ -56,10 +87,10 @@ set__fpm_footprint() {
     fi
 }
 
-set__free_footprint() {
-    if [ "$fpm_footprint" == "specific" ]
+set__fpm_free_footprint() {
+    if [ "$fpm_footprint" = "specific" ]
     then
-        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$free_footprint"
+        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_free_footprint"
     fi
 }
 
@@ -70,11 +101,11 @@ set__free_footprint() {
 ynh_app_config_validate() {
     _ynh_app_config_validate
 
-    if [ "${changed[fpm_usage]}" == "true" ] || [ "${changed[fpm_footprint]}" == "true" ] || [ "${changed[free_footprint]}" == "true" ]; then
-        # If fpm_footprint is set to 'specific', use $free_footprint value.
-        if [ "$fpm_footprint" == "specific" ]
+    if [ "${changed[fpm_usage]}" == "true" ] || [ "${changed[fpm_footprint]}" == "true" ] || [ "${changed[fpm_free_footprint]}" == "true" ]; then
+        # If fpm_footprint is set to 'specific', use $fpm_free_footprint value.
+        if [ "$fpm_footprint" = "specific" ]
         then
-            fpm_footprint=$free_footprint
+            fpm_footprint=$fpm_free_footprint
         fi
 
         if [ "$fpm_footprint" == "0" ]

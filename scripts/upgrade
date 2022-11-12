@@ -212,6 +212,7 @@ exec_occ() {
     then
         NEXTCLOUD_PHP_VERSION=$phpversion
     elif [ $current_major_version -ge 15 ]
+    then
         NEXTCLOUD_PHP_VERSION="7.4"
     else
         NEXTCLOUD_PHP_VERSION="7.0"

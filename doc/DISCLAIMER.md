@@ -15,7 +15,7 @@ To install and configure it:
 
 #### with YunoHost App (ARM64 support, better performance)
 
-For better performance and ARM64 support, install ONLYOFFICE Yunohost App and connect it to Nextcloud, see the tutorial in the [doc of onlyoffice_ynh package](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
+For better performance and ARM64 support, install ONLYOFFICE YunoHost App and connect it to Nextcloud, see the tutorial in the [doc of onlyoffice_ynh package](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
 
 
 ## YunoHost specific features

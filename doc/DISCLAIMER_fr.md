@@ -13,7 +13,7 @@ Pour l'installer et la configurer :
 
 *NB : l'app Nextcloud ONLYOFFICE Community Document Server n'est disponible que sous architecture x86 - Pour un support de l'architecture **ARM** (Raspberry Pi, OLinuXino...), installez plutôt l'App YunoHost, voir ci-dessous*
 
-#### avec l'application Yunohost (support ARM64, meilleures performances)
+#### Avec l'application YunoHost (support ARM64, meilleures performances)
 
 Pour  de meilleures performances et le support de ARM64, installez l'app YunoHost ONLYOFFICE, voir le tutoriel dans la [doc du paquet onlyoffice_ynh](https://github.com/YunoHost-Apps/onlyoffice_ynh#configuration-of-onlyoffice-server)
 

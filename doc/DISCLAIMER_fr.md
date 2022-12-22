@@ -2,7 +2,7 @@
 
 ### Configurer l'intégration d'ONLYOFFICE
 
-#### avec l'application Nextcloud (pas de support ARM, performances limitées)
+#### Avec l'application Nextcloud (pas de support ARM, performances limitées)
 
 À partir de sa version 18, Nextcloud inclut une intégration directe de ONLYOFFICE (un éditeur de texte enrichi en ligne) via une application Nextcloud.
 Pour l'installer et la configurer :

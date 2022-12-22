@@ -13,7 +13,7 @@ To install and configure it:
 
 *NB: ONLYOFFICE Nextcloud App is only available for x86 architecture - for **ARM** architecture (Raspberry Pi, OLinuXino...), consider the YunoHost App below*
 
-#### with Yunohost App (ARM64 support, better performance)
+#### with YunoHost App (ARM64 support, better performance)
 
 For better performance and ARM64 support, install ONLYOFFICE Yunohost App and connect it to Nextcloud, see the tutorial in the [doc of onlyoffice_ynh package](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
 

@@ -34,6 +34,12 @@ fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 upgrade_type=$(ynh_check_app_version_changed)
 
+# Check machine architecture (26.0 Nextcloud version will drop support for 32bit architectures)
+if [ $YNH_ARCH == "i386" ] || [ $YNH_ARCH == "armhf" ]
+then
+    ynh_print_warn --message="Nextcloud has deprecated 32-bit support. Version 25 is the last one to support 32-bit architectures."
+fi
+
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================

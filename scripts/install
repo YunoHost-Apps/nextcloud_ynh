@@ -66,17 +66,18 @@ ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
 #=================================================
 ynh_script_progression --message="Installing dependencies..." --weight=10
 
-ynh_install_app_dependencies $pkg_dependencies
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
-# CREATE A MYSQL DATABASE
+# CREATE A POSTGRESQL DATABASE
 #=================================================
-ynh_script_progression --message="Creating a MySQL database..." --weight=2
+ynh_script_progression --message="Creating a PostgreSQL database..." --weight=2
 
 db_name=$(ynh_sanitize_dbid --db_name=$app)
 db_user=$db_name
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+ynh_psql_test_if_first_run
+ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -179,8 +180,8 @@ admin_password="$(ynh_string_random --length=6)"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name $db_name \
-    --database-user $db_user --database-pass "$db_pwd" \
+    --database "pgsql" --database-name $db_name \
+    --database-user $db_name --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$datadir" \
     || ynh_die --message="Unable to install Nextcloud"
@@ -275,7 +276,7 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
 #=================================================
 
 # Set the user as admin
-ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+ynh_psql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 # And delete admin user
 exec_occ user:delete admin

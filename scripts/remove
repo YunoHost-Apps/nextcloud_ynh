@@ -33,12 +33,12 @@ ynh_script_progression --message="Removing dependencies..." --weight=20
 ynh_remove_app_dependencies
 
 #=================================================
-# REMOVE THE MYSQL DATABASE
+# REMOVE THE POSTGRESQL DATABASE
 #=================================================
-ynh_script_progression --message="Removing the MySQL database..." --weight=5
+ynh_script_progression --message="Removing the PostgreSQL database..." --weight=5
 
 # Remove a database if it exists, along with the associated user
-ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
+ynh_psql_remove_db --db_user=$db_name --db_name=$db_name
 
 #=================================================
 # REMOVE APP MAIN DIR

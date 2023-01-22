@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Nextcloud pour YunoHost
 
-[![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 [![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Read this readme in english.](./README.md)*
@@ -17,7 +17,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
-**Version incluse :** 25.0.2~ynh2
+**Version incluse :** 25.0.3~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 

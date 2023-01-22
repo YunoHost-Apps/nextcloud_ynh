@@ -43,7 +43,7 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 # Check machine architecture (26.0 Nextcloud version will drop support for 32bit architectures)
 if [ $YNH_ARCH == "i386" ] || [ $YNH_ARCH == "armhf" ]
 then
-    ynh_print_warn --message="Nextcloud will deprecated 32-bit support soon."
+    ynh_print_warn --message="Nextcloud will soon deprecate 32-bit support."
 fi
 
 #=================================================

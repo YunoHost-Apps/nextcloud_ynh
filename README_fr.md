@@ -5,40 +5,47 @@ It shall NOT be edited by hand.
 
 # Nextcloud pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 [![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Read this readme in english.](./README.md)*
 
-> *Ce package vous permet d'installer Nextcloud rapidement et simplement sur un serveur YunoHost.
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d’installer Nextcloud rapidement et simplement sur un serveur YunoHost.
+Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
 
-## Vue d'ensemble
+## Vue d’ensemble
 
 Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
-**Version incluse :** 22.2.9~ynh1
+**Version incluse :** 25.0.3~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 
-## Captures d'écran
+## Captures d’écran
 
-![Capture d'écran de Nextcloud](./doc/screenshots/screenshot.png)
+![Capture d’écran de Nextcloud](./doc/screenshots/screenshot.png)
 
 ## Avertissements / informations importantes
 
 ## Configuration
 
-#### Configurer l'intégration d'OnlyOffice
+### Configurer l'intégration d'ONLYOFFICE
 
-À partir de sa version 18, Nextcloud inclut une intégration directe de OnlyOffice (un éditeur de texte enrichi en ligne) via une application Nextcloud.
+#### Avec l'application Nextcloud (pas de support ARM, performances limitées)
+
+À partir de sa version 18, Nextcloud inclut une intégration directe de ONLYOFFICE (un éditeur de texte enrichi en ligne) via une application Nextcloud.
 Pour l'installer et la configurer :
-- Installez l'application *Community Document Server* dans votre Nextcloud. C'est la partie qui fait tourner un serveur OnlyOffice.
-- Installez l'application *ONLYOFFICE*. C'est la partie cliente qui va se connecter au serveur OnlyOffice.
-- Ensuite dans les Paramètres -> ONLYOFFICE (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec OnlyOffice.
+- Installez l'application *Community Document Server* dans votre Nextcloud. C'est la partie qui fait tourner un serveur ONLYOFFICE.
+- Installez l'application *ONLYOFFICE*. C'est la partie cliente qui va se connecter au serveur ONLYOFFICE.
+- Ensuite dans les Paramètres -> ONLYOFFICE (`https://yourdomain.tld/nextcloud/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec ONLYOFFICE.
 - Et voilà :) Vous devriez pouvoir créer de nouveaux types de documents, et les ouvrir.
-    
-*NB : OnlyOffice n'est disponible que sous architecture x86 - L'architecture **ARM** n'est **pas** supporté (Raspberry Pi, OLinuXino...)*
+
+*NB : l'app Nextcloud ONLYOFFICE Community Document Server n'est disponible que sous architecture x86 - Pour un support de l'architecture **ARM** (Raspberry Pi, OLinuXino...), installez plutôt l'App YunoHost, voir ci-dessous*
+
+#### Avec l'application YunoHost (support ARM64, meilleures performances)
+
+Pour  de meilleures performances et le support de ARM64, installez l'app YunoHost ONLYOFFICE, voir le tutoriel dans la [doc du paquet onlyoffice_ynh](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
+
 
 ## Caractéristiques spécifiques YunoHost
 
@@ -52,10 +59,10 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 
 ## Documentations et ressources
 
-* Site officiel de l'app : <https://nextcloud.com>
+* Site officiel de l’app : <https://nextcloud.com>
 * Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
-* Documentation officielle de l'admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
-* Dépôt de code officiel de l'app : <https://github.com/nextcloud/server>
+* Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
+* Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_nextcloud>
 * Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
@@ -71,4 +78,4 @@ ou
 sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>

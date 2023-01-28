@@ -40,10 +40,10 @@ test ! -e "$final_path" || ynh_die --message="This path already contains a folde
 # Register (book) web path
 ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
-# Check machine architecture (26.0 Nextcloud version will drop support for 32bit architectures)
+# Check machine architecture (Nextcloud will soon deprecate 32-bit support)
 if [ $YNH_ARCH == "i386" ] || [ $YNH_ARCH == "armhf" ]
 then
-    ynh_print_warn --message="Nextcloud has deprecated 32-bit support. Version 25 is the last one to support 32-bit architectures."
+    ynh_print_warn --message="Nextcloud will soon deprecate 32-bit support. It is recommended to upgrade to a 64-bit architecture."
 fi
 
 #=================================================

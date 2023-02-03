@@ -5,15 +5,15 @@ It shall NOT be edited by hand.
 
 # Nextcloud pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 [![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Read this readme in english.](./README.md)*
 
-> *Ce package vous permet d'installer Nextcloud rapidement et simplement sur un serveur YunoHost.
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d’installer Nextcloud rapidement et simplement sur un serveur YunoHost.
+Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
 
-## Vue d'ensemble
+## Vue d’ensemble
 
 Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
@@ -21,9 +21,9 @@ Stockage en ligne, plateforme de partage de fichiers et diverses autres applicat
 
 **Démo :** https://demo.nextcloud.com/
 
-## Captures d'écran
+## Captures d’écran
 
-![Capture d'écran de Nextcloud](./doc/screenshots/screenshot.png)
+![Capture d’écran de Nextcloud](./doc/screenshots/screenshot.png)
 
 ## Avertissements / informations importantes
 
@@ -52,10 +52,10 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 
 ## Documentations et ressources
 
-* Site officiel de l'app : <https://nextcloud.com>
+* Site officiel de l’app : <https://nextcloud.com>
 * Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
-* Documentation officielle de l'admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
-* Dépôt de code officiel de l'app : <https://github.com/nextcloud/server>
+* Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
+* Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_nextcloud>
 * Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
@@ -71,4 +71,4 @@ ou
 sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>

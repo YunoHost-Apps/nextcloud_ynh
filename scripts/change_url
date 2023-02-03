@@ -92,7 +92,7 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$final_path" && ynh_exec_as "$app" \
+  (cd "$install_dir" && ynh_exec_as "$app" \
       php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 

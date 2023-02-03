@@ -30,24 +30,6 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If install_dir doesn't exist, create it
-if [ -z "$install_dir" ]; then
-#REMOVEME? 	install_dir=/var/www/$app
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
-fi
-
-# If data_dir doesn't exist, create it
-if [ -z "$data_dir" ]; then
-    data_dir=/home/yunohost.app/$app
-#REMOVEME?     ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
-fi
-
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
@@ -282,7 +264,7 @@ EOF
         )
 
         # Replace the old nextcloud by the new one
-#REMOVEME?         ynh_secure_remove --file="$install_dir"
+        ynh_secure_remove --file="$install_dir"
         mv "$tmpdir" "$install_dir"
         ynh_secure_remove --file="$tmpdir"
 

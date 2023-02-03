@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Online storage, file sharing platform and various other applications
 
-**Shipped version:** 25.0.3~ynh1
+**Shipped version:** 25.0.3~ynh2
 
 **Demo:** https://demo.nextcloud.com/
 

@@ -17,7 +17,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Stockage en ligne, plateforme de partage de fichiers et diverses autres applications
 
-**Version incluse :** 25.0.3~ynh1
+**Version incluse :** 25.0.3~ynh2
 
 **Démo :** https://demo.nextcloud.com/
 

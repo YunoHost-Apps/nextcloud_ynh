@@ -58,7 +58,7 @@ ram.runtime = "50M"
 
     [resources.data_dir]
 
-[resources.permissions]
+    [resources.permissions]
     main.label = "api"
     main.url = "re:$domain\/.well-known\/.*"
     main.allowed = ["visitors, all_users"]

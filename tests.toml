@@ -1,0 +1,18 @@
+test_format = 1.0
+
+[default]
+
+    # -------------------------------
+    # Default args to use for install
+    # -------------------------------
+
+    args.user_home= ["1"]
+
+    # -------------------------------
+    # Commits to test upgrade from
+    # -------------------------------
+
+    test_upgrade_from.212f4439.name = "Upgrade from 0.6.1~ynh2"
+    
+
+

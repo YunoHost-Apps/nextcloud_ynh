@@ -19,27 +19,24 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.1.0"
+yunohost = ">= 11.1.2"
 architectures = ["amd64", "arm64"]
 multi_instance = true
-ldap = "true" #
-sso = "true" #
-disk = "50M" # FIXME: replace with an **estimate** minimum disk requirement. e.g. 20M, 400M, 1G, ...
-ram.build = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
-ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+ldap = "true"
+sso = "true"
+disk = "50M"
+ram.build = "50M"
+ram.runtime = "50M"
 
 [install]
     [install.domain]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "domain"
 
     [install.path]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "path"
     default = "/nextcloud"
 
     [install.admin]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "user"
 
     [install.init_main_permission]
@@ -68,5 +65,5 @@ ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requiremen
     type = "mysql"
 
     [resources.apt]
-    packages = "imagemagick libmagickcore-6.q16-6-extra acl tar smbclient at php${YNH_PHP_VERSION}-fpm php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-igbinary php${YNH_PHP_VERSION}-bcmath"
+    packages = "imagemagick libmagickcore-6.q16-6-extra acl tar smbclient at php8.1-fpm php8.1-bz2 php8.1-imap php8.1-gmp php8.1-gd php8.1-intl php8.1-curl php8.1-apcu php8.1-redis php8.1-ldap php8.1-imagick php8.1-zip php8.1-mbstring php8.1-xml php8.1-mysql php8.1-igbinary php8.1-bcmath"
 

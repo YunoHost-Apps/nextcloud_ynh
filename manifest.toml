@@ -58,8 +58,13 @@ ram.runtime = "50M"
 
     [resources.data_dir]
 
-    [resources.permissions]
-    main.url = "/"
+[resources.permissions]
+    main.label = "api"
+    main.url = "re:$domain\/.well-known\/.*"
+    main.allowed = ["visitors, all_users"]
+    main.auth_header = false
+    main.show_tile = false
+    main.protected= true
 
     [resources.database]
     type = "mysql"

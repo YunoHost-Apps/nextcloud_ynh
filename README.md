@@ -18,7 +18,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
 
 
-**Shipped version:** 25.0.3~ynh2
+**Shipped version:** 25.0.3~ynh3
 
 **Demo:** https://demo.nextcloud.com/
 

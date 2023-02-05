@@ -17,7 +17,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Nextcloud Hub est la plate-forme de collaboration de contenu sur site entièrement open source. Les équipes accèdent, partagent et modifient leurs documents, discutent et participent à des appels vidéo et gèrent leur courrier, leur calendrier et leurs projets sur des interfaces mobiles, de bureau et Web.
 
-**Version incluse :** 25.0.3~ynh2
+**Version incluse :** 25.0.3~ynh3
 
 **Démo :** https://demo.nextcloud.com/
 

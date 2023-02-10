@@ -59,9 +59,9 @@ fi
 
 
 # Create a permission if needed
-if ! ynh_permission_exists --permission="api"; then
-     ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
-fi
+#if ! ynh_permission_exists --permission="api"; then
+#     ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
+#fi
 
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
@@ -71,7 +71,7 @@ fi
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-#REMOVEME? ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=30
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=30
 
 # Made a backup only after the version 11.0.0
 # Before, the datas will be always saved.
@@ -86,14 +86,14 @@ then
     ynh_app_setting_set --app=$app --key=backup_core_only --value=1
 
     # Backup the current version of the app
-#REMOVEME?     ynh_backup_before_upgrade
+    ynh_backup_before_upgrade
 
     # Remove the option backup_core_only after the backup.
     ynh_app_setting_delete $app backup_core_only
 
-#REMOVEME?     ynh_clean_setup () {
+    ynh_clean_setup () {
         # restore it if the upgrade fails
-#REMOVEME?         ynh_restore_upgradebackup
+        ynh_restore_upgradebackup
     }
 fi
 
@@ -130,7 +130,7 @@ ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/carddav and caldav with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
@@ -174,7 +174,7 @@ local mount_id=$(exec_occ files_external:create --output=json \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 # Define app's data directory
-#REMOVEME? data_dir="/home/yunohost.app/$app/data"
+data_dir="/home/yunohost.app/$app/data"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -266,7 +266,7 @@ EOF
         done
         )
 
-        # Replace the old nextcloud by the new one
+        # Replace the old Nextcloud by the new one
         ynh_secure_remove --file="$install_dir"
         mv "$tmpdir" "$install_dir"
         ynh_secure_remove --file="$tmpdir"

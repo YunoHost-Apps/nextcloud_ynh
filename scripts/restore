@@ -53,9 +53,9 @@ ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
-    # Remove lines about .well-known/carddav and caldav with sed.
+    # Remove lines about .well-known/CardDAV and CalDAV with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
@@ -123,7 +123,7 @@ ynh_script_progression --message="Restoring the Fail2Ban configuration..." --wei
 ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
 
-# Make sure a log file exists (mostly for CI tests)
+# Make sure a log file exists (mostly for CI tests)
 logfile="/home/yunohost.app/$app/data/nextcloud.log"
 if [ ! -f "$logfile" ]; then
 	touch "$logfile"

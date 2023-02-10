@@ -12,7 +12,7 @@ test_format = 1.0
     # Commits to test upgrade from
     # -------------------------------
 
-    test_upgrade_from.212f4439.name = "Upgrade from 0.6.1~ynh2"
+    test_upgrade_from.c5cf91ad.name = "Upgrade from 25.0.2"
     
 
 

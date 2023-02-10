@@ -1,5 +1,3 @@
-## Configuration
-
 ### Configure ONLYOFFICE integration
 
 #### With Nextcloud App (no ARM support, lower performance)

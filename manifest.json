@@ -6,7 +6,7 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "25.0.3~ynh1",
+    "version": "25.0.3~ynh4",
     "url": "https://nextcloud.com",
     "upstream": {
         "license": "AGPL-3.0",

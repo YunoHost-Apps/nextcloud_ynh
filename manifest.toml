@@ -19,14 +19,14 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.1.2"
+yunohost = ">= 11.1.6"
 architectures = ["amd64", "arm64"]
 multi_instance = true
 ldap = "true"
 sso = "true"
 disk = "50M"
-ram.build = "50M"
-ram.runtime = "50M"
+ram.build = "128M"
+ram.runtime = "512M"
 
 [install]
     [install.domain]

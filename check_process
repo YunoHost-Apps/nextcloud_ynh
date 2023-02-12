@@ -25,6 +25,4 @@ Notification=none
 	; commit=c5cf91ad30149e1924c23b19e93f483c3ed3edd8
 		name=Merge pull request #495 from YunoHost-Apps/25.0.2
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&
-	; commit=e9e7015ed7667352c1c191fc632a9f6f382dd9d2
-		name=[fix] Upgrade to 20.0.4 (#346)
-		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&user_home=1&
+	

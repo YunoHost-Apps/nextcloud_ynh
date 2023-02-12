@@ -60,8 +60,7 @@ ram.runtime = "512M"
 
     [resources.permissions]
     main.label = "api"
-    main.url = "re:$domain\/.well-known\/.*"
-    main.allowed = ["visitors, all_users"]
+    main.url = "re:$domain /.well-known /.*"
     main.auth_header = false
     main.show_tile = false
     main.protected= true

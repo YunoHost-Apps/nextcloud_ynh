@@ -63,7 +63,7 @@ ram.runtime = "512M"
 
     [install.enable_notify_push]
     ask.en = "Configure the High Performance Backend?",
-    ask.fr = "Configurer le Backend Hautes Performances  ?"
+    ask.fr = "Configurer le Backend Hautes Performances ?"
     type = "boolean"
     default = false
 

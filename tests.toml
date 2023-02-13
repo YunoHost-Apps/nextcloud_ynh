@@ -6,7 +6,7 @@ test_format = 1.0
     # Default args to use for install
     # -------------------------------
 
-    args.user_home= ["yes"]
+    args.user_home= "yes"
 
     # -------------------------------
     # Commits to test upgrade from

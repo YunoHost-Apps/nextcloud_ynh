@@ -418,7 +418,6 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..."
 
-#ynh_systemd_action --service_name=nginx --action=reload
 ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
 
 #=================================================

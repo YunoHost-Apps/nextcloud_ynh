@@ -36,7 +36,7 @@ ynh_clean_setup () {
 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#ynh_abort_if_errors
 
 #=================================================
 # CHECK WHICH PARTS SHOULD BE CHANGED

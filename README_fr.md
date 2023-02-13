@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Nextcloud pour YunoHost
 
 [![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+
 [![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Read this readme in english.](./README.md)*
@@ -17,7 +18,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Nextcloud Hub est la plate-forme de collaboration de contenu sur site entièrement open source. Les équipes accèdent, partagent et modifient leurs documents, discutent et participent à des appels vidéo et gèrent leur courrier, leur calendrier et leurs projets sur des interfaces mobiles, de bureau et Web.
 
-### Caractéristiques spécifiques YunoHost :
+### Caractéristiques spécifiques YunoHost
 
 En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suivantes sont incluses dans ce package :
 

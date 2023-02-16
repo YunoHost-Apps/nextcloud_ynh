@@ -19,8 +19,6 @@ old_path=$YNH_APP_OLD_PATH
 new_domain=$YNH_APP_NEW_DOMAIN
 new_path=$YNH_APP_NEW_PATH
 
-app=$YNH_APP_INSTANCE_NAME
-
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================

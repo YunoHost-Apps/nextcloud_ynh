@@ -10,78 +10,11 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# RETRIEVE ARGUMENTS
-#=================================================
-
-old_domain=$YNH_APP_OLD_DOMAIN
-old_path=$YNH_APP_OLD_PATH
-
-new_domain=$YNH_APP_NEW_DOMAIN
-new_path=$YNH_APP_NEW_PATH
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before changing its URL (may take a while)..." --weight=1
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# Remove the new domain config file, the remove script won't do it as it doesn't know yet its location.
-	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
-
-	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-#ynh_abort_if_errors
-
-#=================================================
-# CHECK WHICH PARTS SHOULD BE CHANGED
-#=================================================
-
-change_domain=0
-if [ "$old_domain" != "$new_domain" ]
-then
-	change_domain=1
-fi
-
-change_path=0
-if [ "$old_path" != "$new_path" ]
-then
-	change_path=1
-fi
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
 ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
 
-nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
-
-# Change the path in the NGINX config file
-if [ $change_path -eq 1 ]
-then
-	# Make a backup of the original NGINX config file if modified
-	ynh_backup_if_checksum_is_different --file="$nginx_conf_path"
-	# Set global variables for NGINX helper
-	domain="$old_domain"
-	path_url="$new_path"
-	# Create a dedicated NGINX config
-	ynh_add_nginx_config
-fi
-
-# Change the domain for NGINX
-if [ $change_domain -eq 1 ]
-then
-	# Delete file checksum for the old conf file location
-	ynh_delete_file_checksum --file="$nginx_conf_path"
-	mv $nginx_conf_path /etc/nginx/conf.d/$new_domain.d/$app.conf
-	# Store file checksum for the new config file location
-	ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
-fi
+ynh_change_url_nginx_config
 
 #=================================================
 # SPECIFIC MODIFICATIONS
@@ -115,15 +48,6 @@ then
 		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 	fi
 fi
-
-#=================================================
-# GENERIC FINALISATION
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
-
-ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT

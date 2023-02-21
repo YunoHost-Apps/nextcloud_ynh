@@ -42,7 +42,6 @@ is_url_handled() {
     fi
 }
 
-
 #=================================================
 
 # Check available space before creating a temp directory.

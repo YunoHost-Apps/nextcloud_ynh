@@ -10,13 +10,6 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=3
-
-user_home=$(ynh_app_setting_get --app=$app --key=user_home)
-
-#=================================================
 # CHECK VERSION
 #=================================================
 

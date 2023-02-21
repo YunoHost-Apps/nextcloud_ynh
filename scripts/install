@@ -10,18 +10,8 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
-#=================================================
-
-user_home=$YNH_APP_ARG_USER_HOME
-phpversion=$YNH_PHP_VERSION
-
-#=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Storing installation settings..."
-
-ynh_app_setting_set --app=$app --key=user_home --value=$user_home
 
 maintenance_mode=0
 ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode

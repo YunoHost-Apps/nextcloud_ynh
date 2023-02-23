@@ -18,7 +18,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
 
-### YunoHost features:
+### YunoHost-specific features
 
 In addition to Nextcloud core features, the following are made available with
 this package:
@@ -30,7 +30,7 @@ this package:
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 
-**Shipped version:** 25.0.3~ynh4
+**Shipped version:** 25.0.4~ynh1
 
 **Demo:** https://demo.nextcloud.com/
 

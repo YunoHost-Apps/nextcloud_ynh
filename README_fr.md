@@ -18,7 +18,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Nextcloud Hub est la plate-forme de collaboration de contenu sur site entièrement open source. Les équipes accèdent, partagent et modifient leurs documents, discutent et participent à des appels vidéo et gèrent leur courrier, leur calendrier et leurs projets sur des interfaces mobiles, de bureau et Web.
 
-### Caractéristiques spécifiques YunoHost :
+### Caractéristiques spécifiques YunoHost
 
 En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suivantes sont incluses dans ce package :
 
@@ -29,7 +29,7 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
 
 
-**Version incluse :** 25.0.3~ynh4
+**Version incluse :** 25.0.4~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 

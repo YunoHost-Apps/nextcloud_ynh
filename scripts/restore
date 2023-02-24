@@ -8,7 +8,6 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-source ../settings/scripts/_ynh_mysql_connect_as.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE

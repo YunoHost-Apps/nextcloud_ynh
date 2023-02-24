@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Nextcloud pour YunoHost
 
 [![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+
 [![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Read this readme in english.](./README.md)*
@@ -17,7 +18,18 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Nextcloud Hub est la plate-forme de collaboration de contenu sur site entièrement open source. Les équipes accèdent, partagent et modifient leurs documents, discutent et participent à des appels vidéo et gèrent leur courrier, leur calendrier et leurs projets sur des interfaces mobiles, de bureau et Web.
 
-**Version incluse :** 25.0.3~ynh3
+### Caractéristiques spécifiques YunoHost
+
+En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suivantes sont incluses dans ce package :
+
+ * Intégration avec les utilisateurs YunoHost et le SSO - exemple, le bouton de déconnexion
+ * Permet à un utilisateur d'être l'administrateur (choisi à l'installation)
+ * Permet de multiples instances de cette application
+ * Accès optionnel au répertoire home depuis les fichiers Nextcloud (à activer à l'installation, le partage étant activé par défaut)
+ * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
+
+
+**Version incluse :** 25.0.4~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 
@@ -26,8 +38,6 @@ Nextcloud Hub est la plate-forme de collaboration de contenu sur site entièreme
 ![Capture d’écran de Nextcloud](./doc/screenshots/screenshot.png)
 
 ## Avertissements / informations importantes
-
-## Configuration
 
 ### Configurer l'intégration d'ONLYOFFICE
 
@@ -45,17 +55,6 @@ Pour l'installer et la configurer :
 #### Avec l'application YunoHost (support ARM64, meilleures performances)
 
 Pour  de meilleures performances et le support de ARM64, installez l'app YunoHost ONLYOFFICE, voir le tutoriel dans la [doc du paquet onlyoffice_ynh](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
-
-
-## Caractéristiques spécifiques YunoHost
-
-En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suivantes sont incluses dans ce package :
-
- * Intégration avec les utilisateurs YunoHost et le SSO - exemple, le bouton de déconnexion
- * Permet à un utilisateur d'être l'administrateur (choisi à l'installation)
- * Permet de multiples instances de cette application
- * Accès optionnel au répertoire home depuis les fichiers Nextcloud (à activer à l'installation, le partage étant activé par défaut)
- * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, baikal
 
 ## Documentations et ressources
 

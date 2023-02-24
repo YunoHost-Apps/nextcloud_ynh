@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Nextcloud for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Working status](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -17,8 +18,19 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
 
+### YunoHost-specific features
 
-**Shipped version:** 25.0.3~ynh3
+In addition to Nextcloud core features, the following are made available with
+this package:
+
+ * Integrate with YunoHost users and SSO - i.e. logout button
+ * Allow one user to be the administrator (set at the installation)
+ * Allow multiple instances of this application
+ * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
+ * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
+
+
+**Shipped version:** 25.0.4~ynh1
 
 **Demo:** https://demo.nextcloud.com/
 
@@ -27,8 +39,6 @@ Nextcloud Hub is a fully open-source on-premises content collaboration platform.
 ![Screenshot of Nextcloud](./doc/screenshots/screenshot.png)
 
 ## Disclaimers / important information
-
-## Configuration
 
 ### Configure ONLYOFFICE integration
 
@@ -46,18 +56,6 @@ To install and configure it:
 #### With YunoHost App (ARM64 support, better performance)
 
 For better performance and ARM64 support, install ONLYOFFICE YunoHost App and connect it to Nextcloud, see the tutorial in the [doc of onlyoffice_ynh package](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
-
-
-## YunoHost specific features
-
-In addition to Nextcloud core features, the following are made available with
-this package:
-
- * Integrate with YunoHost users and SSO - i.e. logout button
- * Allow one user to be the administrator (set at the installation)
- * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 ## Documentation and resources
 

@@ -51,8 +51,8 @@
                 "name": "is_public",
                 "type": "boolean",
                 "help": {
-                    "help.en": "You need to enable public if you want to connect Nextcloud Desktop client to Nextcloud server. This can be changed later via the webadmin.",
-                    "help.fr": "Vous devez cocher cette case si vous souhaitez connecter le client Nextcloud Desktop au serveur Nextcloud. Cela peut être modifié ultérieurement via l'administrateur Web."
+                    "en": "You need to enable public if you want to connect Nextcloud Desktop client to Nextcloud server. This can be changed later via the webadmin.",
+                    "fr": "Vous devez cocher cette case si vous souhaitez connecter le client Nextcloud Desktop au serveur Nextcloud. Cela peut être modifié ultérieurement via l'administrateur Web."
                 },
                 "default": true
             },

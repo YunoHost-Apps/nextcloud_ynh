@@ -40,8 +40,8 @@ ram.runtime = "512M"
     type = "user"
 
     [install.init_main_permission]
-    help.en = "Set to 'Visitors', Nextcloud will be accessible by Nextcloud Desktop and by users without a YunoHost account. This can be changed later in the webadmin."
-    help.fr = "Défini sur 'Visiteurs', Nextcloud sera accessible par Nextcloud Desktop et par les utilisateurs n’ayant pas de compte YunoHost. Vous pourrez changer dans la webadmin."
+    help.en = "You must activate 'Visitors' if you want to connect Nextcloud Desktop client to Nextcloud server. This can be changed later via the webadmin."
+    help.fr = "Vous devez activer 'Visiteurs' si vous souhaitez connecter le client Nextcloud Desktop au serveur Nextcloud. Cela peut être modifié ultérieurement via l'administrateur Web."
     type = "group"
     default = "visitors"
 

@@ -30,7 +30,7 @@ this package:
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 
-**Shipped version:** 25.0.4~ynh2
+**Shipped version:** 25.0.3~ynh3
 
 **Demo:** https://demo.nextcloud.com/
 

@@ -269,7 +269,7 @@ chmod 750 $install_dir
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Configuring log rotation..."
+ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate --logfile="$data_dir/nextcloud.log"

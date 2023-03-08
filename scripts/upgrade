@@ -53,35 +53,6 @@ if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
 fi
 
 #=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-# ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=30
-
-# # Made a backup only after the version 11.0.0
-# # Before, the datas will be always saved.
-# # Get the current version number of nextcloud/owncloud
-# current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-# current_major_version=${current_version%%.*}
-
-# if [ $current_major_version -gt 11 ]
-# then
-#     # Inform the backup/restore process that it should not save the data directory
-#     # Use only for the previous backup script that doesn't set 'is_big'
-#     ynh_app_setting_set --app=$app --key=backup_core_only --value=1
-
-#     # Backup the current version of the app
-#     ynh_backup_before_upgrade
-
-#     # Remove the option backup_core_only after the backup.
-#     ynh_app_setting_delete $app backup_core_only
-
-#     ynh_clean_setup () {
-#         # restore it if the upgrade fails
-#         ynh_restore_upgradebackup
-#     }
-# fi
-
-#=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2

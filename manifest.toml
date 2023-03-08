@@ -19,7 +19,7 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.1.10"
+yunohost = ">= 11.1.13"
 architectures = ["amd64", "arm64"]
 multi_instance = true
 ldap = true

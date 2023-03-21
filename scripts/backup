@@ -8,6 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source ../settings/scripts/_ynh_mysql_dump_db.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE

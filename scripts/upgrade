@@ -276,6 +276,15 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
+    if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
+        db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+        # Change your databases character set and collation
+        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+        # Set the mysql.utf8mb4 config to true in config.php
+        exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+        exec_occ maintenance:repair
+    fi
 
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them

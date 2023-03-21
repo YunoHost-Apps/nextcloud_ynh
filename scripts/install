@@ -8,7 +8,6 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
-source _ynh_mysql_connect_as.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -79,9 +78,6 @@ db_user=$db_name
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 ynh_psql_test_if_first_run
 ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
-
-ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
-    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -194,9 +190,6 @@ exec_occ maintenance:install \
 # CONFIGURE NEXTCLOUD
 #=================================================
 ynh_script_progression --message="Configuring Nextcloud..." --weight=8
-
-# Set the mysql.utf8mb4 config to true in config.php
-exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification

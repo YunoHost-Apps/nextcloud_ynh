@@ -27,6 +27,7 @@ user_home=$(ynh_app_setting_get --app=$app --key=user_home)
 maintenance_mode=$(ynh_app_setting_get --app=$app --key=maintenance_mode)
 fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
+redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
 
 #=================================================
 # CHECK VERSION

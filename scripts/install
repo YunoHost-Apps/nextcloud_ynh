@@ -206,6 +206,9 @@ exec_occ config:import "$nc_conf"
 # Then remove the config file
 ynh_secure_remove --file="$nc_conf"
 
+redis_db=$(ynh_redis_get_free_db)
+ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
+
 # Load the additional config file (used also for upgrade)
 nc_conf="$final_path/config.json"
 ynh_add_config --template="../conf/config.json" --destination="$nc_conf"

@@ -28,7 +28,6 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Accès optionnel au répertoire home depuis les fichiers Nextcloud (à activer à l'installation, le partage étant activé par défaut)
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
 
-
 **Version incluse :** 26.0.1~ynh1
 
 **Démo :** https://demo.nextcloud.com/

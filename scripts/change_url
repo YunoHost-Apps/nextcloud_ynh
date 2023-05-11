@@ -13,54 +13,54 @@ source /usr/share/yunohost/helpers
 # RETRIEVE ARGUMENTS
 #=================================================
 
-old_domain=$YNH_APP_OLD_DOMAIN
-old_path=$YNH_APP_OLD_PATH
+#REMOVEME? old_domain=$YNH_APP_OLD_DOMAIN
+#REMOVEME? old_path=$YNH_APP_OLD_PATH
 
-new_domain=$YNH_APP_NEW_DOMAIN
-new_path=$YNH_APP_NEW_PATH
+#REMOVEME? new_domain=$YNH_APP_NEW_DOMAIN
+#REMOVEME? new_path=$YNH_APP_NEW_PATH
 
-app=$YNH_APP_INSTANCE_NAME
+#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..."
+#REMOVEME? ynh_script_progression --message="Loading installation settings..."
 
-# Needed for helper "ynh_add_nginx_config"
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+#REMOVEME? # Needed for helper "ynh_add_nginx_config"
+#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
+#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before changing its URL (may take a while)..." --weight=1
+#REMOVEME? ynh_script_progression --message="Backing up the app before changing its URL (may take a while)..." --weight=1
 
 # Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
+#REMOVEME? ynh_backup_before_upgrade
+#REMOVEME? ynh_clean_setup () {
 	# Remove the new domain config file, the remove script won't do it as it doesn't know yet its location.
-	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+#REMOVEME? 	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 
 	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
+#REMOVEME? 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # CHECK WHICH PARTS SHOULD BE CHANGED
 #=================================================
 
-change_domain=0
-if [ "$old_domain" != "$new_domain" ]
+#REMOVEME? change_domain=0
+#REMOVEME? if [ "$old_domain" != "$new_domain" ]
 then
-	change_domain=1
+	#REMOVEME? change_domain=1
 fi
 
-change_path=0
-if [ "$old_path" != "$new_path" ]
+#REMOVEME? change_path=0
+#REMOVEME? if [ "$old_path" != "$new_path" ]
 then
-	change_path=1
+	#REMOVEME? change_path=1
 fi
 
 #=================================================
@@ -70,28 +70,30 @@ fi
 #=================================================
 ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
 
-nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
+ynh_change_url_nginx_config
+
+#REMOVEME? nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
 
 # Change the path in the NGINX config file
 if [ $change_path -eq 1 ]
 then
 	# Make a backup of the original NGINX config file if modified
-	ynh_backup_if_checksum_is_different --file="$nginx_conf_path"
+#REMOVEME? 	ynh_backup_if_checksum_is_different --file="$nginx_conf_path"
 	# Set global variables for NGINX helper
-	domain="$old_domain"
-	path_url="$new_path"
+#REMOVEME? 	domain="$old_domain"
+#REMOVEME? 	path="$new_path"
 	# Create a dedicated NGINX config
-	ynh_add_nginx_config
+#REMOVEME? 	ynh_add_nginx_config
 fi
 
 # Change the domain for NGINX
 if [ $change_domain -eq 1 ]
 then
 	# Delete file checksum for the old conf file location
-	ynh_delete_file_checksum --file="$nginx_conf_path"
-	mv $nginx_conf_path /etc/nginx/conf.d/$new_domain.d/$app.conf
+#REMOVEME? 	ynh_delete_file_checksum --file="$nginx_conf_path"
+#REMOVEME? 	mv $nginx_conf_path /etc/nginx/conf.d/$new_domain.d/$app.conf
 	# Store file checksum for the new config file location
-	ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+#REMOVEME? 	ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 fi
 
 #=================================================
@@ -101,7 +103,7 @@ ynh_script_progression --message="Applying Nextcloud specific modifications..." 
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$final_path" && ynh_exec_as "$app" \
+  (cd "$install_dir" && ynh_exec_as "$app" \
       php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
@@ -122,8 +124,8 @@ then
 		ynh_print_warn --message="Another app already uses the domain $new_domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
 
 		# Remove lines about .well-known/carddav and caldav with sed.
-		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
-		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+#REMOVEME? 		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
+#REMOVEME? 		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 	fi
 fi
 
@@ -132,9 +134,9 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+#REMOVEME? ynh_script_progression --message="Reloading NGINX web server..."
 
-ynh_systemd_action --service_name=nginx --action=reload
+#REMOVEME? #REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT

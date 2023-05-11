@@ -1,6 +1,6 @@
 {
   "system": {
-    "datadirectory": "__DATADIR__",
+    "data_directory": "__DATA_DIR__",
     "trusted_domains": [
       "localhost",
       "__DOMAIN__"

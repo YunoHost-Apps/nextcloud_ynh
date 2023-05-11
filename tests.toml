@@ -1,0 +1,15 @@
+test_format = 1.0
+
+[default]
+
+    # -------------------------------
+    # Default args to use for install
+    # -------------------------------
+
+    args.user_home = 1
+
+    # -------------------------------
+    # Commits to test upgrade from
+    # -------------------------------
+
+    test_upgrade_from.c5cf91ad30149e1924c23b19e93f483c3ed3edd8.name = "Upgrade from 25.0.2"

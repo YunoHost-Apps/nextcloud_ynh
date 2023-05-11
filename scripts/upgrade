@@ -10,58 +10,15 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
-#=================================================
-#REMOVEME? ynh_script_progression --message="Loading installation settings..." --weight=3
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$db_name
-#REMOVEME? user_home=$(ynh_app_setting_get --app=$app --key=user_home)
-
-#REMOVEME? maintenance_mode=$(ynh_app_setting_get --app=$app --key=maintenance_mode)
-#REMOVEME? fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-#REMOVEME? fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
-
-#=================================================
 # CHECK VERSION
 #=================================================
 
 upgrade_type=$(ynh_check_app_version_changed)
 
-# Check machine architecture (Nextcloud will soon deprecate 32-bit support)
-if [ $YNH_ARCH == "i386" ] || [ $YNH_ARCH == "armhf" ]
-then
-    ynh_print_warn --message="Nextcloud will soon deprecate 32-bit support. It is recommended to upgrade to a 64-bit architecture."
-fi
-
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
-
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If install_dir doesn't exist, create it
-if [ -z "$install_dir" ]; then
-#REMOVEME? 	install_dir=/var/www/$app
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
-fi
-
-# If data_dir doesn't exist, create it
-if [ -z "$data_dir" ]; then
-    data_dir=/home/yunohost.app/$app
-#REMOVEME?     ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
-fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
@@ -88,18 +45,6 @@ fi
 if [ -z "$fpm_usage" ]; then
 	fpm_usage=medium
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
-fi
-
-# Cleaning legacy permissions
-#REMOVEME? if ynh_legacy_permissions_exists; then
-#REMOVEME?     ynh_legacy_permissions_delete_all
-
-    ynh_app_setting_delete --app=$app --key=is_public
-fi
-
-# Create a permission if needed
-#REMOVEME? if ! ynh_permission_exists --permission="api"; then
-#REMOVEME?     ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 fi
 
 # Delete existing ini configuration file (backward compatibility)
@@ -149,31 +94,12 @@ fi
 fi
 
 #=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Upgrading dependencies..." --weight=7
-
-#REMOVEME? ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Making sure dedicated system user exists..."
-
-# Create a dedicated user (if not existing)
-#REMOVEME? ynh_system_user_create --username=$app
-
-#=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
 # Recreate a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
-
-#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -187,7 +113,7 @@ ynh_remove_nginx_config
 ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
 # Wait untils NGINX has fully reloaded
-#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
+ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
@@ -242,19 +168,19 @@ local mount_id=$(exec_occ files_external:create --output=json \
 # HANDLE DATABASE MIGRATION
 #=================================================
 
-#REMOVEME? mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 if [ -n "$mysql_db_pwd" ]
 then
     ynh_script_progression --message="Migrate Database..."
 
     ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
 
-#REMOVEME?     ynh_psql_test_if_first_run
-#REMOVEME?     ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
+    ynh_psql_test_if_first_run
+    ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
 
     exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
 
-#REMOVEME?     ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+    ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
     ynh_app_setting_delete --app=$app --key=mysqlpwd
 
     ynh_store_file_checksum --file="${install_dir}/config/config.php"
@@ -351,7 +277,7 @@ EOF
         )
 
         # Replace the old nextcloud by the new one
-#REMOVEME?         ynh_secure_remove --file="$install_dir"
+        ynh_secure_remove --file="$install_dir"
         mv "$tmpdir" "$install_dir"
         ynh_secure_remove --file="$tmpdir"
 
@@ -511,7 +437,7 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #REMOVEME? ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..."
 
 #REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
-ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
+#ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
 
 #=================================================
 # END OF SCRIPT

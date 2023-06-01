@@ -6,7 +6,7 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "25.0.6~ynh1",
+    "version": "26.0.2~ynh1",
     "url": "https://nextcloud.com",
     "upstream": {
         "license": "AGPL-3.0",
@@ -23,7 +23,7 @@
         "email": "pierre@kayou.io"
     },
     "requirements": {
-        "yunohost": ">= 11.0.9"
+        "yunohost": ">= 11.1.15"
     },
     "multi_instance": true,
     "services": [
@@ -51,8 +51,8 @@
                 "name": "is_public",
                 "type": "boolean",
                 "help": {
-                    "en": "If enabled, Nextcloud will be accessible by Nextcloud Desktop and by users without a YunoHost account. This can be changed later in the webadmin.",
-                    "fr": "Si cette case est cochée, Nextcloud sera accessible par Nextcloud Desktop et par les utilisateurs n’ayant pas de compte YunoHost. Vous pourrez changer dans la webadmin."
+                    "en": "You need to enable public if you want to connect Nextcloud Desktop client to Nextcloud server. This can be changed later via the webadmin.",
+                    "fr": "Vous devez cocher cette case si vous souhaitez connecter le client Nextcloud Desktop au serveur Nextcloud. Cela peut être modifié ultérieurement via l'administrateur Web."
                 },
                 "default": true
             },

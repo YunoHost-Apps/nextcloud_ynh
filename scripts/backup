@@ -15,20 +15,20 @@ source ../settings/scripts/_ynh_mysql_dump_db.sh
 #=================================================
 
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info --message="Loading installation settings..."
+#REMOVEME? ynh_print_info --message="Loading installation settings..."
 
-app=$YNH_APP_INSTANCE_NAME
+#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-datadir=$(ynh_app_setting_get --app=$app --key=datadir)
+#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
+#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
+#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+#REMOVEME? data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
@@ -39,7 +39,7 @@ ynh_print_info --message="Declaring files to be backed up..."
 # BACKUP THE APP MAIN DIR
 #=================================================
 
-ynh_backup --src_path="$final_path"
+ynh_backup --src_path="$install_dir"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
@@ -86,7 +86,7 @@ ynh_backup --src_path="/etc/cron.d/$app"
 #=================================================
 ynh_print_info --message="Backing up data directory..."
 
-ynh_backup --src_path="$datadir" --is_big
+ynh_backup --src_path="$data_dir" --is_big
 
 #=================================================
 # END OF SCRIPT

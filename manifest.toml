@@ -16,7 +16,6 @@ demo = "https://demo.nextcloud.com/"
 admindoc = "https://docs.nextcloud.com/server/stable/admin_manual/"
 userdoc = "https://docs.nextcloud.com/server/latest/user_manual/en/"
 code = "https://github.com/nextcloud/server"
-code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
@@ -58,7 +57,7 @@ ram.runtime = "512M"
     [resources.install_dir]
 
     [resources.data_dir]
-    subdirs = "data"
+    subdirs = ["data"]
 
     [resources.permissions]
     main.url = "/"

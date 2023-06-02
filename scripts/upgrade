@@ -10,96 +10,47 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
-#=================================================
-#REMOVEME? ynh_script_progression --message="Loading installation settings..." --weight=3
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$db_name
-#REMOVEME? user_home=$(ynh_app_setting_get --app=$app --key=user_home)
-
-#REMOVEME? maintenance_mode=$(ynh_app_setting_get --app=$app --key=maintenance_mode)
-#REMOVEME? fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-#REMOVEME? fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
-
-#=================================================
 # CHECK VERSION
 #=================================================
 
 upgrade_type=$(ynh_check_app_version_changed)
-
-# Check machine architecture (Nextcloud will soon deprecate 32-bit support)
-if [ $YNH_ARCH == "i386" ] || [ $YNH_ARCH == "armhf" ]
-then
-    ynh_print_warn --message="Nextcloud will soon deprecate 32-bit support. It is recommended to upgrade to a 64-bit architecture."
-fi
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If install_dir doesn't exist, create it
-if [ -z "$install_dir" ]; then
-#REMOVEME? 	install_dir=/var/www/$app
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
-fi
-
 # If data_dir doesn't exist, create it
-if [ -z "$data_dir" ]; then
+if [ -z "${data_dir:-}" ]; then
     data_dir=/home/yunohost.app/$app
-#REMOVEME?     ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
+    ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
 fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
 # If maintenance_mode doesn't exist, create it
-if [ -z "$maintenance_mode" ]; then
+if [ -z "${maintenance_mode:-}" ]; then
 	maintenance_mode=0
 	ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
 fi
 
 # If fpm_footprint doesn't exist, create it
-if [ -z "$fpm_footprint" ]; then
+if [ -z "${fpm_footprint:-}" ]; then
 	fpm_footprint=high
 	ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
 fi
 
 # If fpm_free_footprint doesn't exist, create it
-if [ -z "$fpm_free_footprint" ]; then
+if [ -z "${fpm_free_footprint:-}" ]; then
 	fpm_free_footprint=0
 	ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
 fi
 
 # If fpm_usage doesn't exist, create it
-if [ -z "$fpm_usage" ]; then
+if [ -z "${fpm_usage:-}" ]; then
 	fpm_usage=medium
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
-fi
-
-# Cleaning legacy permissions
-#REMOVEME? if ynh_legacy_permissions_exists; then
-#REMOVEME?     ynh_legacy_permissions_delete_all
-
-    ynh_app_setting_delete --app=$app --key=is_public
-fi
-
-# Create a permission if needed
-#REMOVEME? if ! ynh_permission_exists --permission="api"; then
-#REMOVEME?     ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
 fi
 
 # Delete existing ini configuration file (backward compatibility)
@@ -108,69 +59,12 @@ if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
 fi
 
 #=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-#REMOVEME? ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=30
-
-# Made a backup only after the version 11.0.0
-# Before, the datas will be always saved.
-# Get the current version number of nextcloud/owncloud
-current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-current_major_version=${current_version%%.*}
-
-if [ $current_major_version -gt 11 ]
-then
-    # Inform the backup/restore process that it should not save the data directory
-    # Use only for the previous backup script that doesn't set 'is_big'
-    ynh_app_setting_set --app=$app --key=backup_core_only --value=1
-
-    # Backup the current version of the app
-#REMOVEME?     ynh_backup_before_upgrade
-
-    # Remove the option backup_core_only after the backup.
-    ynh_app_setting_delete $app backup_core_only
-
-#REMOVEME?     ynh_clean_setup () {
-        # restore it if the upgrade fails
-#REMOVEME?         ynh_restore_upgradebackup
-    }
-fi
-
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
-
-#REMOVEME? if ynh_legacy_permissions_exists; then
-#REMOVEME?     ynh_legacy_permissions_delete_all
-
-#REMOVEME?     ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
-fi
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Upgrading dependencies..." --weight=7
-
-#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Making sure dedicated system user exists..."
-
-# Create a dedicated user (if not existing)
-#REMOVEME? ynh_system_user_create --username=$app
-
-#=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
 # Recreate a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
-
-#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -184,7 +78,7 @@ ynh_remove_nginx_config
 ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
 # Wait untils NGINX has fully reloaded
-#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
+ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
@@ -204,6 +98,9 @@ ynh_add_nginx_config
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
 #=================================================
+
+current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+current_major_version=${current_version%%.*}
 
 # Define a function to execute commands with `occ`
 exec_occ() {
@@ -233,7 +130,7 @@ local mount_id=$(exec_occ files_external:create --output=json \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 # Define app's data directory
-#REMOVEME? data_dir="/home/yunohost.app/$app/data"
+data_dir="/home/yunohost.app/$app/data"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -252,7 +149,7 @@ then
     exec_occ -V
 
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-#REMOVEME?         db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+        db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
         # Change your databases character set and collation
         ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
         <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
@@ -335,7 +232,7 @@ EOF
         )
 
         # Replace the old nextcloud by the new one
-#REMOVEME?         ynh_secure_remove --file="$install_dir"
+        ynh_secure_remove --file="$install_dir"
         mv "$tmpdir" "$install_dir"
         ynh_secure_remove --file="$tmpdir"
 
@@ -492,9 +389,8 @@ ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" -
 #=================================================
 # RELOAD NGINX
 #=================================================
-#REMOVEME? ynh_script_progression --message="Reloading NGINX web server and PHP-FPM..."
+ynh_script_progression --message="Reloading PHP-FPM..."
 
-#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
 
 #=================================================

@@ -16,31 +16,28 @@ demo = "https://demo.nextcloud.com/"
 admindoc = "https://docs.nextcloud.com/server/stable/admin_manual/"
 userdoc = "https://docs.nextcloud.com/server/latest/user_manual/en/"
 code = "https://github.com/nextcloud/server"
-cpe = "???" # FIXME: optional but recommended if relevant, this is meant to contain the Common Platform Enumeration, which is sort of a standard id for applications defined by the NIST. In particular, Yunohost may use this is in the future to easily track CVE (=security reports) related to apps. The CPE may be obtained by searching here: https://nvd.nist.gov/products/cpe/search. For example, for Nextcloud, the CPE is 'cpe:2.3:a:nextcloud:nextcloud' (no need to include the version number)
-fund = "???" # FIXME: optional but recommended (or remove if irrelevant / not applicable). This is meant to be an URL where people can financially support this app, especially when its development is based on volunteers and/or financed by its community. YunoHost may later advertise it in the webadmin.
+code = "https://github.com/nextcloud/server"
+cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.1.15"
-architectures = "all" # FIXME: can be replaced by a list of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386"]
+yunohost = ">= 11.1.19"
+architectures = ["amd64", "arm64"]
 multi_instance = true
-ldap = "?" # FIXME: replace with true, false, or "not_relevant". Not to confuse with the "sso" key : the "ldap" key corresponds to wether or not a user *can* login on the app using its YunoHost credentials.
-sso = "?" # FIXME: replace with true, false, or "not_relevant". Not to confuse with the "ldap" key : the "sso" key corresponds to wether or not a user is *automatically logged-in* on the app when logged-in on the YunoHost portal.
-disk = "50M" # FIXME: replace with an **estimate** minimum disk requirement. e.g. 20M, 400M, 1G, ...
-ram.build = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
-ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+ldap = true
+sso = true
+disk = "50M"
+ram.build = "500M"
+ram.runtime = "512M"
 
 [install]
     [install.domain]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "domain"
 
     [install.path]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "path"
     default = "/nextcloud"
 
     [install.admin]
-    # this is a generic question - ask strings are automatically handled by Yunohost's core
     type = "user"
 
     [install.init_main_permission]
@@ -61,9 +58,18 @@ ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requiremen
     [resources.install_dir]
 
     [resources.data_dir]
+    subdirs = ["data"]
 
     [resources.permissions]
     main.url = "/"
+    api.url = "re:__DOMAIN__\\/.well-known\\/.*"
+    api.auth_header = false
+    api.show_tile = false
+    api.protected= true
+    api.allowed = ["visitors", "all_users"]
+
+    [resources.apt]
+    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, php8.1-fpm, php8.1-bz2, php8.1-imap, php8.1-gmp, php8.1-gd, php8.1-intl, php8.1-curl, php8.1-apcu, php8.1-redis, php8.1-ldap, php8.1-imagick, php8.1-zip, php8.1-mbstring, php8.1-xml, php8.1-mysql, php8.1-igbinary, php8.1-bcmath"
 
     [resources.database]
     type = "mysql"

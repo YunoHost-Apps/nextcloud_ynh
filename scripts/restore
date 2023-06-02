@@ -11,39 +11,6 @@ source /usr/share/yunohost/helpers
 source ../settings/scripts/_ynh_mysql_connect_as.sh
 
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
-
-#=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_script_progression --message="Loading settings..."
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$db_name
-#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-#REMOVEME? data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
-
-#REMOVEME? fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-#REMOVEME? fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
-
-#=================================================
-# CHECK IF THE APP CAN BE RESTORED
-#=================================================
-#REMOVEME? ynh_script_progression --message="Validating restoration parameters..." --weight=4
-
-#REMOVEME? test ! -d $install_dir \
-	|| ynh_die --message="There is already a directory: $install_dir "
-
-#=================================================
 # STANDARD RESTORATION STEPS
 #=================================================
 # RESTORE THE APP MAIN DIR
@@ -55,32 +22,12 @@ ynh_restore_file --origin_path="$install_dir"
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
-#REMOVEME? ynh_script_progression --message="Restoring the MySQL database..." --weight=9
+ynh_script_progression --message="Restoring the MySQL database..." --weight=9
 
-#REMOVEME? db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-#REMOVEME? ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name --db_pwd=$db_pwd
 ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name \
     <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 
 ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name --default_character_set="utf8mb4" < ./db.sql
-
-#=================================================
-# RECREATE THE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Recreating the dedicated system user..." --weight=3
-
-# Create the dedicated user (if not existing)
-#REMOVEME? ynh_system_user_create --username=$app
-
-#=================================================
-# SPECIFIC RESTORATION
-#=================================================
-# REINSTALL DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Reinstalling dependencies..." --weight=10
-
-# Define and install dependencies
-#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
@@ -129,8 +76,6 @@ ynh_script_progression --message="Restoring data directory..." --weight=2
 
 # Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
 ynh_restore_file --origin_path="$data_dir" --not_mandatory
-
-mkdir -p "$data_dir"
 
 #=================================================
 # RESTORE USER RIGHTS

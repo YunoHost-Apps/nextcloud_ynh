@@ -1,1 +1,1 @@
-*/5  *  *  *  * __APP__ /usr/bin/php__PHPVERSION__ --define apc.enable_cli=1 -f __FINAL_PATH__/cron.php
+*/5  *  *  *  * __APP__ /usr/bin/php__PHPVERSION__ --define apc.enable_cli=1 -f __INSTALL_DIR__/cron.php

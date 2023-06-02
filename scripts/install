@@ -63,8 +63,8 @@ ynh_setup_source --dest_dir="$install_dir"
 #=================================================
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
 
-# Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
 #=================================================
 # NGINX CONFIGURATION
@@ -107,7 +107,7 @@ exec_occ maintenance:install \
     --database "mysql" --database-name $db_name \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
-    --data-dir "$data_dir" \
+    --data-dir "$data_dir/data" \
     || ynh_die --message="Unable to install Nextcloud"
 
 #=================================================
@@ -158,10 +158,10 @@ exec_occ ldap:test-config '' \
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing
 create_external_storage() {
-  local data_dir="$1"
+  local data_dir/data="$1"
   local mount_name="$2"
   local mount_id=`exec_occ files_external:create --output=json \
-      "$mount_name" 'local' 'null::null' -c "data_dir=$data_dir" || true`
+      "$mount_name" 'local' 'null::null' -c "data_dir=$data_dir/data" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
       && ynh_print_warn --message="Unable to create external storage" \
       || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -259,8 +259,8 @@ chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -0 chmod 0755
-find $data_dir/ -type f -print0 | xargs -0 chmod 0640
-find $data_dir/ -type d -print0 | xargs -0 chmod 0750
+find $data_dir/data/ -type f -print0 | xargs -0 chmod 0640
+find $data_dir/data/ -type d -print0 | xargs -0 chmod 0750
 chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
@@ -271,7 +271,7 @@ chmod 750 $install_dir
 ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$data_dir/nextcloud.log"
+ynh_use_logrotate --logfile="$data_dir/data/nextcloud.log"
 
 #=================================================
 # SETUP FAIL2BAN
@@ -279,7 +279,7 @@ ynh_use_logrotate --logfile="$data_dir/nextcloud.log"
 ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

@@ -71,8 +71,6 @@ ynh_script_progression --message="Restoring data directory..." --weight=2
 # Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
 ynh_restore_file --origin_path="$data_dir" --not_mandatory
 
-chown -R $app:www-data "$data_dir"
-
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
@@ -91,7 +89,7 @@ chmod 750 $install_dir
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
-    mkdir -p "$data_dir/data/$u"
+    mkdir -p "$data_dir/$u"
     setfacl --modify g:$app:rwx "/home/$u" || true
 done
 
@@ -114,7 +112,7 @@ ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
 
 # Make sure a log file exists (mostly for CI tests)
-logfile="/home/yunohost.app/$app/data/nextcloud.log"
+logfile="$data_dir/data/nextcloud.log"
 if [ ! -f "$logfile" ]; then
 	touch "$logfile"
 	chown $app: "$logfile"

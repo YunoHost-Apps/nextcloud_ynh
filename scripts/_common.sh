@@ -8,6 +8,19 @@
 # EXPERIMENTAL HELPERS
 #=================================================
 
+# Define a function to add an external storage
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+local datadir="$1"
+local mount_name="$2"
+local mount_id=`exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$datadir/data" || true`
+! [[ $mount_id =~ ^[0-9]+$ ]] \
+    && ynh_print_warn --message="Unable to create external storage" \
+    || exec_occ files_external:option "$mount_id" enable_sharing true
+}
+
+
 # Check if an URL is already handled
 # usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {

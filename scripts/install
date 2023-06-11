@@ -29,14 +29,6 @@ ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footpr
 ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 
 #=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
-ynh_script_progression --message="Migrate MySQL database to utf8..." --weight=2
-
-ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
-    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..." --weight=5
@@ -99,12 +91,12 @@ chown -R $app: "$install_dir" "$data_dir"
 
 # Define password in an intermediate var
 # The fact that it's called _password allows it to be
-# picked up by Yunohost's auto-redact mecanism
+# picked up by YunoHost's auto-redact mecanism
 admin_password="$(ynh_string_random --length=6)"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name $db_name \
+    --database "pgsql" --database-name $db_name \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$data_dir/data" \
@@ -114,9 +106,6 @@ exec_occ maintenance:install \
 # CONFIGURE NEXTCLOUD
 #=================================================
 ynh_script_progression --message="Configuring $app..." --weight=8
-
-# Set the mysql.utf8mb4 config to true in config.php
-exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
@@ -203,8 +192,9 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
 #=================================================
 
 # Set the user as admin
-ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name --default_character_set="utf8mb4" \
+ynh_psql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
+
 # And delete admin user
 exec_occ user:delete admin
 
@@ -241,10 +231,12 @@ ynh_script_progression --message="Adding multimedia directories..." --weight=6
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
+
 # Mount the user directory in Nextcloud
 exec_occ app:enable files_external
 create_external_storage "/home/yunohost.multimedia/\$user" "Multimedia"
 create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
+
 # Allow nextcloud to write into these directories
 ynh_multimedia_addaccess $app
 

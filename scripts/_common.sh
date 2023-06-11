@@ -1,11 +1,15 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
+# COMMON FUCTIONS
 #=================================================
 
-#=================================================
-# EXPERIMENTAL HELPERS
+# Define a function to execute commands with `occ`
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as "$app" \
+      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
+
 #=================================================
 
 # Define a function to add an external storage
@@ -20,6 +24,8 @@ local mount_id=$(exec_occ files_external:create --output=json \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 
+#=================================================
+# EXPERIMENTAL HELPERS
 #=================================================
 
 # Check if an URL is already handled

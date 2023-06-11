@@ -39,7 +39,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..."
+ynh_script_progression --message="Setting up source files..." --weight=5
 
 # Load the last available version
 source upgrade.d/upgrade.last.sh
@@ -86,7 +86,7 @@ ynh_add_nginx_config
 #=================================================
 # INSTALL NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Installing Nextcloud..." --weight=30
+ynh_script_progression --message="Installing $app..." --weight=30
 
 # Define a function to execute commands with `occ`
 exec_occ() {
@@ -113,7 +113,7 @@ exec_occ maintenance:install \
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Configuring Nextcloud..." --weight=8
+ynh_script_progression --message="Configuring $app..." --weight=8
 
 # Set the mysql.utf8mb4 config to true in config.php
 exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"

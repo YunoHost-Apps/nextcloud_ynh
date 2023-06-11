@@ -19,7 +19,7 @@ ynh_change_url_nginx_config
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-ynh_script_progression --message="Applying Nextcloud specific modifications..." --weight=2
+ynh_script_progression --message="Applying $app specific modifications..." --weight=2
 
 # Define a function to execute commands with `occ`
 exec_occ() {

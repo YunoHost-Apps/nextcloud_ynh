@@ -10,51 +10,29 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# REMOVE NGINX CONFIGURATION
+# REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Removing NGINX web server configuration..."
+# REMOVE SYSTEMD SERVICE 
+#=================================================
+ynh_script_progression --message="Removing system configurations related to $app..." --weight=5
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
 
-#=================================================
-# REMOVE PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing PHP-FPM configuration..." --weight=2
-
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
-
-#=================================================
-# REMOVE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing logrotate configuration..."
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 
-#=================================================
-# REMOVE FAIL2BAN CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing Fail2Ban configuration..." --weight=8
-
 # Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
-
-#=================================================
-# SPECIFIC REMOVE
-#=================================================
-# REMOVE THE CRON FILE
-#=================================================
 
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
 ynh_secure_remove --file="/etc/cron.d/$app"
 
-#=================================================
-# CLEAN ACL IN HOME DIRECTORIES
-#=================================================
-
+# Cleaning ACL in home directories
 for i in $(ls /home); do
   # Clean ACL in every directories in /home, except those which start with 'yunohost.'
   [[ ! $i == yunohost.* ]] \

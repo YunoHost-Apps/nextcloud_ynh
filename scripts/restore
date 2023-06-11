@@ -8,6 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source ../settings/scripts/_ynh_mysql_connect_as.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -57,8 +58,11 @@ ynh_restore_file --origin_path="$final_path"
 ynh_script_progression --message="Restoring the MySQL database..." --weight=9
 
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
-ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
+ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name --db_pwd=$db_pwd
+ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name \
+    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name --default_character_set="utf8mb4" < ./db.sql
 
 #=================================================
 # RECREATE THE DEDICATED USER
@@ -137,10 +141,10 @@ mkdir -p "$datadir"
 # Fix app ownerships & permissions
 chown -R $app:www-data "$final_path"
 chown -R $app: "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
+find $final_path/ -type f -print0 | xargs -r0 chmod 0644
+find $final_path/ -type d -print0 | xargs -r0 chmod 0755
+find $datadir/ -type f -print0 | xargs -r0 chmod 0640
+find $datadir/ -type d -print0 | xargs -r0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $final_path

@@ -251,6 +251,15 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
+    if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
+        db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+        # Change your databases character set and collation
+        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+        # Set the mysql.utf8mb4 config to true in config.php
+        exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+        exec_occ maintenance:repair
+    fi
 
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them
@@ -443,10 +452,10 @@ exec_occ background:cron
 # Fix app ownerships & permissions
 chown -R $app:www-data "$final_path"
 chown -R $app: "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
+find $final_path/ -type f -print0 | xargs -r0 chmod 0644
+find $final_path/ -type d -print0 | xargs -r0 chmod 0755
+find $datadir/ -type f -print0 | xargs -r0 chmod 0640
+find $datadir/ -type d -print0 | xargs -r0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $final_path

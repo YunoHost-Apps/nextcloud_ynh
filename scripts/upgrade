@@ -99,22 +99,6 @@ current_major_version=${current_version%%.*}
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version = "last" ] || [ $current_major_version -ge 24 ]
-    then
-        NEXTCLOUD_PHP_VERSION=$phpversion
-    elif [ $current_major_version -ge 15 ]
-    then
-        NEXTCLOUD_PHP_VERSION="7.4"
-    else
-        NEXTCLOUD_PHP_VERSION="7.0"
-    fi
-(cd "$install_dir" && ynh_exec_as "$app" \
-    php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
-}
-
-# Define a function to execute commands with `occ`
-exec_occ() {
-    # Backward compatibility to upgrade from older versions
     if [ $current_major_version = "last" ]
     then
         NEXTCLOUD_PHP_VERSION=$phpversion

@@ -4,14 +4,6 @@
 # COMMON FUCTIONS
 #=================================================
 
-# Define a function to execute commands with `occ`
-exec_occ() {
-  (cd "$install_dir" && ynh_exec_as "$app" \
-      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
-}
-
-#=================================================
-
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing
 create_external_storage() {

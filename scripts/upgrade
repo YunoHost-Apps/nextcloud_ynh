@@ -123,8 +123,28 @@ local mount_id=$(exec_occ files_external:create --output=json \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
-# Define app's data directory
-#data_dir="/home/yunohost.app/$app/data"
+
+#=================================================
+# HANDLE DATABASE MIGRATION
+#=================================================
+
+mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+if [ -n "$mysql_db_pwd" ]
+then
+    ynh_script_progression --message="Migrate Database..."
+
+    ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
+
+    ynh_psql_test_if_first_run
+    ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
+
+    exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+
+    ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+    ynh_app_setting_delete --app=$app --key=mysqlpwd
+
+    ynh_store_file_checksum --file="${install_dir}/config/config.php"
+fi
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -142,15 +162,6 @@ then
     # Print the current version number of Nextcloud
     exec_occ -V
 
-    if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-        db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-        # Change your databases character set and collation
-        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
-        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-        # Set the mysql.utf8mb4 config to true in config.php
-        exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
-        exec_occ maintenance:repair
-    fi
 
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them
@@ -188,7 +199,7 @@ then
         # Load the value for this version
         source upgrade.d/upgrade.$current_major_version.sh
 
-        ynh_print_info --message="Upgrade to nextcloud $next_version"
+        ynh_print_info --message="Upgrade to Nextcloud $next_version"
 
         # Create an app.src for this version of Nextcloud
         cat > ../conf/app.src << EOF
@@ -242,7 +253,7 @@ EOF
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
         current_major_version=${current_version%%.*}
 
-        # Print the current version number of nextcloud
+        # Print the current version number of Nextcloud
         exec_occ -V
     done
 

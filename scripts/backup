@@ -40,13 +40,6 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
-# BACKUP THE MYSQL DATABASE
-#=================================================
-ynh_print_info --message="Backing up the MySQL database..."
-
-ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
-
-#=================================================
 # SPECIFIC BACKUP
 #=================================================
 # BACKUP LOGROTATE
@@ -72,7 +65,7 @@ ynh_backup --src_path="/etc/cron.d/$app"
 #=================================================
 ynh_print_info --message="Backing up the MySQL database..."
 
-ynh_mysql_dump_db --database="$db_name" > db.sql
+ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
 
 #=================================================
 # END OF SCRIPT

@@ -123,8 +123,6 @@ local mount_id=$(exec_occ files_external:create --output=json \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
-# Define app's data directory
-#data_dir="/home/yunohost.app/$app/data"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -188,7 +186,7 @@ then
         # Load the value for this version
         source upgrade.d/upgrade.$current_major_version.sh
 
-        ynh_print_info --message="Upgrade to nextcloud $next_version"
+        ynh_print_info --message="Upgrade to Nextcloud $next_version"
 
         # Create an app.src for this version of Nextcloud
         cat > ../conf/app.src << EOF

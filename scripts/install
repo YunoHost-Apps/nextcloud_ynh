@@ -143,10 +143,6 @@ exec_occ ldap:test-config '' \
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
 #=================================================
 
-# Define a function to add an external storage
-# Create the external storage for the given folders and enable sharing
-create_external_storage
-
 # Enable External Storage and create local mount to home folder
 if [ $user_home -eq 1 ]
 then

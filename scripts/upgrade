@@ -112,10 +112,6 @@ exec_occ() {
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
-# Define a function to add an external storage
-# Create the external storage for the given folders and enable sharing
-create_external_storage
-
 #=================================================
 # HANDLE DATABASE MIGRATION
 #=================================================

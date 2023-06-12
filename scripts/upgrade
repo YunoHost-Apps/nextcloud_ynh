@@ -271,6 +271,9 @@ EOF
     # Enable LDAP plugin
     exec_occ app:enable user_ldap
 
+    # Update all installed apps
+    exec_occ app:update --all
+
     # Load the config file in nextcloud
     exec_occ config:import "$nc_conf"
 

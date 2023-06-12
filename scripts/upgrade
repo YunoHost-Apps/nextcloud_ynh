@@ -119,16 +119,16 @@ exec_occ() {
 mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 if [ -n "$mysql_db_pwd" ]
 then
-    ynh_script_progression --message="Migrate Database..."
+    ynh_script_progression --message="Migrating to PostgreSQL database..."
 
     ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
 
     ynh_psql_test_if_first_run
-    ynh_psql_setup_db --db_user=$db_name --db_name=$db_name
+    ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
 
     exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
 
-    ynh_mysql_remove_db --db_user=$db_name --db_name=$db_name
+    ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
     ynh_app_setting_delete --app=$app --key=mysqlpwd
 
     ynh_store_file_checksum --file="${install_dir}/config/config.php"

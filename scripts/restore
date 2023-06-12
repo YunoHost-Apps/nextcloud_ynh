@@ -23,7 +23,7 @@ ynh_restore_file --origin_path="$install_dir"
 #=================================================
 ynh_script_progression --message="Restoring the PostgreSQL database..." --weight=9
 
-ynh_psql_connect_as --user=$db_user --password=$db_pwd --database=$db_name --default_character_set="utf8mb4" < ./db.sql
+ynh_psql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION

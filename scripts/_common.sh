@@ -10,7 +10,7 @@ create_external_storage() {
 local datadir="$1"
 local mount_name="$2"
 local mount_id=$(exec_occ files_external:create --output=json \
-    "$mount_name" 'local' 'null::null' -c "datadir=$datadir/data" || true)
+    "$mount_name" 'local' 'null::null' -c "datadir=$data_dir/data" || true)
 ! [[ $mount_id =~ ^[0-9]+$ ]] \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true

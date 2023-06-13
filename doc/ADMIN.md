@@ -1,3 +1,7 @@
+### How to use CLI commande
+
+`sudo -u __APP__ php__YNH_PHP_VERSION__ --define apc.enable_cli=1 __INSTALL_DIR__/occ ...`
+
 ### Configure ONLYOFFICE integration
 
 #### With Nextcloud App (no ARM support, lower performance)

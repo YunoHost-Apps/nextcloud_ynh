@@ -1,3 +1,7 @@
+### Comment utiliser la commande CLI
+
+`sudo -u __APP__ php__YNH_PHP_VERSION__ --define apc.enable_cli=1 __INSTALL_DIR__/occ ...`
+
 ### Configure ONLYOFFICE integration
 
 #### With Nextcloud App (no ARM support, lower performance)
@@ -6,7 +10,7 @@ Starting from Nextcloud 18, it features a direct integration of ONLYOFFICE (an o
 To install and configure it:
 - Install *Community Document Server* application in your Nextcloud. That's the part that runs ONLYOFFICE server.
 - Install *ONLYOFFICE* application. That's the client part that will connect to an ONLYOFFICE server.
-- Then in Settings -> ONLYOFFICE (`https://__DOMAIN__/__PATH__/settings/admin/onlyoffice`), if you want to configure which file formats should be opened by ONLYOFFICE.
+- Then in Settings -> ONLYOFFICE (`https://__DOMAIN____PATH__/settings/admin/onlyoffice`), if you want to configure which file formats should be opened by ONLYOFFICE.
 - Here you go :) You should be able to create new type of documents and open them.
 
 *NB: ONLYOFFICE Nextcloud App is only available for x86 architecture - for **ARM** architecture (Raspberry Pi, OLinuXino...), consider the YunoHost App below*

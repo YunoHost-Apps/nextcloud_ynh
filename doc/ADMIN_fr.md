@@ -10,7 +10,7 @@ Nextcloud inclut une intégration directe de ONLYOFFICE (un éditeur de texte en
 Pour l'installer et la configurer :
 - Installez l'application *Community Document Server* dans votre Nextcloud. C'est la partie qui fait tourner un serveur ONLYOFFICE.
 - Installez l'application *ONLYOFFICE*. C'est la partie cliente qui va se connecter au serveur ONLYOFFICE.
-- Ensuite dans les Paramètres -> ONLYOFFICE (`https://__DOMAIN__/__PATH__/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec ONLYOFFICE.
+- Ensuite dans les Paramètres -> ONLYOFFICE (`https://__DOMAIN____PATH__/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec ONLYOFFICE.
 
 *NB : l'app Nextcloud ONLYOFFICE Community Document Server n'est disponible que sous architecture x86 - Pour un support de l'architecture **ARM** (Raspberry Pi, OLinuXino...), installez plutôt l'App YunoHost, voir ci-dessous*
 

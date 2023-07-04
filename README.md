@@ -29,6 +29,7 @@ this package:
  * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
+
 **Shipped version:** 27.0.0~ynh1
 
 **Demo:** https://demo.nextcloud.com/

@@ -113,6 +113,8 @@ ynh_script_progression --message="Configuring system user..." --weight=3
 # Create a system user
 ynh_system_user_create --username=$app
 
+usermod -d /var/www/nextcloud nextcloud
+
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================

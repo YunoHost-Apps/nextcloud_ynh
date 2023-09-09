@@ -52,7 +52,7 @@ ynh_setup_source --dest_dir="$install_dir"
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=5
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint

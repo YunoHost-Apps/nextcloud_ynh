@@ -30,7 +30,7 @@ this package:
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 
-**Shipped version:** 27.0.2~ynh1
+**Shipped version:** 27.1.2~ynh1
 
 **Demo:** https://demo.nextcloud.com/
 
@@ -63,7 +63,6 @@ For better performance and ARM64 support, install ONLYOFFICE YunoHost App and co
 * Official user documentation: <https://docs.nextcloud.com/server/latest/user_manual/en/>
 * Official admin documentation: <https://docs.nextcloud.com/server/stable/admin_manual/>
 * Upstream app code repository: <https://github.com/nextcloud/server>
-* YunoHost documentation for this app: <https://yunohost.org/app_nextcloud>
 * Report a bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
 ## Developer info

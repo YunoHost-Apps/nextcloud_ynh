@@ -15,7 +15,7 @@
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,
     "mail_smtpmode": "smtp",
-    "mail_smtphost": "smtp://__APP__:__MAIL_PWD__@__DOMAIN__:587/?tls=True",
+    "mail_smtphost": "smtp://__APP__:__MAIL_PWD__@localhost:587/?tls=True",
     "mail_smtpport": 587,
     "mail_smtpauth": true,
     "mail_smtpname": "__APP__",

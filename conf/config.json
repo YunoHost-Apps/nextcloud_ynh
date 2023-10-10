@@ -15,11 +15,21 @@
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,
     "mail_smtpmode": "smtp",
-    "mail_smtphost": "smtp://__APP__:__MAIL_PWD__@localhost:587/?tls=True",
-    "mail_smtpport": 587,
-    "mail_smtpauth": true,
+    "mail_smtpport": "25",
+    "mail_smtpauth": 1,
     "mail_smtpname": "__APP__",
-    "mail_smtppassword": "__MAIL_PWD__"
+    "mail_smtppassword": "__MAIL_PWD__",
+    "mail_sendmailmode": "smtp",
+    "mail_from_address": "__APP__",
+    "mail_domain": "__DOMAIN__",
+    "mail_smtphost": "localhost",
+    "mail_smtpstreamoptions": {
+      "ssl": {
+        "allow_self_signed": true,
+        "verify_peer": false,
+        "verify_peer_name": false
+      }
+    }
   },
   "apps": {
     "user_ldap": {

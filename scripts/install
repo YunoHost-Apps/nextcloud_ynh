@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source _ynh_mysql_connect_as.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -77,6 +78,9 @@ db_name=$(ynh_sanitize_dbid --db_name=$app)
 db_user=$db_name
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+
+ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -190,6 +194,9 @@ exec_occ maintenance:install \
 #=================================================
 ynh_script_progression --message="Configuring Nextcloud..." --weight=8
 
+# Set the mysql.utf8mb4 config to true in config.php
+exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
@@ -275,7 +282,7 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
 #=================================================
 
 # Set the user as admin
-ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name --default_character_set="utf8mb4" \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 # And delete admin user
 exec_occ user:delete admin
@@ -329,10 +336,10 @@ ynh_multimedia_addaccess $app
 # Fix app ownerships & permissions
 chown -R $app:www-data "$final_path"
 chown -R $app: "$datadir"
-find $final_path/ -type f -print0 | xargs -0 chmod 0644
-find $final_path/ -type d -print0 | xargs -0 chmod 0755
-find $datadir/ -type f -print0 | xargs -0 chmod 0640
-find $datadir/ -type d -print0 | xargs -0 chmod 0750
+find $final_path/ -type f -print0 | xargs -r0 chmod 0644
+find $final_path/ -type d -print0 | xargs -r0 chmod 0755
+find $datadir/ -type f -print0 | xargs -r0 chmod 0640
+find $datadir/ -type d -print0 | xargs -r0 chmod 0750
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $final_path

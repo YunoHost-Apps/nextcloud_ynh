@@ -6,7 +6,7 @@
         "en": "Online storage, file sharing platform and various other applications",
         "fr": "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
     },
-    "version": "26.0.2~ynh2",
+    "version": "27.1.2~ynh2",
     "url": "https://nextcloud.com",
     "upstream": {
         "license": "AGPL-3.0",
@@ -23,7 +23,7 @@
         "email": "pierre@kayou.io"
     },
     "requirements": {
-        "yunohost": ">= 11.1.15"
+        "yunohost": ">= 11.2"
     },
     "multi_instance": true,
     "services": [

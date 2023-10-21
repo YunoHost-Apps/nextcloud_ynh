@@ -253,7 +253,7 @@ EOF
     #=================================================
     # CONFIGURE NEXTCLOUD
     #=================================================
-    ynh_script_progression --message="Reconfiguring Nextcloud..." --weight=9
+    ynh_script_progression --message="Reconfiguring $app..." --weight=9
 
     # Verify the checksum and backup the file if it's different
     ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"

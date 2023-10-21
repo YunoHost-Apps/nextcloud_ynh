@@ -375,7 +375,7 @@ ynh_use_logrotate --non-append
 ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=7
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # GENERIC FINALIZATION

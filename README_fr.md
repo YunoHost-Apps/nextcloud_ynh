@@ -29,7 +29,7 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
 
 
-**Version incluse :** 27.1.2~ynh1
+**Version incluse :** 27.1.2~ynh
 
 **Démo :** https://demo.nextcloud.com/
 

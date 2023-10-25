@@ -29,6 +29,7 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
+use_notify_push=$(ynh_app_setting_get --app=$app --key=use_notify_push)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
@@ -133,6 +134,21 @@ ynh_restore_file --origin_path="$datadir" --not_mandatory
 mkdir -p "$datadir"
 
 #=================================================
+# RESTORE THE NOTIFY_PUSH APP
+#=================================================
+
+if [ $use_notify_push -eq 1 ]
+then
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push.service"
+
+    systemctl enable "${app}-notify-push".service --quiet
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+fi
+
+#=================================================
 # RESTORE USER RIGHTS
 #=================================================
 
@@ -189,6 +205,25 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+# Define a function to execute commands with `occ`
+exec_occ() {
+  (cd "$final_path" && ynh_exec_as "$app" \
+      php${phpversion} occ --no-interaction --no-ansi "$@")
+}
+
+if [ $use_notify_push -eq 1 ]
+then
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
+    fi
+fi
 
 #=================================================
 # END OF SCRIPT

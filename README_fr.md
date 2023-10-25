@@ -56,6 +56,10 @@ Pour l'installer et la configurer :
 
 Pour  de meilleures performances et le support de ARM64, installez l'app YunoHost ONLYOFFICE, voir le tutoriel dans la [doc du paquet onlyoffice_ynh](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)
 
+#### Backend Hautes Performances
+
+Il s'agit d'une application sur Nextcloud qui devrait accélérer l'instance, plus d'informations ici : https://github.com/nextcloud/notify_push#about
+
 ## Documentations et ressources
 
 * Site officiel de l’app : <https://nextcloud.com>

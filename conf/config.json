@@ -13,7 +13,8 @@
      },
     "hashing_default_password": true,
     "localstorage.allowsymlinks": true,
-    "simpleSignUpLink.shown": false
+    "simpleSignUpLink.shown": false,
+    "trusted_proxies": [ "127.0.0.1", "::1" ]
   },
   "apps": {
     "user_ldap": {

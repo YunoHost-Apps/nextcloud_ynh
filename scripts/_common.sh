@@ -10,6 +10,16 @@ php_dependencies="php${YNH_PHP_VERSION}-fpm php${YNH_PHP_VERSION}-bz2 php${YNH_P
 
 pkg_dependencies="imagemagick libmagickcore-6.q16-6-extra acl tar smbclient at $php_dependencies"
 
+
+set_datadir() {
+  if [[ -f $final_path/config/config.php ]]; then
+    datadir=$(grep datadirectory < $final_path/config/config.php | sed "s/.*=>.'\([^']*\)'.*/\1/")
+  else
+    datadir="/home/yunohost.app/$app/data"
+  fi
+}
+
+
 #=================================================
 # EXPERIMENTAL HELPERS
 #=================================================

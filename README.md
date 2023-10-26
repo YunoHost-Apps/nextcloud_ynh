@@ -63,6 +63,7 @@ For better performance and ARM64 support, install ONLYOFFICE YunoHost App and co
 * Official user documentation: <https://docs.nextcloud.com/server/latest/user_manual/en/>
 * Official admin documentation: <https://docs.nextcloud.com/server/stable/admin_manual/>
 * Upstream app code repository: <https://github.com/nextcloud/server>
+* YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
 * Report a bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
 ## Developer info

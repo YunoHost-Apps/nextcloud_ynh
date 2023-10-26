@@ -62,6 +62,7 @@ Pour  de meilleures performances et le support de ARM64, installez l'app YunoHos
 * Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
 * Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
 * Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
+* YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
 * Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
 ## Informations pour les développeurs

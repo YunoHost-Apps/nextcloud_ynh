@@ -4,12 +4,6 @@
 # COMMON VARIABLES
 #=================================================
 
-YNH_PHP_VERSION="8.2"
-
-php_dependencies="php${YNH_PHP_VERSION}-fpm php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-imap php${YNH_PHP_VERSION}-gmp php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-redis php${YNH_PHP_VERSION}-ldap php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-igbinary php${YNH_PHP_VERSION}-bcmath"
-
-pkg_dependencies="imagemagick libmagickcore-6.q16-6-extra acl tar smbclient at $php_dependencies"
-
 #=================================================
 # EXPERIMENTAL HELPERS
 #=================================================
@@ -45,7 +39,6 @@ is_url_handled() {
         return 1
     fi
 }
-
 
 #=================================================
 

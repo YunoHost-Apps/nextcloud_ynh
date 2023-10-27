@@ -1,0 +1,77 @@
+packaging_format = 2
+
+id = "nextcloud"
+name = "Nextcloud"
+description.en = "Online storage, file sharing platform and various other applications"
+description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
+
+version = "27.1.3~ynh1"
+
+maintainers = ["kay0u"]
+
+[upstream]
+license = "AGPL-3.0"
+website = "https://nextcloud.com"
+demo = "https://demo.nextcloud.com/"
+admindoc = "https://docs.nextcloud.com/server/stable/admin_manual/"
+userdoc = "https://docs.nextcloud.com/server/latest/user_manual/en/"
+code = "https://github.com/nextcloud/server"
+cpe = "cpe:2.3:a:nextcloud:nextcloud"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = ["amd64", "arm64", "armhf"]
+multi_instance = true
+ldap = true
+sso = true
+disk = "50M"
+ram.build = "500M"
+ram.runtime = "512M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/nextcloud"
+
+    [install.admin]
+    type = "user"
+
+    [install.init_main_permission]
+    help.en = "You must activate 'Visitors' if you want to connect Nextcloud Desktop client to Nextcloud server. This can be changed later via the webadmin."
+    help.fr = "Vous devez activer 'Visiteurs' si vous souhaitez connecter le client Nextcloud Desktop au serveur Nextcloud. Cela peut être modifié ultérieurement via l'administrateur Web."
+    type = "group"
+    default = "visitors"
+
+    [install.user_home]
+    ask.en = "Access the users home folder from Nextcloud?"
+    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"
+    type = "boolean"
+    default = false
+
+[resources]
+    [resources.system_user]
+    allow_email = true
+
+    [resources.install_dir]
+
+    [resources.data_dir]
+    subdirs = ["data"]
+
+    [resources.permissions]
+    main.url = "/"
+    
+    api.url = "re:__DOMAIN__\\/.well-known\\/.*"
+    api.auth_header = false
+    api.show_tile = false
+    api.protected= true
+    api.allowed = ["visitors", "all_users"]
+
+    [resources.apt]
+    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, php8.2-fpm, php8.2-bz2, php8.2-imap, php8.2-gmp, php8.2-gd, php8.2-intl, php8.2-curl, php8.2-apcu, php8.2-redis, php8.2-ldap, php8.2-imagick, php8.2-zip, php8.2-mbstring, php8.2-xml, php8.2-mysql, php8.2-igbinary, php8.2-bcmath"
+
+    [resources.database]
+    type = "mysql"
+    

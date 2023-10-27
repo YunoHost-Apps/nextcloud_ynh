@@ -13,7 +13,23 @@
      },
     "hashing_default_password": true,
     "localstorage.allowsymlinks": true,
-    "simpleSignUpLink.shown": false
+    "simpleSignUpLink.shown": false,
+    "mail_smtpmode": "smtp",
+    "mail_smtpport": "25",
+    "mail_smtpauth": 1,
+    "mail_smtpname": "__APP__",
+    "mail_smtppassword": "__MAIL_PWD__",
+    "mail_sendmailmode": "smtp",
+    "mail_from_address": "__APP__",
+    "mail_domain": "__DOMAIN__",
+    "mail_smtphost": "localhost",
+    "mail_smtpstreamoptions": {
+      "ssl": {
+        "allow_self_signed": true,
+        "verify_peer": false,
+        "verify_peer_name": false
+      }
+    }
   },
   "apps": {
     "user_ldap": {

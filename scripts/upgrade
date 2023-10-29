@@ -246,7 +246,7 @@ EOF
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
         current_major_version=${current_version%%.*}
 
-        # Print the current version number of nextcloud
+        # Print the current version number of Nextcloud
         exec_occ -V
     done
 

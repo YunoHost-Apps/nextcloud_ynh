@@ -2,6 +2,8 @@
 
 `sudo -u __APP__ php__YNH_PHP_VERSION__ --define apc.enable_cli=1 __INSTALL_DIR__/occ ...`
 
+ou utilisez `sudo yunohost app shell __APP__` puis `php occ ...`
+
 ### Configurer l'intégration d'ONLYOFFICE
 
 #### Avec l'application Nextcloud (pas de support ARM, performances limitées)

@@ -41,10 +41,14 @@ if [ -z "${fpm_free_footprint:-}" ]; then
 	ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
 fi
 
-# If fpm_usage doesn't exist, create it
 if [ -z "${fpm_usage:-}" ]; then
 	fpm_usage=medium
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+fi
+
+if [ -z "${phpflags:-}" ]; then
+	phpflags="--define apc.enable_cli=1"
+	ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 fi
 
 # Delete existing ini configuration file (backward compatibility)

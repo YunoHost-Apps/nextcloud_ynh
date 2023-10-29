@@ -2,8 +2,7 @@ Nextcloud Hub is a fully open-source on-premises content collaboration platform.
 
 ### YunoHost-specific features
 
-In addition to Nextcloud core features, the following are made available with
-this package:
+In addition to Nextcloud core features, the following are made available with this package:
 
  * Integrate with YunoHost users and SSO - i.e. logout button
  * Allow one user to be the administrator (set at the installation)

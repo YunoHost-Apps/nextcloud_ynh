@@ -29,7 +29,7 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
 
 
-**Version incluse :** 27.1.2~ynh1
+**Version incluse :** 27.1.3~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 
@@ -43,6 +43,7 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 * Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
 * Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
 * Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
+* YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
 * Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
 ## Informations pour les développeurs

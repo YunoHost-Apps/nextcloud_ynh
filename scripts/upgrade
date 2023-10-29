@@ -47,6 +47,12 @@ if [ -z "${fpm_usage:-}" ]; then
 	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 fi
 
+# If phpflags doesn't exist, create it
+if [ -z "${phpflags:-}" ]; then
+	phpflags="--define apc.enable_cli=1"
+	ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
+fi
+
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
     ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini
@@ -133,6 +139,19 @@ then
 
     ynh_store_file_checksum --file="${install_dir}/config/config.php"
 fi
+
+# Define a function to add an external storage
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+local datadir="$1"
+local mount_name="$2"
+local mount_id=$(exec_occ files_external:create --output=json \
+    "$mount_name" 'local' 'null::null' -c "datadir=$data_dir/data" || true)
+! [[ $mount_id =~ ^[0-9]+$ ]] \
+    && ynh_print_warn --message="Unable to create external storage" \
+    || exec_occ files_external:option "$mount_id" enable_sharing true
+}
+
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -271,6 +290,9 @@ EOF
 
     # Enable LDAP plugin
     exec_occ app:enable user_ldap
+
+    # Update all installed apps
+    exec_occ app:update --all
 
     # Load the config file in nextcloud
     exec_occ config:import "$nc_conf"

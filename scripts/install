@@ -17,6 +17,7 @@ maintenance_mode=0
 fpm_footprint="high"
 fpm_free_footprint=0
 fpm_usage="medium"
+phpflags="--define apc.enable_cli=1"
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
@@ -26,6 +27,7 @@ ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
 ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
 ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
 ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -142,6 +144,18 @@ exec_occ ldap:test-config '' \
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
 #=================================================
+
+# Define a function to add an external storage
+# Create the external storage for the given folders and enable sharing
+create_external_storage() {
+  local datadir="$1"
+  local mount_name="$2"
+  local mount_id=`exec_occ files_external:create --output=json \
+      "$mount_name" 'local' 'null::null' -c "datadir=$data_dir/data" || true`
+  ! [[ $mount_id =~ ^[0-9]+$ ]] \
+      && ynh_print_warn --message="Unable to create external storage" \
+      || exec_occ files_external:option "$mount_id" enable_sharing true
+}
 
 # Enable External Storage and create local mount to home folder
 if [ $user_home -eq 1 ]

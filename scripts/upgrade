@@ -208,14 +208,17 @@ ynh_add_nginx_config
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version = "last" ] || [ $current_major_version -ge 24 ]
+    if [ $current_major_version = "last" ] || [ $current_major_version -ge 26 ]
     then
         NEXTCLOUD_PHP_VERSION=$phpversion
-    elif [ $current_major_version -ge 15 ]
+    elif [ $current_major_version -ge 25 ]
+    then
+        NEXTCLOUD_PHP_VERSION="8.1"
+    elif [ $current_major_version -ge 18 ]
     then
         NEXTCLOUD_PHP_VERSION="7.4"
     else
-        NEXTCLOUD_PHP_VERSION="7.0"
+        NEXTCLOUD_PHP_VERSION="7.1"
     fi
 (cd "$final_path" && ynh_exec_as "$app" \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")

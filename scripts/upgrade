@@ -118,7 +118,7 @@ exec_occ() {
         NEXTCLOUD_PHP_VERSION="7.1"
     fi
     if ! timeout 1 php$NEXTCLOUD_PHP_VERSION 2>/dev/null; then
-        local pkg_dependencies = ${dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps}
+        local pkg_dependencies = $(dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps)
         pkg_dependencies=${pkg_dependencies/$phpversion/$NEXTCLOUD_PHP_VERSION}
         ynh_install_app_dependencies $pkg_dependencies
     fi 

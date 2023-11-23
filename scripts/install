@@ -117,7 +117,7 @@ exec_occ ldap:create-empty-config
 
 # Load the installation config file in Nextcloud
 nc_conf="$install_dir/config_install.json"
-ynh_add_config --template="../conf/config_install.json" --destination="$nc_conf"
+ynh_add_config --template="config_install.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
 
@@ -126,7 +126,7 @@ ynh_secure_remove --file="$nc_conf"
 
 # Load the additional config file (used also for upgrade)
 nc_conf="$install_dir/config.json"
-ynh_add_config --template="../conf/config.json" --destination="$nc_conf"
+ynh_add_config --template="config.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
 
@@ -211,7 +211,7 @@ ynh_store_file_checksum --file="$install_dir/config/config.php"
 #=================================================
 
 cron_path="/etc/cron.d/$app"
-ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
+ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 

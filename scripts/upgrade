@@ -104,7 +104,6 @@ current_major_version=${current_version%%.*}
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-    local pkg_dependencies = ""
     # Backward compatibility to upgrade from older versions
     if [ $current_major_version = "last" ] || [ $current_major_version -ge 26 ]
     then

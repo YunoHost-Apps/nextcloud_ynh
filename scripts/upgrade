@@ -381,17 +381,6 @@ chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 
 #=================================================
-# WARNING ABOUT THIRD-PARTY APPS
-#=================================================
-
-if [ "$upgrade_type" == "UPGRADE_APP" ]
-then
-    # Warn about possible disabled apps
-    ynh_print_warn --message="Note that if you've installed some third-parties Nextcloud applications, \
-    they are probably disabled and you'll have to manually enable them again."
-fi
-
-#=================================================
 # SETUP LOGROTATE
 #=================================================
 ynh_script_progression --message="Upgrading logrotate configuration..."

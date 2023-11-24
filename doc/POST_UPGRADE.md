@@ -1,0 +1,1 @@
+Note that if you've installed some third-parties Nextcloud applications, they are probably disabled and you'll have to manually enable them again.

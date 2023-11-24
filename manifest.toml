@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "27.1.3~ynh1"
+version = "27.1.4~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -22,8 +22,11 @@ cpe = "cpe:2.3:a:nextcloud:nextcloud"
 yunohost = ">= 11.2"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
+
 ldap = true
+
 sso = true
+
 disk = "50M"
 ram.build = "500M"
 ram.runtime = "512M"

@@ -108,7 +108,7 @@ exec_occ() {
     if [ $current_major_version = "last" ] || [ $current_major_version -ge 26 ]
     then
         NEXTCLOUD_PHP_VERSION=$phpversion
-    elif [ $current_major_version -ge 25 ]
+    elif [ $current_major_version -ge 24 ]
     then
         NEXTCLOUD_PHP_VERSION="8.1"
     elif [ $current_major_version -ge 18 ]
@@ -117,6 +117,11 @@ exec_occ() {
     else
         NEXTCLOUD_PHP_VERSION="7.1"
     fi
+    if ! timeout 1 php$NEXTCLOUD_PHP_VERSION 2>/dev/null; then
+        local pkg_dependencies="$(dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps)"
+        pkg_dependencies="${pkg_dependencies/$phpversion/$NEXTCLOUD_PHP_VERSION}"
+        ynh_install_app_dependencies "$pkg_dependencies"
+    fi 
 (cd "$install_dir" && ynh_exec_as "$app" \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }

@@ -155,7 +155,7 @@ then
     exec_occ -V
 
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-        db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+        db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
         # Change your databases character set and collation
         ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
         <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"

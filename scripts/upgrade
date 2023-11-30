@@ -312,7 +312,7 @@ EOF
     # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
     #=================================================
 
-    exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
+    exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 
     #=================================================
     # MOUNT HOME FOLDERS AS EXTERNAL STORAGE

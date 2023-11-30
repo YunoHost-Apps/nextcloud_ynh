@@ -198,7 +198,7 @@ exec_occ config:system:get logout_url >/dev/null 2>&1 \
 # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
 #=================================================
 
-exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
+exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 
 #=================================================
 # REMOVE THE TEMPORARY ADMIN AND SET THE TRUE ONE

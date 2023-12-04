@@ -1,20 +1,31 @@
-diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php
-index 13aef8f67a..55d8dbf9d1 100644
---- a/core/Controller/LoginController.php
-+++ b/core/Controller/LoginController.php
-@@ -119,11 +119,12 @@ class LoginController extends Controller {
+diff --git a/root/LoginController.php b/var/www/nextcloud/core/Controller/LoginController.php
+index aa6617c..eb47b80 100644
+--- a/root/LoginController.php
++++ b/var/www/nextcloud/core/Controller/LoginController.php
+@@ -111,16 +111,20 @@ class LoginController extends Controller {
+ 	#[UseSession]
+ 	public function logout() {
+ 		$loginToken = $this->request->getCookie('nc_token');
++		$uuidUser = $this->userSession->getUser()->getUID();
++                $isLdapUser = $this->config->getUserValue($uuidUser, 'user_ldap', 'uid');
+ 		if (!is_null($loginToken)) {
+-			$this->config->deleteUserValue($this->userSession->getUser()->getUID(), 'login_token', $loginToken);
++			$this->config->deleteUserValue($uuidUser, 'login_token', $loginToken);
  		}
  		$this->userSession->logout();
- 
+-
 -		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
 -			'core.login.showLoginForm',
--			['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
-+		$redirectUrl = $this->config->getSystemValue('logout_url',
-+			$this->urlGenerator->linkToRouteAbsolute(
-+				'core.login.showLoginForm',
-+				['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
- 		));
+-			['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
+-		));
 -
++		$redirectUrl = $this->urlGenerator->linkToRouteAbsolute(
++				'core.login.showLoginForm',
++				['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
++		);
++		if (!is_null($isLdapUser)) {
++		    $redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
++		}
 +		$response = new RedirectResponse($redirectUrl);
  		$this->session->set('clearingExecutionContexts', '1');
  		$this->session->close();

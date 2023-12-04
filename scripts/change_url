@@ -33,7 +33,7 @@ then
 	exec_occ config:system:set trusted_domains 1 --value=$new_domain
 
 	# Change hostname for activity notifications
-    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}"
+    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
 fi
 
 if [ $change_domain -eq 1 ]

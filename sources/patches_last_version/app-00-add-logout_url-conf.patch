@@ -1,7 +1,7 @@
-diff --git a/root/LoginController.php b/var/www/nextcloud/core/Controller/LoginController.php
+diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php
 index aa6617c..eb47b80 100644
---- a/root/LoginController.php
-+++ b/var/www/nextcloud/core/Controller/LoginController.php
+--- a/core/Controller/LoginController.php
++++ b/core/Controller/LoginController.php
 @@ -111,16 +111,20 @@ class LoginController extends Controller {
  	#[UseSession]
  	public function logout() {

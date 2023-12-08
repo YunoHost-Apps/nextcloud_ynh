@@ -11,73 +11,29 @@ source /usr/share/yunohost/helpers
 source _ynh_mysql_connect_as.sh
 
 #=================================================
-# MANAGE SCRIPT FAILURE
+# STORE SETTINGS FROM MANIFEST
 #=================================================
 
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-#=================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
-#=================================================
-
-domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
-admin=$YNH_APP_ARG_ADMIN
-user_home=$YNH_APP_ARG_USER_HOME
-is_public=$YNH_APP_ARG_IS_PUBLIC
-phpversion=$YNH_PHP_VERSION
-
-app=$YNH_APP_INSTANCE_NAME
-
-#=================================================
-# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
-#=================================================
-ynh_script_progression --message="Validating installation parameters..."
-
-final_path=/var/www/$app
-test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
-
-# Register (book) web path
-ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
-
-# Check machine architecture (Nextcloud will soon deprecate 32-bit support)
-if [ $YNH_ARCH == "i386" ] || [ $YNH_ARCH == "armhf" ]
-then
-    ynh_print_warn --message="Nextcloud will soon deprecate 32-bit support. It is recommended to upgrade to a 64-bit architecture."
-fi
+maintenance_mode=0
+fpm_footprint="high"
+fpm_free_footprint=0
+fpm_usage="medium"
+phpflags="--define apc.enable_cli=1"
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain --value=$domain
-ynh_app_setting_set --app=$app --key=path --value=$path_url
-ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=user_home --value=$user_home
-
-maintenance_mode=0
 ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Installing dependencies..." --weight=10
-
-ynh_install_app_dependencies $pkg_dependencies
+ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
+ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
+ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
-ynh_script_progression --message="Creating a MySQL database..." --weight=2
-
-db_name=$(ynh_sanitize_dbid --db_name=$app)
-db_user=$db_name
-ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+ynh_script_progression --message="Migrate MySQL database to utf8..." --weight=2
 
 ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
     <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
@@ -85,7 +41,7 @@ ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..."
+ynh_script_progression --message="Setting up source files..." --weight=5
 
 # Load the last available version
 source upgrade.d/upgrade.last.sh
@@ -99,37 +55,18 @@ SOURCE_FORMAT=tar.bz2
 SOURCE_IN_SUBDIR=true
 EOF
 
-ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Enable YunoHost patches on Nextcloud sources
 cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$final_path"
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..." --weight=3
-
-# Create a system user
-ynh_system_user_create --username=$app
+ynh_setup_source --dest_dir="$install_dir"
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=50
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=5
 
-fpm_footprint="high"
-fpm_free_footprint=0
-fpm_usage="medium"
-
-ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
-ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
-ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
-
-# Create a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$YNH_PHP_VERSION
-# Used by ynh_add_nginx_config
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
 #=================================================
 # NGINX CONFIGURATION
@@ -139,7 +76,7 @@ ynh_script_progression --message="Configuring NGINX web server..." --weight=2
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/carddav and caldav with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
@@ -149,36 +86,22 @@ fi
 ynh_add_nginx_config
 
 #=================================================
-# SPECIFIC SETUP
-#=================================================
-# CREATE THE DATA DIRECTORY
-#=================================================
-ynh_script_progression --message="Creating a data directory..." --weight=1
-
-# Define app's data directory
-datadir="/home/yunohost.app/$app/data"
-ynh_app_setting_set --app=$app --key=datadir --value=$datadir
-
-# Create app folders
-mkdir -p "$datadir"
-
-#=================================================
 # INSTALL NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Installing Nextcloud..." --weight=30
+ynh_script_progression --message="Installing $app..." --weight=30
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$final_path" && ynh_exec_as "$app" \
+  (cd "$install_dir" && ynh_exec_as "$app" \
       php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 # Set write access for the following commands
-chown -R $app: "$final_path" "$datadir"
+chown -R $app: "$install_dir" "$data_dir"
 
 # Define password in an intermediate var
 # The fact that it's called _password allows it to be
-# picked up by Yunohost's auto-redact mecanism
+# picked up by YunoHost's auto-redact mecanism
 admin_password="$(ynh_string_random --length=6)"
 
 # Install Nextcloud using a temporary admin user
@@ -186,13 +109,13 @@ exec_occ maintenance:install \
     --database "mysql" --database-name $db_name \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
-    --data-dir "$datadir" \
+    --data-dir "$data_dir/data" \
     || ynh_die --message="Unable to install Nextcloud"
 
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Configuring Nextcloud..." --weight=8
+ynh_script_progression --message="Configuring $app..." --weight=8
 
 # Set the mysql.utf8mb4 config to true in config.php
 exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
@@ -205,7 +128,7 @@ exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
 
 # Load the installation config file in Nextcloud
-nc_conf="$final_path/config_install.json"
+nc_conf="$install_dir/config_install.json"
 ynh_add_config --template="../conf/config_install.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
@@ -214,7 +137,7 @@ exec_occ config:import "$nc_conf"
 ynh_secure_remove --file="$nc_conf"
 
 # Load the additional config file (used also for upgrade)
-nc_conf="$final_path/config.json"
+nc_conf="$install_dir/config.json"
 ynh_add_config --template="../conf/config.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
@@ -240,7 +163,7 @@ create_external_storage() {
   local datadir="$1"
   local mount_name="$2"
   local mount_id=`exec_occ files_external:create --output=json \
-      "$mount_name" 'local' 'null::null' -c "datadir=$datadir" || true`
+      "$mount_name" 'local' 'null::null' -c "datadir=$data_dir/data" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
       && ynh_print_warn --message="Unable to create external storage" \
       || exec_occ files_external:option "$mount_id" enable_sharing true
@@ -269,13 +192,13 @@ exec_occ config:system:get logout_url >/dev/null 2>&1 \
 \$main_domain = exec('cat /etc/yunohost/current_host');
 \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
 //-YunoHost-
-" >> "$final_path/config/config.php"
+" >> "$install_dir/config/config.php"
 
 #=================================================
 # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
 #=================================================
 
-exec_occ config:system:set overwrite.cli.url --value="https://${domain}"
+exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 
 #=================================================
 # REMOVE THE TEMPORARY ADMIN AND SET THE TRUE ONE
@@ -292,7 +215,7 @@ exec_occ user:delete admin
 #=================================================
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$final_path/config/config.php"
+ynh_store_file_checksum --file="$install_dir/config/config.php"
 
 #=================================================
 # ADD A CRON JOB
@@ -334,21 +257,21 @@ ynh_multimedia_addaccess $app
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app:www-data "$final_path"
-chown -R $app: "$datadir"
-chmod -R a=r,u+w,a+X $final_path/
-chmod -R a=r,u+w,a+X $datadir/
-chmod 640 "$final_path/config/config.php"
+chown -R $app:www-data "$install_dir"
+chown -R $app: "$data_dir"
+chmod -R a=r,u+w,a+X $install_dir/
+chmod -R a=r,u+w,a+X $data_dir/data/
+chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-chmod 750 $final_path
+chmod 750 $install_dir
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Configuring log rotation..."
+ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$datadir/nextcloud.log"
+ynh_use_logrotate --logfile="$data_dir/data/nextcloud.log"
 
 #=================================================
 # SETUP FAIL2BAN
@@ -356,27 +279,7 @@ ynh_use_logrotate --logfile="$datadir/nextcloud.log"
 ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Configuring permissions..."
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-  ynh_permission_update --permission="main" --add="visitors"
-fi
-
-ynh_permission_create --permission="api" --label="api" --url="re:$domain\/.well-known\/.*" --allowed="visitors" "all_users" --auth_header="false" --show_tile="false" --protected="true"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
-
-ynh_systemd_action --service_name=nginx --action=reload
+ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

@@ -139,10 +139,8 @@ mkdir -p "$datadir"
 # Fix app ownerships & permissions
 chown -R $app:www-data "$final_path"
 chown -R $app: "$datadir"
-find $final_path/ -type f -print0 | xargs -r0 chmod 0644
-find $final_path/ -type d -print0 | xargs -r0 chmod 0755
-find $datadir/ -type f -print0 | xargs -r0 chmod 0640
-find $datadir/ -type d -print0 | xargs -r0 chmod 0750
+chmod -R a=r,u+w,a+X $final_path/
+chmod -R a=r,u+w,a+X $datadir/
 chmod 640 "$final_path/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $final_path

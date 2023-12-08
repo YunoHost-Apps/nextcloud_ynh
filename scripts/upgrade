@@ -359,7 +359,7 @@ exec_occ background:cron
 chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 chmod -R a=r,u+w,a+X $final_path/
-chmod -R a=r,u+w,a+X $datadir/data/
+chmod -R ug=r,o=---,u+w,ug+X $data_dir/data/
 chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir

@@ -50,6 +50,14 @@ then
 fi
 
 #=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_script_progression --message="Configuring permissions..."
+
+# Temporary fix for the API permission
+ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --auth_header="false" --clear_urls
+
+#=================================================
 # END OF SCRIPT
 #=================================================
 

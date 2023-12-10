@@ -21,21 +21,21 @@ current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
+get__default_phone_region() {
+    cat << EOF
+value: "$(ynh_read_var_in_file --file="$install_dir/config/config.php" --key="default_phone_region")"
+choices:
+EOF
+    jq '.[][] | "  \"\(.alpha_2)\": \"\(.name)\""' -r /usr/share/iso-codes/json/iso_3166-1.json
 
-get__maintenance_mode() {
-    # Maintenance mode status
-    maintenance_mode_status="$(cd "$install_dir" && ynh_exec_as "$app" \
-        php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
-    if echo $maintenance_mode_status | grep -q "disabled"
-    then
-        echo "0"
-    elif echo $maintenance_mode_status | grep -q "enabled"
-    then
-        echo "1"
-    else
-        ynh_print_err --message="Unexpected output from maintenance status check command."
-        exit 0
-    fi
+}
+
+get__default_timezone() {
+    cat << EOF
+value: "$(ynh_read_var_in_file --file="$install_dir/config/config.php" --key="default_timezone")"
+choices:
+EOF
+    timedatectl list-timezones --no-pager | sed 's/^/  - /g'
 }
 
 get__fpm_footprint() {
@@ -64,21 +64,6 @@ get__free_footprint() {
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
-
-set__maintenance_mode() {
-    if [ "$maintenance_mode" -eq "0" ]; then
-        # If maintenance_mode was set to 0, disable maintenance mode
-        (cd "$install_dir" && ynh_exec_as "$app" \
-            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
-        ynh_print_info "Maintenance mode disabled"
-    elif [ "$maintenance_mode" -eq "1" ]; then
-        # If maintenance_mode was set to 1, enable maintenance mode
-        (cd "$install_dir" && ynh_exec_as "$app" \
-            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
-        ynh_print_info "Maintenance mode enabled"
-    fi
-    ynh_app_setting_set --app=$app --key=maintenance_mode --value="$maintenance_mode"
-}
 
 set__fpm_footprint() {
     if [ "$fpm_footprint" != "specific" ]

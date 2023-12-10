@@ -2,19 +2,20 @@ version = "1.0"
 
 [main]
 name = "Nextcloud configuration"
+services = ["php8.2-fpm"]
 
     [main.mode]
     name = "Modes"
 
-        [main.mode.maintenance_mode]
+        [main.mode.maintenance]
         ask = "Enable maintenance mode"
         type = "boolean"
-        default = "0"
+        bind = ":__INSTALL_DIR__/config/config.php"
         
-        [main.mode.closed_network_mode]
+        [main.mode.has_internet_connection]
         ask = "Enable closed network mode"
         type = "boolean"
-        default = "0"
+        bind = ":__INSTALL_DIR__/config/config.php"
         help = "Is Nextcloud connected to the Internet or running in a closed network?"
 
     [main.localization]
@@ -23,14 +24,13 @@ name = "Nextcloud configuration"
         [main.localization.default_phone_region]
         ask = "Default phone region"
         type = "select"
-        default = "0"
+        bind = ":__INSTALL_DIR__/config/config.php"
         help = "It is required to allow inserting phone numbers in the user profiles starting without the country code (e.g. +49 for Germany)."
 
         [main.localization.default_timezone]
         ask = "Default timezone"
         type = "select"
         bind = ":__INSTALL_DIR__/config/config.php"
-        default = "Europe/Paris"
         help = "The default timezone parameter is only used when the timezone of the user can’t be determined."
 
     [main.account]
@@ -40,7 +40,6 @@ name = "Nextcloud configuration"
         ask = "Lost password link"
         type = "url"
         bind = ":__INSTALL_DIR__/config/config.php"
-        default = "0"
         help = "Allow to redirect on a custom form to require a password reset (for example to ask you to reset it from this yunohost webadmin)"
         
         [main.account.logout_url]
@@ -52,49 +51,37 @@ name = "Nextcloud configuration"
     [main.files]
     name = "Files"
         
-        [main.account.trashbin_retention_obligation]
+        [main.files.trashbin_retention_obligation]
         ask = "Trashbin retention"
         type = "string"
         bind = ":__INSTALL_DIR__/config/config.php"
-        default = "auto"
         help = "If the trash bin app is enabled (default), this setting defines the policy for when files and folders in the trash bin will be permanently deleted."
 
-        [main.account.version_retention_obligation]
+        [main.files.version_retention_obligation]
         ask = "Version retention"
         type = "string"
         bind = ":__INSTALL_DIR__/config/config.php"
-        default = "auto"
         help = "If the versions app is enabled (default), this setting defines the policy for when versions will be permanently deleted."
 
-        [main.account.enable_previews]
+        [main.files.enable_previews]
         ask = "Enable previews"
         type = "boolean"
         bind = ":__INSTALL_DIR__/config/config.php"
-        default = "1"
         help = "Info: Previews of photos and text documents could consume a lot of resources."
 
     [main.apps]
     name = "Apps"
         
-        [main.account.auto_update]
+        [main.apps.auto_update]
         ask = "Auto update apps"
         type = "boolean"
-        default = "1"
         help = "Automatically update apps each night"
         
         [main.apps.defaultapp]
         ask = "Default app to display"
         type = "tags"
         bind = ":__INSTALL_DIR__/config/config.php"
-        default = "dashboard,files"
         help = "Set the default app to open on login."
-
-        [main.apps.appsallowlist]
-        ask = "List of apps installable"
-        type = "tags"
-        bind = ":__INSTALL_DIR__/config/config.php"
-        default = "all"
-        help = "Filters allowed installable apps from the appstore."
 
 
     [main.php_fpm_config]

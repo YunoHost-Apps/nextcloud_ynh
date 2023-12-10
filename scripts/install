@@ -38,7 +38,7 @@ ynh_app_setting_set --app=$app --key=logout_url --value=""
 ynh_app_setting_set --app=$app --key=trashbin_retention_obligation --value="auto"
 ynh_app_setting_set --app=$app --key=version_retention_obligation --value="auto"
 ynh_app_setting_set --app=$app --key=enable_previews --value=1
-ynh_app_setting_set --app=$app --key=auto_update --value=1
+ynh_app_setting_set --app=$app --key=auto_upgrade_apps --value="manual"
 ynh_app_setting_set --app=$app --key=defaultapp --value="dashboard,files"
 
 #=================================================

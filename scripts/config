@@ -65,6 +65,19 @@ get__free_footprint() {
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 
+set__auto_upgrade_apps() {
+    declare -A frequencies=( [daily]="10 00 * * *" [weekly]="10 00 * * 0" [monthly]="10 00 1 * *" )
+    if [ "$frequencies[$auto_upgrade_apps]" ]
+    then
+        echo "${frequencies[$auto_upgrade_apps]} $app /usr/bin/php$phpversion --define apc.enable_cli=1 -f $install_dir/occ app:update --all" > /etc/cron.d/nextcloud_upgrade_apps
+    else
+        ynh_secure_remove --file=/etc/cron.d/nextcloud_upgrade_apps
+    fi
+    
+    ynh_app_setting_set --app=$app --key=auto_upgrade_apps --value="$auto_upgrade_apps"
+
+}
+
 set__fpm_footprint() {
     if [ "$fpm_footprint" != "specific" ]
     then

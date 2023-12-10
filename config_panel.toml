@@ -72,10 +72,14 @@ services = ["php8.2-fpm"]
     [main.apps]
     name = "Apps"
         
-        [main.apps.auto_update]
-        ask = "Auto update apps"
-        type = "boolean"
-        help = "Automatically update apps each night"
+        [main.apps.auto_upgrade_apps]
+        ask = "Upgrade apps"
+        type = "select"
+        choices.manual = "Manually"
+        choices.daily = "Daily at 00:10"
+        choices.weekly = "Weekly at 00:10 on Sunday"
+        choices.monthly = "Monthly at 00:10 on the 1st"
+        help = "Keep in mind that upgrade apps could break things in your instance, so you need to strike the right balance between reliability and safety."
         
         [main.apps.defaultapp]
         ask = "Default app to display"

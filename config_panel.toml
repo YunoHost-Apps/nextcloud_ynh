@@ -13,7 +13,7 @@ services = ["php8.2-fpm"]
         bind = ":__INSTALL_DIR__/config/config.php"
         
         [main.mode.has_internet_connection]
-        ask = "Enable closed network mode"
+        ask = "Internet connection available"
         type = "boolean"
         bind = ":__INSTALL_DIR__/config/config.php"
         help = "Is Nextcloud connected to the Internet or running in a closed network?"
@@ -50,6 +50,11 @@ services = ["php8.2-fpm"]
 
     [main.files]
     name = "Files"
+        
+        [main.files.skeleton]
+        ask = "To configure the default files created for new users, you can do it by logging on nextcloud with an admins account and edit files under `New user default files/default` or if you want to target a specific language `New user default files/FR`."
+        type = "alert"
+        style = "info"
         
         [main.files.trashbin_retention_obligation]
         ask = "Trashbin retention"

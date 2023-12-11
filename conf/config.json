@@ -23,6 +23,7 @@
     "lost_password_link": "",
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,
+    "forbidden_chars": ["?", "<", ">", ":", "*", "|", "\"", "\0", "\n", "\r"],
     "mail_smtpmode": "smtp",
     "mail_smtpport": "25",
     "mail_smtpauth": 1,

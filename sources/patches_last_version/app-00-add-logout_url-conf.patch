@@ -2,7 +2,7 @@ diff --git a/core/Controller/LoginController.php b/core/Controller/LoginControll
 index 13aef8f67a..55d8dbf9d1 100644
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
-@@ -119,11 +119,12 @@ class LoginController extends Controller {
+@@ -97,11 +97,13 @@ class LoginController extends Controller {
  		}
  		$this->userSession->logout();
  

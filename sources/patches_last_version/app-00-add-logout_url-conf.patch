@@ -1,23 +1,21 @@
 diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php
-index db3e8a64d64..fe63a896c85 100644
+index 13aef8f67a..55d8dbf9d1 100644
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
-@@ -97,11 +97,13 @@ class LoginController extends Controller {
-                }
-                $this->userSession->logout();
-
--               $response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
--                       'core.login.showLoginForm',
--                       ['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
--               ));
+@@ -119,11 +119,12 @@ class LoginController extends Controller {
+ 		}
+ 		$this->userSession->logout();
+ 
+-		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
+-			'core.login.showLoginForm',
+-			['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
++		$redirectUrl = $this->config->getSystemValue('logout_url',
++			$this->urlGenerator->linkToRouteAbsolute(
++				'core.login.showLoginForm',
++				['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
+ 		));
 -
-+               $redirectUrl = $this->config->getSystemValue('logout_url',
-++                      $this->urlGenerator->linkToRouteAbsolute(
-++                              'core.login.showLoginForm',
-++                              ['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
-+               ));
-+-
-++              $response = new RedirectResponse($redirectUrl);
-                $this->session->set('clearingExecutionContexts', '1');
-                $this->session->close();
++		$response = new RedirectResponse($redirectUrl);
+ 		$this->session->set('clearingExecutionContexts', '1');
+ 		$this->session->close();
  

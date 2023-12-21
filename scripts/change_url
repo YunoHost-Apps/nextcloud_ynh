@@ -33,7 +33,7 @@ then
 	exec_occ config:system:set trusted_domains 1 --value=$new_domain
 
 	# Change hostname for activity notifications
-    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}"
+    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
 fi
 
 if [ $change_domain -eq 1 ]
@@ -48,6 +48,14 @@ then
 		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 	fi
 fi
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_script_progression --message="Configuring permissions..."
+
+# Temporary fix for the API permission
+ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --auth_header="false" --clear_urls
 
 #=================================================
 # END OF SCRIPT

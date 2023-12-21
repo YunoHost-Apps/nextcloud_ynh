@@ -2,17 +2,17 @@ diff --git a/core/Controller/LoginController.php b/core/Controller/LoginControll
 index 13aef8f67a..55d8dbf9d1 100644
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
-@@ -119,11 +119,12 @@ class LoginController extends Controller {
+@@ -97,11 +97,12 @@ class LoginController extends Controller {
  		}
  		$this->userSession->logout();
  
 -		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
 -			'core.login.showLoginForm',
--			['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
+-			['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
 +		$redirectUrl = $this->config->getSystemValue('logout_url',
 +			$this->urlGenerator->linkToRouteAbsolute(
 +				'core.login.showLoginForm',
-+				['clear' => true] // this param the the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
++				['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
  		));
 -
 +		$response = new RedirectResponse($redirectUrl);

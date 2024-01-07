@@ -64,7 +64,7 @@ ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --
 ynh_script_progression --message="Change of URL completed for $app" --last
 
 # Tmp debug for the stupid trusted domain issue x_x
-ynh_print_info $(cat /var/www/nextcloud/config/config.php)
+cat /var/www/nextcloud/config/config.php >&$YNH_STDINFO
 
 systemctl restart php${phpversion}-fpm
 

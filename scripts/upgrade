@@ -221,11 +221,11 @@ EOF
         # Install the next nextcloud version in $tmpdir
         ynh_setup_source --dest_dir="$tmpdir"
 
-        # Enable maintenance mode
-        exec_occ maintenance:mode --on
-
         # Backup the config file in the temp dir
         cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
+
+        # Enable maintenance mode
+        exec_occ maintenance:mode --on
 
         # Backup 3rd party applications from the current Nextcloud
         # But do not overwrite if there is any upgrade

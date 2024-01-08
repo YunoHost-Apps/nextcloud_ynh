@@ -49,7 +49,7 @@ get__fpm_footprint() {
     fi
 }
 
-get__free_footprint() {
+get__fpm_free_footprint() {
     # Free footprint value for php-fpm
     # Check if current_fpm_footprint is an integer
     if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null

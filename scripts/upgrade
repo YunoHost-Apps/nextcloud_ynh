@@ -1,17 +1,7 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
-
-#=================================================
-# CHECK VERSION
-#=================================================
 
 upgrade_type=$(ynh_check_app_version_changed)
 
@@ -27,24 +17,6 @@ ynh_app_setting_delete --app=$app --key=backup_core_only
 if [ -z "${maintenance_mode:-}" ]; then
 	maintenance_mode=0
 	ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
-fi
-
-# If fpm_footprint doesn't exist, create it
-if [ -z "${fpm_footprint:-}" ]; then
-	fpm_footprint=high
-	ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
-fi
-
-# If fpm_free_footprint doesn't exist, create it
-if [ -z "${fpm_free_footprint:-}" ]; then
-	fpm_free_footprint=0
-	ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
-fi
-
-# If fpm_usage doesn't exist, create it
-if [ -z "${fpm_usage:-}" ]; then
-	fpm_usage=medium
-	ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 fi
 
 # If phpflags doesn't exist, create it
@@ -64,7 +36,7 @@ fi
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
 # Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
+ynh_add_fpm_config
 
 #=================================================
 # NGINX CONFIGURATION

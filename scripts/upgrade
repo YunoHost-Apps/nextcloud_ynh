@@ -120,7 +120,7 @@ exec_occ() {
 
     # NB : be super careful when designing this part of the code, because calling ynh_install_app_dependencies 
     # will do magic regarding php configuration and $phpversion when the php version of the dependencies changes ...
-    phpversion=$(ynh_app_setting_set --app=$app --key=phpversion)
+    phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
     if [[ "$NEXTCLOUD_PHP_VERSION" != "$phpversion" ]]; then
         local pkg_dependencies="$(dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps)"
         pkg_dependencies="${pkg_dependencies//$phpversion/$NEXTCLOUD_PHP_VERSION}"

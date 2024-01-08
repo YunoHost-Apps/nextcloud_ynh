@@ -29,24 +29,24 @@ exec_occ() {
 
 if [ $change_domain -eq 1 ]
 then
-	# Change the trusted domain
-	exec_occ config:system:set trusted_domains 1 --value=$new_domain
+    # Change the trusted domain
+    exec_occ config:system:set trusted_domains 1 --value=$new_domain
 
-	# Change hostname for activity notifications
+    # Change hostname for activity notifications
     exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
-fi
 
-if [ $change_domain -eq 1 ]
-then
-	# Check if .well-known is available for this domain
-	if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
-	then
-		ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+    # Reload php fpm, necessary for force nextcloud to re-read config.php, cf opcache.revalidate_freq
+    ynh_systemd_action --service_name=php${phpversion}-fpm --action=reload
 
-		# Remove lines about .well-known/carddav and caldav with sed.
-		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
-		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
-	fi
+    # Check if .well-known is available for this domain
+    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
+    then
+        ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+
+        # Remove lines about .well-known/carddav and caldav with sed.
+        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
+        ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+    fi
 fi
 
 #=================================================
@@ -62,10 +62,3 @@ ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --
 #=================================================
 
 ynh_script_progression --message="Change of URL completed for $app" --last
-
-# Tmp debug for the stupid trusted domain issue x_x
-cat /var/www/nextcloud/config/config.php >&$YNH_STDINFO
-
-systemctl restart php${phpversion}-fpm
-
-sleep 5

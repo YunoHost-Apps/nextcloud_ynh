@@ -107,7 +107,7 @@ exec_occ() {
     # Backward compatibility to upgrade from older versions
     if [ $current_major_version = "last" ] || [ $current_major_version -ge 26 ]
     then
-        NEXTCLOUD_PHP_VERSION=$phpversion
+        NEXTCLOUD_PHP_VERSION="8.2"
     elif [ $current_major_version -ge 24 ]
     then
         NEXTCLOUD_PHP_VERSION="8.1"
@@ -117,7 +117,11 @@ exec_occ() {
     else
         NEXTCLOUD_PHP_VERSION="7.1"
     fi
-    if ! timeout 1 php$NEXTCLOUD_PHP_VERSION 2>/dev/null; then
+
+    # NB : be super careful when designing this part of the code, because calling ynh_install_app_dependencies 
+    # will do magic regarding php configuration and $phpversion when the php version of the dependencies changes ...
+    phpversion=$(ynh_app_setting_set --app=$app --key=phpversion)
+    if [[ "$NEXTCLOUD_PHP_VERSION" != "$phpversion" ]; then
         local pkg_dependencies="$(dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps)"
         pkg_dependencies="${pkg_dependencies//$phpversion/$NEXTCLOUD_PHP_VERSION}"
         ynh_install_app_dependencies "$pkg_dependencies"

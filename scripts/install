@@ -4,10 +4,8 @@ source _common.sh
 source /usr/share/yunohost/helpers
 source _ynh_mysql_connect_as.sh
 
-maintenance_mode=0
 phpflags="--define apc.enable_cli=1"
 
-ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
 ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 
 #=================================================

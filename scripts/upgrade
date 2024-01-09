@@ -13,12 +13,6 @@ ynh_script_progression --message="Ensuring downward compatibility..."
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
-# If maintenance_mode doesn't exist, create it
-if [ -z "${maintenance_mode:-}" ]; then
-	maintenance_mode=0
-	ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
-fi
-
 # If phpflags doesn't exist, create it
 if [ -z "${phpflags:-}" ]; then
 	phpflags="--define apc.enable_cli=1"

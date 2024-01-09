@@ -25,40 +25,6 @@ if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
 fi
 
 #=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
-
-# Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
-
-ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-# Delete current NGINX configuration to be able to check if .well-known is already served.
-ynh_remove_nginx_config
-ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
-
-# Wait untils NGINX has fully reloaded
-ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
-
-# Check if .well-known is available for this domain
-if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
-then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
-
-    # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
-fi
-
-# Create a dedicated NGINX config
-ynh_add_nginx_config
-
-#=================================================
 # SPECIFIC UPGRADE
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
@@ -309,21 +275,9 @@ EOF
 fi
 
 #=================================================
-# UPDATE THE CRON JOB
+# REGEN SYSTEM CONFIGURATIONS
 #=================================================
-
-cron_path="/etc/cron.d/$app"
-ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
-chown root: "$cron_path"
-chmod 644 "$cron_path"
-
-exec_occ background:cron
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
+ynh_script_progression --message="Reapplying file permissions..." --weight=2
 
 # Fix app ownerships & permissions
 chown -R $app:www-data "$install_dir"
@@ -337,29 +291,61 @@ chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 
 #=================================================
-# SETUP LOGROTATE
+# REGEN SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..."
+ynh_script_progression --message="Regenerating system configurations for $app..." --weight=2
 
-# Use logrotate to manage app-specific logfile(s)
+# -------
+# PHP-FPM
+# -------
+
+ynh_add_fpm_config
+
+# -------
+# NGINX
+# -------
+
+# Delete current NGINX configuration to be able to check if .well-known is already served.
+ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_remove_nginx_config
+ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
+
+# Wait untils NGINX has fully reloaded
+ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
+
+# Check if .well-known is available for this domain
+if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
+then
+    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+
+    # Remove lines about .well-known/carddav and caldav with sed.
+    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
+fi
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+# -------
+# CRON JOB
+# -------
+cron_path="/etc/cron.d/$app"
+ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
+
+exec_occ background:cron
+
+# -------
+# LOGROTATE
+# -------
 ynh_use_logrotate --non-append
 
-#=================================================
-# SETUP FAIL2BAN
-#=================================================
-ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=7
+# -------
+# FAIL2BAN
+# -------
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading PHP-FPM..." --weight=2
-
-ynh_systemd_action --service_name="php${phpversion}-fpm" --action=reload
 
 #=================================================
 # END OF SCRIPT

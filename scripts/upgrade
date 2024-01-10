@@ -66,24 +66,25 @@ exec_occ() {
 # HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
 #=================================================
 
-mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-
-if [ -n "$mysql_db_pwd" ]
+# If we're moving through version 28.0.1~ynh2 (in which the switch to psql is made)
+if ynh_compare_current_package_version --comparison lt --version 28.0.1~ynh2
 then
-    ynh_script_progression --message="Migrating to PostgreSQL database..." --weight=3
-
-    #ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
-
-    ynh_psql_test_if_first_run
-    ynh_psql_setup_db --db_user=$db_user --db_name=$db_name #--db_pwd=$(ynh_string_random)
-    #ynh_app_setting_set --app=$app --key=psqlpwd --value=$db_pwd
-
-    exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
-
-    ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
-    ynh_app_setting_delete --app=$app --key=mysqlpwd
-
-    #ynh_store_file_checksum --file="${install_dir}/config/config.php"
+    # Double-check the mysql DB is here
+    if ! mysql -e "USE $db_name" 2>/dev/null 
+    then
+        ynh_warn "Uhoh? The Nextcloud mysql DB doesn't exist ? We are supposed to move it to postgresql ... Maybe it was already migrated ?"
+        # Double check the psql is not empty, otherwise big whoops ?
+        if [[ "$(ynh_psql_execute_as_root --database=$db_name --sql="\dt" 2>/dev/null | wc -l)" == 0 ]]
+        then
+                ynh_warn "Apparently the postgresql DB is not empty, so this is probably OK?"
+        else
+                ynh_die "Apparently the postgresql DB is also empty, this is kind of worrying, what happened?!"
+        fi
+    else
+        ynh_script_info --message="Migrating to PostgreSQL database..." --weight=3
+        exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+        ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
+    fi
 fi
 
 #=================================================

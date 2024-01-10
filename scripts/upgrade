@@ -81,7 +81,7 @@ then
                 ynh_die "Apparently the postgresql DB is also empty, this is kind of worrying, what happened?!"
         fi
     else
-        ynh_print_info --message="Migrating to PostgreSQL database..." --weight=3
+        ynh_print_info --message="Migrating to PostgreSQL database..."
         exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
         ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
     fi

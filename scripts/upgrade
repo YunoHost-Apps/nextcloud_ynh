@@ -74,7 +74,8 @@ then
     ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
 
     ynh_psql_test_if_first_run
-    ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
+    ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$(ynh_string_random)
+    ynh_app_setting_set --app=$app --key=psqlpwd --value=$db_pwd
 
     exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
 

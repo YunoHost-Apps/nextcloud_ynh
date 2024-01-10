@@ -14,6 +14,7 @@
     "hashing_default_password": true,
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,
+    "default_phone_region": "",
     "mail_smtpmode": "smtp",
     "mail_smtpport": "25",
     "mail_smtpauth": 1,

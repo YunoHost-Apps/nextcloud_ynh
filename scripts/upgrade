@@ -63,13 +63,14 @@ exec_occ() {
 }
 
 #=================================================
-# HANDLE DATABASE MIGRATION
+# HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
 #=================================================
 
 mysql_db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+
 if [ -n "$mysql_db_pwd" ]
 then
-    ynh_script_progression --message="Migrating to PostgreSQL database..."
+    ynh_script_progression --message="Migrating to PostgreSQL database..." --weight=3
 
     ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
 
@@ -85,6 +86,10 @@ then
     ynh_store_file_checksum --file="${install_dir}/config/config.php"
 fi
 
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing
 create_external_storage() {
@@ -96,7 +101,6 @@ local mount_id=$(exec_occ files_external:create --output=json \
     && ynh_print_warn --message="Unable to create external storage" \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
-
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
@@ -290,7 +294,7 @@ EOF
 fi
 
 #=================================================
-# REGEN SYSTEM CONFIGURATIONS
+# REGEN PERMISSIONS
 #=================================================
 ynh_script_progression --message="Reapplying file permissions..." --weight=2
 
@@ -310,15 +314,15 @@ chmod 750 $install_dir
 #=================================================
 ynh_script_progression --message="Regenerating system configurations for $app..." --weight=2
 
-# -------
+#-------------------------------------------------
 # PHP-FPM
-# -------
+#-------------------------------------------------
 
 ynh_add_fpm_config
 
-# -------
+#-------------------------------------------------
 # NGINX
-# -------
+#-------------------------------------------------
 
 # Delete current NGINX configuration to be able to check if .well-known is already served.
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
@@ -340,9 +344,10 @@ fi
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-# -------
+#-------------------------------------------------
 # CRON JOB
-# -------
+#-------------------------------------------------
+
 cron_path="/etc/cron.d/$app"
 ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
@@ -350,14 +355,15 @@ chmod 644 "$cron_path"
 
 exec_occ background:cron
 
-# -------
+#-------------------------------------------------
 # LOGROTATE
-# -------
+#-------------------------------------------------
+
 ynh_use_logrotate --non-append
 
-# -------
+#-------------------------------------------------
 # FAIL2BAN
-# -------
+#-------------------------------------------------
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5

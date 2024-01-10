@@ -49,7 +49,7 @@ get__fpm_footprint() {
     fi
 }
 
-get__free_footprint() {
+get__fpm_free_footprint() {
     # Free footprint value for php-fpm
     # Check if current_fpm_footprint is an integer
     if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
@@ -120,7 +120,7 @@ ynh_app_config_validate() {
 ynh_app_config_apply() {
     _ynh_app_config_apply
 
-    ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
+    ynh_add_fpm_config
 }
 
 ynh_app_config_run $1

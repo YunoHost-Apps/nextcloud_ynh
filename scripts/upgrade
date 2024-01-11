@@ -105,7 +105,7 @@ local mount_id=$(exec_occ files_external:create --output=json \
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-    ynh_script_progression --message="Upgrading Nextcloud..." --weight=3
+    ynh_script_progression --message="Upgrading $app..." --weight=3
 
     # Load the last available version
     source upgrade.d/upgrade.last.sh
@@ -146,7 +146,6 @@ then
         # If the current version has the same major version than the next one,
         # then it's the last upgrade to do
         # We also cover the case where the last version is the first of the current major version series
-        # (e.g. 20.0.0 is the latest version)
         if [[ ("$last_major_version" -eq "$current_major_version") || ( ("$last_major_version" -eq "$((current_major_version+1))") && ("$next_version" == "$last_version") ) ]]; then
             current_major_version=last
             # Enable YunoHost patches on Nextcloud sources
@@ -156,7 +155,7 @@ then
         # Load the value for this version
         source upgrade.d/upgrade.$current_major_version.sh
 
-        ynh_print_info --message="Upgrade to Nextcloud $next_version"
+        ynh_print_info --message="Upgrade to $app $next_version"
 
         # Create an app.src for this version of Nextcloud
         cat > ../conf/app.src << EOF
@@ -204,7 +203,7 @@ EOF
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade \
-        || [ $? -eq 3 ] || ynh_die --message="Unable to upgrade Nextcloud"
+        || [ $? -eq 3 ] || ynh_die --message="Unable to upgrade $app"
 
         # Get the new current version number
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)

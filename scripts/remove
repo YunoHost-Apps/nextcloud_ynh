@@ -8,7 +8,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEMD SERVICE 
 #=================================================
-ynh_script_progression --message="Removing system configurations related to $app..." --weight=5
+ynh_script_progression --message="Removing system configurations related to $app..." --weight=10
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config

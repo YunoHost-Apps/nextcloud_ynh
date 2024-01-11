@@ -24,7 +24,7 @@ current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 
 get__maintenance_mode() {
     # Maintenance mode status
-    maintenance_mode_status="$(cd "$final_path" && ynh_exec_as "$app" \
+    maintenance_mode_status="$(cd "$install_dir" && ynh_exec_as "$app" \
         php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
     if echo $maintenance_mode_status | grep -q "disabled"
     then
@@ -49,7 +49,7 @@ get__fpm_footprint() {
     fi
 }
 
-get__free_footprint() {
+get__fpm_free_footprint() {
     # Free footprint value for php-fpm
     # Check if current_fpm_footprint is an integer
     if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
@@ -68,12 +68,12 @@ get__free_footprint() {
 set__maintenance_mode() {
     if [ "$maintenance_mode" -eq "0" ]; then
         # If maintenance_mode was set to 0, disable maintenance mode
-        (cd "$final_path" && ynh_exec_as "$app" \
+        (cd "$install_dir" && ynh_exec_as "$app" \
             php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
         ynh_print_info "Maintenance mode disabled"
     elif [ "$maintenance_mode" -eq "1" ]; then
         # If maintenance_mode was set to 1, enable maintenance mode
-        (cd "$final_path" && ynh_exec_as "$app" \
+        (cd "$install_dir" && ynh_exec_as "$app" \
             php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
         ynh_print_info "Maintenance mode enabled"
     fi
@@ -120,7 +120,7 @@ ynh_app_config_validate() {
 ynh_app_config_apply() {
     _ynh_app_config_apply
 
-    ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
+    ynh_add_fpm_config
 }
 
 ynh_app_config_run $1

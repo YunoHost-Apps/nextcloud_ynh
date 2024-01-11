@@ -1,0 +1,12 @@
+test_format = 1.0
+
+[default]
+
+    # -------------------------------
+    # Commits to test upgrade from
+    # -------------------------------
+
+    test_upgrade_from.c5cf91ad.name = "Upgrade from 25.0.2"
+    test_upgrade_from.caf917f3.name = "Upgrade from 26.0.2"
+    test_upgrade_from.9c6d1eea.name = "Upgrade from 27.1.4"
+    

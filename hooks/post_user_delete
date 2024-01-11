@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source /usr/share/yunohost/helpers
+
+user="$1"
+app="$(basename $0 | cut -d- -f 2-)" # Extract the app name from the script name, which is supposed to be something like "50-app_id"
+install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+# Define a function to execute commands with `occ`
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as "$app" \
+      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
+
+exec_occ user:delete $user

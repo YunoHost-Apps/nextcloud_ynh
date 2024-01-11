@@ -1,125 +1,37 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
+# REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=2
-
-app=$YNH_APP_INSTANCE_NAME
-
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$db_name
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-datadir=$(ynh_app_setting_get --app=$app --key=datadir)
-
+# REMOVE SYSTEMD SERVICE 
 #=================================================
-# STANDARD REMOVE
-#=================================================
-# REMOVE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Removing dependencies..." --weight=20
-
-# Remove metapackage and its dependencies
-ynh_remove_app_dependencies
-
-#=================================================
-# REMOVE THE MYSQL DATABASE
-#=================================================
-ynh_script_progression --message="Removing the MySQL database..." --weight=5
-
-# Remove a database if it exists, along with the associated user
-ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
-
-#=================================================
-# REMOVE APP MAIN DIR
-#=================================================
-ynh_script_progression --message="Removing app main directory..." --weight=3
-
-# Remove the app directory securely
-ynh_secure_remove --file="$final_path"
-
-#=================================================
-# REMOVE DATA DIR
-#=================================================
-
-# Remove the data directory if --purge option is used
-if [ "${YNH_APP_PURGE:-0}" -eq 1 ]
-then
-	ynh_script_progression --message="Removing app data directory..." --weight=1
-	ynh_secure_remove --file="$datadir"
-fi
-
-#=================================================
-# REMOVE NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing NGINX web server configuration..."
+ynh_script_progression --message="Removing system configurations related to $app..." --weight=5
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
 
-#=================================================
-# REMOVE PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing PHP-FPM configuration..." --weight=2
-
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
-
-#=================================================
-# REMOVE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing logrotate configuration..."
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 
-#=================================================
-# REMOVE FAIL2BAN CONFIGURATION
-#=================================================
-ynh_script_progression --message="Removing Fail2Ban configuration..." --weight=8
-
 # Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
-
-#=================================================
-# SPECIFIC REMOVE
-#=================================================
-# REMOVE THE CRON FILE
-#=================================================
 
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
 ynh_secure_remove --file="/etc/cron.d/$app"
 
-#=================================================
-# CLEAN ACL IN HOME DIRECTORIES
-#=================================================
-
+# Cleaning ACL in home directories
 for i in $(ls /home); do
   # Clean ACL in every directories in /home, except those which start with 'yunohost.'
   [[ ! $i == yunohost.* ]] \
     && setfacl --remove g:$app:rwx 2>&1
 done
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# REMOVE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Removing the dedicated system user..."
-
-# Delete a system user
-ynh_system_user_delete --username=$app
 
 #=================================================
 # END OF SCRIPT

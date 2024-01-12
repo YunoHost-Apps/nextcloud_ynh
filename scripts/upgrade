@@ -184,7 +184,7 @@ EOF
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade \
-        || [ $? -eq 3 ] || ynh_die --message="Unable to upgrade Nextcloud"
+        || [ $? -eq 3 ] || ynh_die --message="Unable to upgrade $app"
 
         # Get the new current version number
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
@@ -202,13 +202,13 @@ EOF
     #=================================================
     # CONFIGURE NEXTCLOUD
     #=================================================
-    ynh_script_progression --message="Reconfiguring Nextcloud..." --weight=9
+    ynh_script_progression --message="Reconfiguring $app..." --weight=9
 
     # Verify the checksum and backup the file if it's different
     ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
 
     nc_conf="${install_dir}/config.json"
-    ynh_add_config --template="../conf/config.json" --destination="$nc_conf"
+    ynh_add_config --template="config.json" --destination="$nc_conf"
 
     # Reneable the mail app
     if [ $mail_app_must_be_reactived -eq 1 ]; then
@@ -295,15 +295,15 @@ chmod 750 $install_dir
 #=================================================
 ynh_script_progression --message="Regenerating system configurations for $app..." --weight=2
 
-# -------
+#-------------------------------------------------
 # PHP-FPM
-# -------
+#-------------------------------------------------
 
 ynh_add_fpm_config
 
-# -------
+#-------------------------------------------------
 # NGINX
-# -------
+#-------------------------------------------------
 
 # Delete current NGINX configuration to be able to check if .well-known is already served.
 ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
@@ -325,24 +325,24 @@ fi
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-# -------
+#-------------------------------------------------
 # CRON JOB
-# -------
+#-------------------------------------------------
 cron_path="/etc/cron.d/$app"
-ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
+ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 
 exec_occ background:cron
 
-# -------
+#-------------------------------------------------
 # LOGROTATE
-# -------
+#-------------------------------------------------
 ynh_use_logrotate --non-append
 
-# -------
+#-------------------------------------------------
 # FAIL2BAN
-# -------
+#-------------------------------------------------
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5

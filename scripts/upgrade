@@ -74,15 +74,44 @@ local mount_id=$(exec_occ files_external:create --output=json \
     || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 
+function list_installed_apps_not_compatible_with_future_version()
+{
+    local nextcloud_destination_version="$1"
+    local nextcloud_current_version="$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)"
+    local installed_apps=$(mktemp)
+    local core_apps_in_current_version=$(mktemp)
+    local nextcloud_destination_appcatalog=$(mktemp)
+
+    # List installed apps
+    exec_occ app:list --output json | jq -r ".enabled | keys[]" | sort > $installed_apps
+    # Fetch Nextcloud list of core apps from their github repo for the current version
+    curl -s https://raw.githubusercontent.com/nextcloud/server/v$nextcloud_current_version.0.0/core/shipped.json | jq -r '.shippedApps[]' | sort > $core_apps_in_current_version
+    # Fetch Nextcloud app catalog (doesnt contain core app) for the future version
+    curl -s https://apps.nextcloud.com/api/v1/platform/$nextcloud_destination_appcatalog.0.0/apps.json | jq -r '.[] | .id' | sort > $nextcloud_destination_appcatalog
+
+    # Compute set complement, cf https://catonmat.net/set-operations-in-unix-shell
+    # We want to list the installed apps which are neither core apps nor in the destination catalog
+    comm -23 <(comm -23 $installed_apps $core_apps_in_current_version) $nextcloud_destination_appcatalog
+}
+
+# Load the last available version
+source upgrade.d/upgrade.last.sh
+last_version=$next_version
+
+last_major_version=${last_version%%.*}
+
+if [[ "$last_major_version" != "$current_major_version" ]]
+then
+    installed_apps_not_compatible_with_future_version="$(list_installed_apps_not_compatible_with_future_version $last_major_version)"
+    if [[ -n "$installed_apps_not_compatible_with_future_version" ]]
+    then
+        ynh_die --message="The following apps are not (yet?) compatible with Nextcloud $last_major_version. You should make sure to upgrade the app, or disable it, or wait for it to become compatible before running this upgrade : $installed_apps_not_compatible_with_future_version"
+    fi
+fi
+
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
     ynh_script_progression --message="Upgrading Nextcloud..." --weight=3
-
-    # Load the last available version
-    source upgrade.d/upgrade.last.sh
-    last_version=$next_version
-
-    last_major_version=${last_version%%.*}
 
     # Set write access for the following commands
     chown -R $app: "$install_dir" "$data_dir"

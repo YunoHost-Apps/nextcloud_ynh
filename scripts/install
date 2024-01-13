@@ -1,33 +1,11 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 source _ynh_mysql_connect_as.sh
 
-#=================================================
-# STORE SETTINGS FROM MANIFEST
-#=================================================
-
-maintenance_mode=0
-fpm_footprint="high"
-fpm_free_footprint=0
-fpm_usage="medium"
 phpflags="--define apc.enable_cli=1"
 
-#=================================================
-# STORE SETTINGS FROM MANIFEST
-#=================================================
-
-ynh_app_setting_set --app=$app --key=maintenance_mode --value=$maintenance_mode
-ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
-ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
-ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 
 #=================================================
@@ -65,8 +43,9 @@ ynh_setup_source --dest_dir="$install_dir"
 #=================================================
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=5
 
-# Create a dedicated PHP-FPM config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
+ynh_app_setting_set --app=$app --key=fpm_footprint --value=high
+ynh_app_setting_set --app=$app --key=fpm_usage --value=medium
+ynh_add_fpm_config
 
 #=================================================
 # NGINX CONFIGURATION
@@ -129,7 +108,7 @@ exec_occ ldap:create-empty-config
 
 # Load the installation config file in Nextcloud
 nc_conf="$install_dir/config_install.json"
-ynh_add_config --template="../conf/config_install.json" --destination="$nc_conf"
+ynh_add_config --template="config_install.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
 
@@ -138,7 +117,7 @@ ynh_secure_remove --file="$nc_conf"
 
 # Load the additional config file (used also for upgrade)
 nc_conf="$install_dir/config.json"
-ynh_add_config --template="../conf/config.json" --destination="$nc_conf"
+ynh_add_config --template="config.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
 
@@ -223,7 +202,7 @@ ynh_store_file_checksum --file="$install_dir/config/config.php"
 #=================================================
 
 cron_path="/etc/cron.d/$app"
-ynh_add_config --template="../conf/nextcloud.cron" --destination="$cron_path"
+ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 

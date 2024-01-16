@@ -76,9 +76,9 @@ then
         # Double check the psql is not empty, otherwise big whoops?
         if [[ "$(ynh_psql_execute_as_root --database=$db_name --sql="\dt" 2>/dev/null | wc -l)" == 0 ]]
         then
-                ynh_print_warn "Apparently the PostgreSQL DB is not empty, so this is probably OK?"
-        else
                 ynh_die "Apparently the PostgreSQL DB is also empty, this is kind of worrying, what happened?!"
+        else
+                ynh_print_warn "Apparently the PostgreSQL DB is not empty, so this is probably OK?"
         fi
     else
         ynh_print_info --message="Migrating to PostgreSQL database..."

@@ -85,7 +85,7 @@ function list_installed_apps_not_compatible_with_future_version()
     # List installed apps
     exec_occ app:list --output json | jq -r ".enabled | keys[]" | sort > $installed_apps
     # Fetch Nextcloud list of core apps from their github repo for the current version
-    curl -s https://raw.githubusercontent.com/nextcloud/server/v$nextcloud_current_version.0.0/core/shipped.json | jq -r '.shippedApps[]' | sort > $core_apps_in_current_version
+    curl -s https://raw.githubusercontent.com/nextcloud/server/v$nextcloud_current_version/core/shipped.json | jq -r '.shippedApps[]' | sort > $core_apps_in_current_version
     # Fetch Nextcloud app catalog (doesnt contain core app) for the future version
     curl -s https://apps.nextcloud.com/api/v1/platform/$nextcloud_destination_appcatalog.0.0/apps.json | jq -r '.[] | .id' | sort > $nextcloud_destination_appcatalog
 

@@ -87,7 +87,7 @@ function list_installed_apps_not_compatible_with_future_version()
     # Fetch Nextcloud list of core apps from their github repo for the current version
     curl -s https://raw.githubusercontent.com/nextcloud/server/v$nextcloud_current_version/core/shipped.json | jq -r '.shippedApps[]' | sort > $core_apps_in_current_version
     # Fetch Nextcloud app catalog (doesnt contain core app) for the future version
-    curl -s https://apps.nextcloud.com/api/v1/platform/$nextcloud_destination_appcatalog.0.0/apps.json | jq -r '.[] | .id' | sort > $nextcloud_destination_appcatalog
+    curl -s https://apps.nextcloud.com/api/v1/platform/$nextcloud_destination_version.0.0/apps.json | jq -r '.[] | .id' | sort > $nextcloud_destination_appcatalog
 
     # Compute set complement, cf https://catonmat.net/set-operations-in-unix-shell
     # We want to list the installed apps which are neither core apps nor in the destination catalog

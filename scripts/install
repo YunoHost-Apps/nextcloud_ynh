@@ -259,7 +259,7 @@ ynh_multimedia_addaccess $app
 #================================================
 ynh_script_progression --message="Easying skeleton configuration..." --weight=1
 
-cp -a --no-target-directory $install_dir/core/skeleton "/home/yunohost.app/$app/skeleton/default"
+cp -a --no-target-directory $install_dir/core/skeleton "$data_dir/skeleton/default"
 create_external_storage "/home/yunohost.app/$app/skeleton" "New users default files" "admins"
 
 #=================================================

@@ -52,7 +52,7 @@ services = ["php8.2-fpm"]
     name = "Files"
         
         [main.files.skeleton]
-        ask = "To configure the default files created for new users, you can do it by logging on nextcloud with an admins account and edit files under `New user default files/default` or if you want to target a specific language `New user default files/FR`."
+        ask = "To configure the default files created for new users, you can do it by logging on Nextcloud with an admins account and edit files under `New user default files/default` or if you want to target a specific language `New user default files/FR`."
         type = "alert"
         style = "info"
         

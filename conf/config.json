@@ -23,7 +23,8 @@
     "lost_password_link": "",
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,
-    "skeletondirectory": "/home/yunohost.app/__APP__/skeleton/{lang}",
+    "skeletondirectory": "__DATA_DIR__/skeleton/{lang}",
+
     "mail_smtpmode": "smtp",
     "mail_smtpport": "25",
     "mail_smtpauth": 1,

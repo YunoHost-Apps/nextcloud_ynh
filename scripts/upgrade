@@ -19,6 +19,10 @@ if [ -z "${phpflags:-}" ]; then
 	ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 fi
 
+if [ -z "${auto_upgrade_apps:-}" ]; then
+	ynh_app_setting_set --app=$app --key=auto_upgrade_apps --value="manual"
+fi
+
 # Delete existing ini configuration file (backward compatibility)
 if [ -f /etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini ]; then
     ynh_secure_remove --file=/etc/php/$YNH_PHP_VERSION/fpm/conf.d/20-$app.ini

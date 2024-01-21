@@ -52,6 +52,7 @@ fi
 ynh_script_progression --message="Restoring cron job..." --weight=1
 
 ynh_restore_file --origin_path="/etc/cron.d/$app"
+ynh_restore_file --origin_path="/etc/cron.d/${app}_upgrade_apps" --not_mandatory
 
 #=================================================
 # BACKUP THE LOGROTATE CONFIGURATION

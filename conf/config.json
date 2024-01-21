@@ -1,5 +1,6 @@
 {
   "system": {
+    "maintenance": false,
     "updatechecker": false,
     "memcache.local": "\\OC\\Memcache\\APCu",
     "integrity.check.disabled": true,
@@ -12,8 +13,18 @@
       "password": ""
      },
     "hashing_default_password": true,
+    "has_internet_connection": true,
+    "default_phone_region": "",
+    "default_timezone": "Europe/Paris",
+    "trashbin_retention_obligation": "auto",
+    "version_retention_obligation": "auto",
+    "enable_previews": true,
+    "defaultapp": "dashboard,files",
+    "lost_password_link": "",
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,
+    "skeletondirectory": "__DATA_DIR__/skeleton/{lang}",
+
     "mail_smtpmode": "smtp",
     "mail_smtpport": "25",
     "mail_smtpauth": 1,

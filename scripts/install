@@ -4,9 +4,24 @@ source _common.sh
 source /usr/share/yunohost/helpers
 source _ynh_mysql_connect_as.sh
 
+#=================================================
+# INIT STUFF FOR CONFIG PANEL, ETC
+#=================================================
+
 phpflags="--define apc.enable_cli=1"
 
+ynh_app_setting_set --app=$app --key=maintenance --value=0
 ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
+ynh_app_setting_set --app=$app --key=has_internet_connection --value=1
+ynh_app_setting_set --app=$app --key=default_phone_region --value=""
+ynh_app_setting_set --app=$app --key=default_timezone --value="Europe/Paris"
+ynh_app_setting_set --app=$app --key=lost_password_link --value=""
+ynh_app_setting_set --app=$app --key=logout_url --value=""
+ynh_app_setting_set --app=$app --key=trashbin_retention_obligation --value="auto"
+ynh_app_setting_set --app=$app --key=version_retention_obligation --value="auto"
+ynh_app_setting_set --app=$app --key=enable_previews --value=1
+ynh_app_setting_set --app=$app --key=auto_upgrade_apps --value="manual"
+ynh_app_setting_set --app=$app --key=defaultapp --value="dashboard,files"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -119,6 +134,7 @@ ynh_secure_remove --file="$nc_conf"
 nc_conf="$install_dir/config.json"
 ynh_add_config --template="config.json" --destination="$nc_conf"
 
+cat $nc_conf
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
@@ -141,11 +157,20 @@ exec_occ ldap:test-config '' \
 create_external_storage() {
   local mount_dir="$1"
   local mount_name="$2"
+  local group="${3:-}"
   local mount_id=`exec_occ files_external:create --output=json \
       "$mount_name" 'local' 'null::null' -c "datadir=$mount_dir" || true`
-  ! [[ $mount_id =~ ^[0-9]+$ ]] \
-      && ynh_print_warn --message="Unable to create external storage" \
-      || exec_occ files_external:option "$mount_id" enable_sharing true
+  if ! [[ $mount_id =~ ^[0-9]+$ ]]
+  then
+    ynh_print_warn --message="Unable to create external storage"
+  else
+    exec_occ files_external:option "$mount_id" enable_sharing true
+    if [ "$group" != "" ]
+    then
+        exec_occ group:list
+        exec_occ files_external:applicable "$mount_id" --add-group="$group"
+    fi
+  fi
 }
 
 # Enable External Storage and create local mount to home folder
@@ -230,6 +255,14 @@ create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
 ynh_multimedia_addaccess $app
 
 #=================================================
+# EASY SKELETON CONFIGURATION
+#================================================
+ynh_script_progression --message="Easying skeleton configuration..." --weight=1
+
+cp -a --no-target-directory $install_dir/core/skeleton "$data_dir/skeleton/default"
+create_external_storage "$data_dir/skeleton" "New users default files" "admins"
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SECURE FILES AND DIRECTORIES
@@ -240,8 +273,8 @@ chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
-find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
-find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
+find $data_dir/ -type f -print0 | xargs -r0 chmod 0640
+find $data_dir/ -type d -print0 | xargs -r0 chmod 0750
 chmod 640 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir

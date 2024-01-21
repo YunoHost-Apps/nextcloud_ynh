@@ -25,6 +25,7 @@ ynh_remove_fail2ban_config
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
 ynh_secure_remove --file="/etc/cron.d/$app"
+ynh_secure_remove --file="/etc/cron.d/${app}_upgrade_apps"
 
 # Cleaning ACL in home directories
 for i in $(ls /home); do

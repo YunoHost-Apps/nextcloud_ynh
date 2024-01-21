@@ -2,14 +2,96 @@ version = "1.0"
 
 [main]
 name = "Nextcloud configuration"
+services = ["php8.2-fpm"]
 
-    [main.maintenance_mode]
-    name = "Maintenance mode"
+    [main.mode]
+    name = "Modes"
 
-        [main.maintenance_mode.maintenance_mode]
+        [main.mode.maintenance]
         ask = "Enable maintenance mode"
         type = "boolean"
-        default = "0"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        
+        [main.mode.has_internet_connection]
+        ask = "Internet connection available"
+        type = "boolean"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "Is Nextcloud connected to the Internet or running in a closed network?"
+
+    [main.localization]
+    name = "Localization"
+
+        [main.localization.default_phone_region]
+        ask = "Default phone region"
+        type = "select"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "It is required to allow inserting phone numbers in the user profiles starting without the country code (e.g. +49 for Germany)."
+
+        [main.localization.default_timezone]
+        ask = "Default timezone"
+        type = "select"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "The default timezone parameter is only used when the timezone of the user can’t be determined."
+
+    [main.account]
+    name = "Account"
+
+        [main.account.lost_password_link]
+        ask = "Lost password link"
+        type = "url"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "Allow to redirect on a custom form to require a password reset (for example to ask you to reset it from this YunoHost webadmin)"
+        
+        [main.account.logout_url]
+        ask = "Logout URL"
+        type = "url"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "Redirect on this URL when a user click on 'Logout' action"
+
+    [main.files]
+    name = "Files"
+        
+        [main.files.skeleton]
+        ask = "To configure the default files created for new users, you can do it by logging on Nextcloud with an admins account and edit files under `New user default files/default` or if you want to target a specific language `New user default files/FR`."
+        type = "alert"
+        style = "info"
+        
+        [main.files.trashbin_retention_obligation]
+        ask = "Trashbin retention"
+        type = "string"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "If the trash bin app is enabled (default), this setting defines the policy for when files and folders in the trash bin will be permanently deleted."
+
+        [main.files.version_retention_obligation]
+        ask = "Version retention"
+        type = "string"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "If the versions app is enabled (default), this setting defines the policy for when versions will be permanently deleted."
+
+        [main.files.enable_previews]
+        ask = "Enable previews"
+        type = "boolean"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "Info: Previews of photos and text documents could consume a lot of resources."
+
+    [main.apps]
+    name = "Apps"
+        
+        [main.apps.auto_upgrade_apps]
+        ask = "Upgrade apps"
+        type = "select"
+        choices.manual = "Manually"
+        choices.daily = "Daily at 00:10"
+        choices.weekly = "Weekly at 00:10 on Sunday"
+        choices.monthly = "Monthly at 00:10 on the 1st"
+        help = "Keep in mind that upgrade apps could break things in your instance, so you need to strike the right balance between reliability and safety."
+        
+        [main.apps.defaultapp]
+        ask = "Default app to display"
+        type = "tags"
+        bind = ":__INSTALL_DIR__/config/config.php"
+        help = "Set the default app to open on login."
+
 
     [main.php_fpm_config]
     name = "PHP-FPM configuration"

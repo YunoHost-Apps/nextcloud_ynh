@@ -40,7 +40,7 @@ services = ["php8.2-fpm"]
         ask = "Lost password link"
         type = "url"
         bind = ":__INSTALL_DIR__/config/config.php"
-        help = "Allow to redirect on a custom form to require a password reset (for example to ask you to reset it from this yunohost webadmin)"
+        help = "Allow to redirect on a custom form to require a password reset (for example to ask you to reset it from this YunoHost webadmin)"
         
         [main.account.logout_url]
         ask = "Logout URL"

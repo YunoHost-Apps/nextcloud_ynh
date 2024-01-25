@@ -54,7 +54,7 @@ fi
 #=================================================
 ynh_script_progression --message="Configuring permissions..."
 
-# Temporary fix for the API permission
+# Temporary fix for the API permission (workaround for https://github.com/YunoHost/issues/issues/2294 )
 ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --auth_header="false" --clear_urls
 
 #=================================================

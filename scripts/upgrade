@@ -154,13 +154,13 @@ then
     while [ "$last_version" != "$current_version" ]
     do
 
-        ynh_print_info --message="Upgrade to Nextcloud $last_version"
-
         next_major_version="$(( $current_major_version + 1 ))"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then
+            ynh_print_info --message="Upgrading to Nextcloud $last_version"
             cp -a ../sources/patches_last_version/* ../sources/patches
             source_id="main"
         else
+            ynh_print_info --message="Upgrading to Nextcloud $next_major_version"
             source_id="$next_major_version"
         fi
 

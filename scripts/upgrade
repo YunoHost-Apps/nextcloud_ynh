@@ -91,7 +91,7 @@ function list_installed_apps_not_compatible_with_future_version()
 
     # Run a first "dummy" command just to make sure we have the appropriate php dependencies installed,
     # otherwise this creates funky stuff when tweaking the apt deps because the next command is piped into jq ...
-    exec_occ -V
+    exec_occ -V >/dev/null
     # List installed apps
     exec_occ app:list --output json | jq -r ".enabled | keys[]" | sort > $installed_apps
     # Fetch Nextcloud list of core apps from their github repo for the current version

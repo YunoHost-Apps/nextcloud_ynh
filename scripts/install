@@ -12,18 +12,6 @@ ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
 #=================================================
 ynh_script_progression --message="Setting up source files..." --weight=5
 
-# Load the last available version
-source upgrade.d/upgrade.last.sh
-
-# Create an app.src for the last version of nextcloud
-cat > ../conf/app.src << EOF
-SOURCE_URL=https://download.nextcloud.com/server/releases/nextcloud-$next_version.tar.bz2
-SOURCE_SUM=$nextcloud_source_sha256
-SOURCE_SUM_PRG=sha256sum
-SOURCE_FORMAT=tar.bz2
-SOURCE_IN_SUBDIR=true
-EOF
-
 # Enable YunoHost patches on Nextcloud sources
 cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src

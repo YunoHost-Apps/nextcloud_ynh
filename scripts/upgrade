@@ -39,6 +39,9 @@ filter_boring_occ_warnings() {
     sed -E 's@\s*([0-9]+\/[0-9]+\s+\[(-|>|=)+\]\s+[0-9]+%|\s*Starting ...|Nextcloud or one of the apps require upgrade - only a limited number of commands are available|You may use your browser or the occ upgrade command to do the upgrade)@@g'
 }
 
+current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+current_major_version=${current_version%%.*}
+
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
@@ -132,9 +135,6 @@ function list_installed_apps_not_compatible_with_future_version()
     comm -23 <(comm -23 $installed_apps $core_apps_in_current_version) $nextcloud_destination_appcatalog
 }
 
-
-current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-current_major_version=${current_version%%.*}
 
 last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
 last_major_version=${last_version%%.*}

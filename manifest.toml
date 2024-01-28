@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "28.0.1~ynh1"
+version = "28.0.1~ynh2"
 
 maintainers = ["kay0u"]
 
@@ -27,8 +27,8 @@ ldap = true
 
 sso = true
 
-disk = "50M"
-ram.build = "500M"
+disk = "650M"
+ram.build = "250M"
 ram.runtime = "512M"
 
 [install]
@@ -55,6 +55,38 @@ ram.runtime = "512M"
     default = false
 
 [resources]
+
+    [resources.sources]
+
+        [resources.sources.main]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.1.tar.bz2'
+        sha256 = '2f80735b443082272fe6a3b5e32137957f1fc448c75342b94b5200b29725f3a4'
+
+        [resources.sources.27]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-27.0.0.tar.bz2'
+        sha256 = '3d312a09b9345ac058758dd7b4059bf3cf0b1f0f1d747251b6fac3585ba6533f'
+        prefetch = false
+
+        [resources.sources.26]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-26.0.0.tar.bz2'
+        sha256 = 'f163150363aee9366ecb5cd5259bf6756ed4f073cea78b5fa515cada7a0d0c3d'
+        prefetch = false
+
+        [resources.sources.25]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.0.tar.bz2'
+        sha256 = '2c05ac9d7b72b44ef8b3d2ae03ff0fd6121e254b8054556f5163bd8760dd8f49'
+        prefetch = false
+
+        [resources.sources.24]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-24.0.0.tar.bz2'
+        sha256 = '176cb5620f20465fb4759bdf3caaebeb7acff39d6c8630351af9f8738c173780'
+        prefetch = false
+
+        [resources.sources.23]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-23.0.0.tar.bz2'
+        sha256 = 'c37592abc3b65c8fd28459281a24f414b87af52fc8c2ea979be3f9be75d01a2c'
+        prefetch = false
+
     [resources.system_user]
     allow_email = true
 

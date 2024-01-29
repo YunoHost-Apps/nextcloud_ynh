@@ -122,7 +122,7 @@ fi
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-    ynh_script_progression --message="Upgrading Nextcloud..." --weight=3
+    ynh_script_progression --message="Upgrading $app..." --weight=3
 
     # Set write access for the following commands
     chown -R $app: "$install_dir" "$data_dir"
@@ -360,7 +360,7 @@ ynh_use_logrotate --non-append
 #-------------------------------------------------
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/home/yunohost.app/$app/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

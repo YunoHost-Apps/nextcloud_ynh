@@ -290,7 +290,7 @@ then
 fi
 
 #=================================================
-# REGEN SYSTEM CONFIGURATIONS
+# REGEN PERMISSIONS
 #=================================================
 ynh_script_progression --message="Reapplying file permissions..." --weight=2
 

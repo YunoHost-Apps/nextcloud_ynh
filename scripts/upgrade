@@ -75,8 +75,8 @@ exec_occ() {
 # HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
 #=================================================
 
-# If we're moving through version 28.0.1~ynh1 (in which the switch to psql is made)
-if ynh_compare_current_package_version --comparison lt --version 28.0.1~ynh1
+# If we're moving through version 28.0.2~ynh1 (in which the switch to psql is made)
+if ynh_compare_current_package_version --comparison lt --version 28.0.2~ynh2
 then
     # Double-check the MySQL DB is here
     if ! mysql -e "USE $db_name" 2>/dev/null 

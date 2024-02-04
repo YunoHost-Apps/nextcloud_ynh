@@ -28,7 +28,7 @@ ynh_script_progression --message="Reconfiguring PHP-FPM..." --weight=50
 # Restore the file first, so it can have a backup if different
 ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
-# Recreate a dedicated php-fpm config
+# Recreate a dedicated PHP-FPM config
 ynh_add_fpm_config
 
 #=================================================
@@ -122,7 +122,7 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+ynh_script_progression --message="Reloading NGINX web server..." --weight=3
 
 ynh_systemd_action --service_name=nginx --action=reload
 

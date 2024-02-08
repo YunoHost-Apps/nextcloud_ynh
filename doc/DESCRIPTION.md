@@ -12,7 +12,7 @@ In addition to Nextcloud core features, the following are made available with th
 
 ### Oldstable branch
 
-This branch is followinging old stable release because nextcloud first release are often not totally stable.
+This branch is following old stable release because nextcloud first release are often not totally stable.
 
 Please send your pull request to the [oldstable branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
 

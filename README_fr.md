@@ -27,9 +27,24 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Permet de multiples instances de cette application
  * Accès optionnel au répertoire home depuis les fichiers Nextcloud (à activer à l'installation, le partage étant activé par défaut)
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
+ * 
+## Branche olstable
+
+Cette branche suit une ancienne version stable, car souvent les premières versions de nextcloud ne sont pas totalement stables.
+
+Merci de faire vos pull request sur la [branche testing](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+
+Pour essayer la branche oldstable, procédez comme suit.
+
+``` bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+ou
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+```
 
 
-**Version incluse :** 28.0.1~ynh2
+
+**Version incluse :** 27.1.6~ynh1
 
 **Démo :** https://demo.nextcloud.com/
 

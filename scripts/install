@@ -88,10 +88,15 @@ ynh_script_progression --message="Configuring $app..." --weight=8
 exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # Set default language in config.php
-exec_occ config:system:set default_language --value="$language"
+raw_language=$(echo "$language" | awk -F'_' '{print $1}')
+exec_occ config:system:set default_language --value="$raw_language"
+
+# Set default locale in config.php
+exec_occ config:system:set default_locale --value="$language"
 
 # Set default phone region in config.php
-exec_occ config:system:set default_phone_region --value="$language"
+country=$(echo "$language" | awk -F'_' '{print $2}')
+exec_occ config:system:set default_phone_region --value="$country"
 
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification

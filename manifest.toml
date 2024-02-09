@@ -48,6 +48,13 @@ ram.runtime = "512M"
     type = "group"
     default = "visitors"
 
+    [install.language]
+    ask.en = "Choose the application language"
+    ask.fr = "Choisissez la langue de l'application"
+    type = "select"
+    choices = ["en-US", "es-ES", "it-IT", "fr-FR"]
+    default = "en-US"
+
     [install.user_home]
     ask.en = "Access the users home folder from Nextcloud?"
     ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"

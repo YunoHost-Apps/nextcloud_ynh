@@ -143,7 +143,8 @@ then
     # Fix warning "Your installation has no default phone region set"
     if [ "$(exec_occ config:system:get default_phone_region)" == "" ]; then
 	config_locale=$(exec_occ config:system:get default_locale)
-	exec_occ config:system:set default_phone_region --value="$config_locale"
+	country=$(echo "$config_locale" | awk -F'_' '{print $2}')
+	exec_occ config:system:set default_phone_region --value="$country"
     fi
 
     # Upgrade may fail if this app is enabled

@@ -140,18 +140,6 @@ then
         exec_occ maintenance:repair
     fi
 
-    # Fix warning "Your installation has no default phone region set"
-    if [ "$(exec_occ config:system:get default_phone_region)" == "" ]; then
-	config_locale=$(exec_occ config:system:get default_locale)
-	if [ -z "$config_locale" ]; then
-		# If it's not set in config use "US" as default
-		country="US"
-	else
-		country=$(echo "$config_locale" | awk -F'_' '{print $2}')
-	fi
-	exec_occ config:system:set default_phone_region --value="$country"
-    fi
-
     # Upgrade may fail if this app is enabled
     # Take all apps enabled, and check if mail is one of them
     # Then temporary disable the mail app

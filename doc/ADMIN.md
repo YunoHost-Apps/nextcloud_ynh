@@ -2,11 +2,31 @@
 
 You can run Nextcloud commands from the command line using:
 
-```
+```bash
 sudo -u __APP__ php__PHPVERSION__ --define apc.enable_cli=1 __INSTALL_DIR__/occ ...
 ```
 
 Alternatively, you may open a 'Nextcloud shell' with `sudo yunohost app shell __APP__`, then run `php occ ...`
+
+### Change data folder location
+
+The following command shows the current location of the data folder.
+
+```bash
+yunohost app setting __APP__ data_dir
+```
+
+After installation, the result should be :
+
+```bash
+/home/yunohost.app/nextcloud
+```
+
+To modify the data folder, issue this command
+
+```bash
+yunohost app setting __APP__ data_dir -v /your/custom/data-path
+```
 
 ### ONLYOFFICE integration
 
@@ -19,6 +39,7 @@ For better performance and ARM64 support (Raspberry Pi, OLinuXino...), install t
 #### Alternative: With Nextcloud App (no ARM support, lower performance)
 
 Nextcloud features a direct integration of ONLYOFFICE through a Nextcloud app.
+
 - Install *Community Document Server* application in your Nextcloud. That's the part that runs ONLYOFFICE server.
 - Install *ONLYOFFICE* application. That's the client part that will connect to an ONLYOFFICE server.
 - Then in Settings -> ONLYOFFICE (`https://__DOMAIN____PATH__/settings/admin/onlyoffice`), if you want to configure which file formats should be opened by ONLYOFFICE.

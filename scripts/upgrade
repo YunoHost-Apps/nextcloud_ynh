@@ -346,9 +346,10 @@ fi
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-#-------------------------------------------------
+#=================================================
 # CRON JOB
-#-------------------------------------------------
+#=================================================
+
 cron_path="/etc/cron.d/$app"
 ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
@@ -356,14 +357,15 @@ chmod 644 "$cron_path"
 
 exec_occ background:cron
 
-#-------------------------------------------------
+#=================================================
 # LOGROTATE
-#-------------------------------------------------
+#=================================================
+
 ynh_use_logrotate --non-append
 
-#-------------------------------------------------
+#=================================================
 # FAIL2BAN
-#-------------------------------------------------
+#=================================================
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5

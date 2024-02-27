@@ -19,7 +19,7 @@ yunohost app setting __APP__ data_dir
 Après installation le résultat devrait être :
 
 ```bash
-/home/yunohost.app/nextcloud
+__DATA_DIR__
 ```
 
 Pour modifier le dossier data faite cette commande

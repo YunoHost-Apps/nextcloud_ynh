@@ -24,13 +24,6 @@ then
     ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-# move the logs from the data_dir to the standard /var/log
-if [ -f "$data_dir/data/nextcloud.log" ]; then
-    mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
-    # adapt the nextcloud config
-    exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
-fi
-
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
@@ -244,6 +237,15 @@ then
 
     # Update all installed apps
     exec_occ app:update --all
+
+    # move the logs from the data_dir to the standard /var/log
+    # it would be better in the ENSURE DOWNWARD COMPATIBILITY section
+    # but it must be after the exec_occ() definition, so it's here
+    if [ -f "$data_dir/data/nextcloud.log" ]; then
+        mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
+        # adapt the nextcloud config
+        exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
+    fi
 
     # Load the config file in nextcloud
     exec_occ config:import "$nc_conf"

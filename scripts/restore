@@ -53,6 +53,12 @@ ynh_script_progression --message="Restoring cron job..." --weight=1
 ynh_restore_file --origin_path="/etc/cron.d/$app"
 
 #=================================================
+# RESTORE LOGS
+#=================================================
+
+ynh_restore_file --origin_path="/var/log/$app"
+
+#=================================================
 # BACKUP THE LOGROTATE CONFIGURATION
 #=================================================
 ynh_script_progression --message="Restoring the logrotate configuration..." --weight=1
@@ -108,10 +114,10 @@ ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
 
 # Make sure a log file exists (mostly for CI tests)
-logfile="$data_dir/data/nextcloud.log"
+logfile="/var/log/$app/nextcloud.log"
 if [ ! -f "$logfile" ]; then
 	touch "$logfile"
-	chown $app: "$logfile"
+	chown "$app:" "$logfile"
 fi
 
 ynh_systemd_action --action=restart --service_name=fail2ban

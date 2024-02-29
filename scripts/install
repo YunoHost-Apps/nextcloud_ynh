@@ -75,6 +75,12 @@ exec_occ maintenance:install \
 #=================================================
 ynh_script_progression --message="Configuring $app..." --weight=8
 
+# Set the mysql.utf8mb4 config to true in config.php
+exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+
+# move the logs from the data_dir to the standard /var/log
+exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
+
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
@@ -231,7 +237,7 @@ chmod 750 $install_dir
 ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$data_dir/data/nextcloud.log"
+ynh_use_logrotate
 
 #=================================================
 # SETUP FAIL2BAN
@@ -239,7 +245,7 @@ ynh_use_logrotate --logfile="$data_dir/data/nextcloud.log"
 ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

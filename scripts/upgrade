@@ -24,7 +24,6 @@ then
     ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
@@ -239,6 +238,15 @@ then
     # Update all installed apps
     exec_occ app:update --all
 
+    # move the logs from the data_dir to the standard /var/log
+    # it would be better in the ENSURE DOWNWARD COMPATIBILITY section
+    # but it must be after the exec_occ() definition, so it's here
+    if [ -f "$data_dir/data/nextcloud.log" ]; then
+        mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
+        # adapt the nextcloud config
+        exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
+    fi
+
     # Load the config file in nextcloud
     exec_occ config:import "$nc_conf"
 
@@ -340,9 +348,10 @@ fi
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-#-------------------------------------------------
+#=================================================
 # CRON JOB
-#-------------------------------------------------
+#=================================================
+
 cron_path="/etc/cron.d/$app"
 ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
@@ -350,17 +359,18 @@ chmod 644 "$cron_path"
 
 exec_occ background:cron
 
-#-------------------------------------------------
+#=================================================
 # LOGROTATE
-#-------------------------------------------------
+#=================================================
+
 ynh_use_logrotate --non-append
 
-#-------------------------------------------------
+#=================================================
 # FAIL2BAN
-#-------------------------------------------------
+#=================================================
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

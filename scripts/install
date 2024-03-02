@@ -155,12 +155,13 @@ fi
 #=================================================
 
 # Add dynamic logout URL to the config
+url_base64="$(echo -n "https://$domain$path" | base64)"
 exec_occ config:system:get logout_url >/dev/null 2>&1 \
   || echo "
 //-YunoHost-
 // set logout_url according to main domain
 \$main_domain = exec('cat /etc/yunohost/current_host');
-\$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
+\$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout&r=${url_base64}';
 //-YunoHost-
 " >> "$install_dir/config/config.php"
 

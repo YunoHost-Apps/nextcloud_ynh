@@ -242,6 +242,8 @@ then
     # it would be better in the ENSURE DOWNWARD COMPATIBILITY section
     # but it must be after the exec_occ() definition, so it's here
     if [ -f "$data_dir/data/nextcloud.log" ]; then
+        mkdir -p "/var/log/$app"
+        chmod 750 "/var/log/$app"
         mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
         # adapt the nextcloud config
         exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"

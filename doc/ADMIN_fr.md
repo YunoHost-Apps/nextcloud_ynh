@@ -10,25 +10,47 @@ Ou bien, vous pouvez ouvrir un "shell Nextcloud" avec `sudo yunohost app shell _
 
 ### Changer l'emplacement du dossier data
 
-Avec la commande suivante vous pouvez voir l'emplacement actuel de dossier data.
+Il peut être intéressant de changer l'emplacement par défaut du dossier Nextcloud pour stocker les données sur un second disque dur.
 
-```bash
-yunohost app setting __APP__ data_dir
-```
+1. Trouver le chemin actuel des data Nextcloud
 
-Après installation le résultat devrait être :
+    ```bash
+    yunohost app setting __APP__ data_dir
+    ```
 
-```bash
-__DATA_DIR__
-```
+    Cette commande devrait afficher :
 
-Pour modifier le dossier data faite cette commande
-```bash
-yunohost app setting __APP__ data_dir -v /chemin/vers/nouvel/emplacement/data
-```
-Modifier les permissions du dossier : 
-```bash
-chown nextcloud:nextcloud /your/custom/data-path
+    ```bash
+    __DATA_DIR__
+    ```
+
+1. Déplacer les données Nextcloud au nouvel emplacement :
+    Pour l'exemple nous prendrons le dossier `/media/stockage/nextcloud`
+
+    ```bash
+    mv __DATA_DIR__ /media/stockage/nextcloud
+    ```
+
+1. Modifier le propriétaire du dossier :
+
+    ```bash
+    chown nextcloud:nextcloud /media/stockage/nextcloud
+    ```
+
+1. Créer un lien symbolique entre le dossier par défaut et le nouveau dossier :
+
+    ```bash
+    ln -s /media/stockage/nextcloud __DATA_DIR__
+    ```
+
+1. Tester les fichiers Nextcloud :
+
+    ```bash
+    sudo -u nextcloud php8.2 --define apc.enable_cli=1 /var/www/nextcloud/occ files:scan --all
+    ```
+
+C'est fini ! Vos données sont maintenant stocké dans le dossier `/media/stockage/nextcloud`
+
 ### Intégration d'ONLYOFFICE
 
 ONLYOFFICE est un éditeur de texte enrichi en ligne qui peut s'intégrer dans Nextcloud

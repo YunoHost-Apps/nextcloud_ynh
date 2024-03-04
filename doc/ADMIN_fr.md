@@ -26,7 +26,9 @@ Pour modifier le dossier data faite cette commande
 ```bash
 yunohost app setting __APP__ data_dir -v /chemin/vers/nouvel/emplacement/data
 ```
-
+Modifier les permissions du dossier : 
+```bash
+chown nextcloud:nextcloud /your/custom/data-path
 ### Intégration d'ONLYOFFICE
 
 ONLYOFFICE est un éditeur de texte enrichi en ligne qui peut s'intégrer dans Nextcloud

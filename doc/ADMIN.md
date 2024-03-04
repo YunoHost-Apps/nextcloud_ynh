@@ -27,7 +27,9 @@ To modify the data folder, issue this command
 ```bash
 yunohost app setting __APP__ data_dir -v /your/custom/data-path
 ```
-
+Change the permissions of the folder : 
+```bash
+chown nextcloud:nextcloud /your/custom/data-path
 ### ONLYOFFICE integration
 
 ONLYOFFICE is an online rich text document editor which can be integrated in Nextcloud

@@ -28,10 +28,9 @@ In addition to Nextcloud core features, the following are made available with th
  * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
-
 **Shipped version:** 28.0.3~ynh2
 
-**Demo:** https://demo.nextcloud.com/
+**Demo:** <https://demo.nextcloud.com/>
 
 ## Screenshots
 
@@ -39,12 +38,12 @@ In addition to Nextcloud core features, the following are made available with th
 
 ## Documentation and resources
 
-* Official app website: <https://nextcloud.com>
-* Official user documentation: <https://docs.nextcloud.com/server/latest/user_manual/en/>
-* Official admin documentation: <https://docs.nextcloud.com/server/stable/admin_manual/>
-* Upstream app code repository: <https://github.com/nextcloud/server>
-* YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
-* Report a bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
+- Official app website: <https://nextcloud.com>
+- Official user documentation: <https://docs.nextcloud.com/server/latest/user_manual/en/>
+- Official admin documentation: <https://docs.nextcloud.com/server/stable/admin_manual/>
+- Upstream app code repository: <https://github.com/nextcloud/server>
+- YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
+- Report a bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
 ## Developer info
 

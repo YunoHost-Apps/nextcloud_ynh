@@ -28,10 +28,9 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
  * Accès optionnel au répertoire home depuis les fichiers Nextcloud (à activer à l'installation, le partage étant activé par défaut)
  * Utilise l'adresse `/.well-known` pour la synchronisation CalDAV et CardDAV du domaine si aucun autre service ne l'utilise déjà - par exemple, Baïkal
 
-
 **Version incluse :** 28.0.3~ynh2
 
-**Démo :** https://demo.nextcloud.com/
+**Démo :** <https://demo.nextcloud.com/>
 
 ## Captures d’écran
 
@@ -39,12 +38,12 @@ En plus des fonctionnalités principales de Nextcloud, les fonctionnalités suiv
 
 ## Documentations et ressources
 
-* Site officiel de l’app : <https://nextcloud.com>
-* Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
-* Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
-* Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
-* YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
-* Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
+- Site officiel de l’app : <https://nextcloud.com>
+- Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
+- Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
+- Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
+- YunoHost Store : <https://apps.yunohost.org/app/nextcloud>
+- Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
 ## Informations pour les développeurs
 

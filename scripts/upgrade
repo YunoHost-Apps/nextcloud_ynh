@@ -184,7 +184,7 @@ then
         fi
 
         # Create a temporary directory
-        tmpdir="$(ynh_smart_mktemp min_size=300)"
+        tmpdir="${install_dir}__tmp_upgrade"
 
         ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
 

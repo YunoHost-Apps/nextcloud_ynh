@@ -59,6 +59,7 @@ ram.runtime = "512M"
     ask.fr = "Devrait-il y avoir un carnet d'adresses système listant tous les comptes, accessible par tous les comptes ?"
     type = "select"
     choices = ["yes", "no"]
+    default = "yes"
 
 [resources]
 

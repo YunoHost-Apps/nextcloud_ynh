@@ -181,6 +181,12 @@ ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name --
 exec_occ user:delete admin
 
 #=================================================
+# ENABLE OR DISABLE SYSTEM ADDRESS BOOK
+#=================================================
+
+exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed"
+
+#=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
 #=================================================
 

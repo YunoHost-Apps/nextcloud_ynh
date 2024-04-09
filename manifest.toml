@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "27.1.7~ynh1"
+version = "27.1.8~ynh1"
 
 maintainers = ["kay0u"]
 

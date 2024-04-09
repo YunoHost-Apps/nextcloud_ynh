@@ -11,6 +11,15 @@ name = "Nextcloud configuration"
         type = "boolean"
         default = "0"
 
+    [main.addressbook]
+    name = "Address book configuration"
+
+        [main.addressbook.system_addressbook_exposed]
+        ask = "Should there be a system address book listing all users, accessible by all users?"
+        type = "boolean"
+        yes = "yes"
+        no = "no"
+
     [main.php_fpm_config]
     name = "PHP-FPM configuration"
 

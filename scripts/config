@@ -38,6 +38,11 @@ get__maintenance_mode() {
     fi
 }
 
+get__system_addressbook_exposed() {
+	echo $(cd "$install_dir" && ynh_exec_as "$app" \
+	          php${phpversion} --define apc.enable_cli=1 occ config:app:get dav system_addressbook_exposed)
+}
+
 get__fpm_footprint() {
     # Free footprint value for php-fpm
     # Check if current_fpm_footprint is an integer
@@ -78,6 +83,12 @@ set__maintenance_mode() {
         ynh_print_info "Maintenance mode enabled"
     fi
     ynh_app_setting_set --app=$app --key=maintenance_mode --value="$maintenance_mode"
+}
+
+set__system_addressbook_exposed() {
+	(cd "$install_dir" && ynh_exec_as "$app" \
+		          php${phpversion} --define apc.enable_cli=1 occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed")
+	ynh_print_info "System addressbook is exposed: $system_addressbook_exposed"
 }
 
 set__fpm_footprint() {

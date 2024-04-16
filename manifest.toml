@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "28.0.4~ynh1"
+version = "28.0.4~ynh2"
 
 maintainers = ["kay0u"]
 
@@ -53,6 +53,13 @@ ram.runtime = "512M"
     ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"
     type = "boolean"
     default = false
+
+    [install.system_addressbook_exposed]
+    ask.en = "Should there be a system address book listing all users, accessible by all users?"
+    ask.fr = "Devrait-il y avoir un carnet d'adresses système listant tous les comptes, accessible par tous les comptes ?"
+    type = "select"
+    choices = ["yes", "no"]
+    default = "yes"
 
 [resources]
 

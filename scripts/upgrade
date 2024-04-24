@@ -280,14 +280,19 @@ then
     #=================================================
 
     # Add dynamic logout URL to the config
-    exec_occ config:system:get logout_url >/dev/null 2>&1 \
-    || echo "
+    url_base64="$(echo -n "https://$domain$path" | base64)"
+    old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
+    current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
+    if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
+    then
+        echo "
     //-YunoHost-
     // set logout_url according to main domain
-    \$main_domain = exec('cat /etc/yunohost/current_host');
-    \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
+    \$main_domain = file_get_contents('/etc/yunohost/current_host');
+    \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout&r=${url_base64}';
     //-YunoHost-
-    " >> "$install_dir/config/config.php"
+        " >> "$install_dir/config/config.php"
+    fi
 
     #=================================================
     # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS

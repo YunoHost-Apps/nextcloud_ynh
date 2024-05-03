@@ -98,6 +98,9 @@ exec_occ config:system:set default_locale --value="$language"
 country=$(echo "$language" | awk -F'_' '{print $2}')
 exec_occ config:system:set default_phone_region --value="$country"
 
+# Move the logs from the data_dir to the standard /var/log
+exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
+
 # Ensure that UpdateNotification app is disabled
 exec_occ app:disable updatenotification
 
@@ -163,12 +166,13 @@ fi
 #=================================================
 
 # Add dynamic logout URL to the config
+url_base64="$(echo -n "https://$domain$path" | base64)"
 exec_occ config:system:get logout_url >/dev/null 2>&1 \
   || echo "
 //-YunoHost-
 // set logout_url according to main domain
 \$main_domain = exec('cat /etc/yunohost/current_host');
-\$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
+\$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout&r=${url_base64}';
 //-YunoHost-
 " >> "$install_dir/config/config.php"
 
@@ -187,6 +191,12 @@ ynh_mysql_connect_as --user=$db_name --password="$db_pwd" --database=$db_name --
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 # And delete admin user
 exec_occ user:delete admin
+
+#=================================================
+# ENABLE OR DISABLE SYSTEM ADDRESS BOOK
+#=================================================
+
+exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed"
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
@@ -251,7 +261,7 @@ chmod 750 $install_dir
 ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$data_dir/data/nextcloud.log"
+ynh_use_logrotate
 
 #=================================================
 # SETUP FAIL2BAN
@@ -259,7 +269,7 @@ ynh_use_logrotate --logfile="$data_dir/data/nextcloud.log"
 ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

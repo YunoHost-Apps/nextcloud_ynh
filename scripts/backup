@@ -61,6 +61,12 @@ ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 ynh_backup --src_path="/etc/cron.d/$app"
 
 #=================================================
+# BACKUP LOGS
+#=================================================
+
+ynh_backup --src_path="/var/log/$app"
+
+#=================================================
 # BACKUP THE MYSQL DATABASE
 #=================================================
 ynh_print_info --message="Backing up the MySQL database..."

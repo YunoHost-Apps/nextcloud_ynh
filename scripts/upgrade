@@ -24,7 +24,6 @@ then
     ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
@@ -165,7 +164,7 @@ then
         fi
 
         # Create a temporary directory
-        tmpdir="$(ynh_smart_mktemp min_size=300)"
+        tmpdir="${install_dir}__tmp_upgrade"
 
         ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
 
@@ -239,6 +238,17 @@ then
     # Update all installed apps
     exec_occ app:update --all
 
+    # move the logs from the data_dir to the standard /var/log
+    # it would be better in the ENSURE DOWNWARD COMPATIBILITY section
+    # but it must be after the exec_occ() definition, so it's here
+    if [ -f "$data_dir/data/nextcloud.log" ]; then
+        mkdir -p "/var/log/$app"
+        chmod 750 "/var/log/$app"
+        mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
+        # adapt the nextcloud config
+        exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
+    fi
+
     # Load the config file in nextcloud
     exec_occ config:import "$nc_conf"
 
@@ -250,14 +260,19 @@ then
     #=================================================
 
     # Add dynamic logout URL to the config
-    exec_occ config:system:get logout_url >/dev/null 2>&1 \
-    || echo "
+    url_base64="$(echo -n "https://$domain$path" | base64)"
+    old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
+    current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
+    if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
+    then
+        echo "
     //-YunoHost-
     // set logout_url according to main domain
-    \$main_domain = exec('cat /etc/yunohost/current_host');
-    \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout';
+    \$main_domain = file_get_contents('/etc/yunohost/current_host');
+    \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout&r=${url_base64}';
     //-YunoHost-
-    " >> "$install_dir/config/config.php"
+        " >> "$install_dir/config/config.php"
+    fi
 
     #=================================================
     # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
@@ -340,9 +355,10 @@ fi
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-#-------------------------------------------------
+#=================================================
 # CRON JOB
-#-------------------------------------------------
+#=================================================
+
 cron_path="/etc/cron.d/$app"
 ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
 chown root: "$cron_path"
@@ -350,17 +366,18 @@ chmod 644 "$cron_path"
 
 exec_occ background:cron
 
-#-------------------------------------------------
+#=================================================
 # LOGROTATE
-#-------------------------------------------------
+#=================================================
+
 ynh_use_logrotate --non-append
 
-#-------------------------------------------------
+#=================================================
 # FAIL2BAN
-#-------------------------------------------------
+#=================================================
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/data/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================
 # END OF SCRIPT

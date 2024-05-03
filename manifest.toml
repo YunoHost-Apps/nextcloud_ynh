@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "28.0.2~ynh1"
+version = "28.0.5~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -61,13 +61,20 @@ ram.runtime = "512M"
     type = "boolean"
     default = false
 
+    [install.system_addressbook_exposed]
+    ask.en = "Should there be a system address book listing all users, accessible by all users?"
+    ask.fr = "Devrait-il y avoir un carnet d'adresses système listant tous les comptes, accessible par tous les comptes ?"
+    type = "select"
+    choices = ["yes", "no"]
+    default = "yes"
+
 [resources]
 
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.2.tar.bz2'
-        sha256 = 'de34d6baf3ecceacfdd138e85520cd85e1d2ce6798d9ffa478ac17eb1efa1d08'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.5.tar.bz2'
+        sha256 = 'dca1100f95b864bade113477723c71ac897193352c317e39cd286d87635706eb'
 
         [resources.sources.27]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-27.0.0.tar.bz2'

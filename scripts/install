@@ -6,7 +6,7 @@ source _ynh_mysql_connect_as.sh
 
 phpflags="--define apc.enable_cli=1"
 
-ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
+ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
 
 #=================================================
 # CREATE A MYSQL DATABASE

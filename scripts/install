@@ -5,7 +5,7 @@ source /usr/share/yunohost/helpers
 
 phpflags="--define apc.enable_cli=1"
 
-ynh_app_setting_set --app=$app --key=phpflags --value=$phpflags
+ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE

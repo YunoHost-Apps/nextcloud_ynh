@@ -13,11 +13,8 @@ ynh_script_progression --message="Ensuring downward compatibility..."
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
-# If phpflags doesn't exist, create it
-if [ -z "${phpflags:-}" ]; then
-	phpflags="--define apc.enable_cli=1"
-	ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
-fi
+phpflags="--define apc.enable_cli=1"
+ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
 
 if ynh_compare_current_package_version --comparison lt --version 22.2~ynh1
 then

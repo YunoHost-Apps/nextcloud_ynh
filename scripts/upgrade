@@ -262,7 +262,9 @@ then
     # Add dynamic logout URL to the config
     url_base64="$(echo -n "https://$domain$path" | base64)"
     old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
+    set +e
     current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
+    set -e
     if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
     then
         echo "

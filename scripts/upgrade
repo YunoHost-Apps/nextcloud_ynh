@@ -19,10 +19,10 @@ if [ -z "${phpflags:-}" ]; then
 	ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
 fi
 
-if ynh_compare_current_package_version --comparison lt --version 22.2~ynh1
-then
-    ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
-fi
+#if ynh_compare_current_package_version --comparison lt --version 22.2~ynh1
+#then
+#    ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
+#fi
 
 #=================================================
 # SPECIFIC UPGRADE

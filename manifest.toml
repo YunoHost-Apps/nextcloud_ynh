@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "28.0.6~ynh1"
+version = "29.0.2~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -66,8 +66,12 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.6.tar.bz2'
-        sha256 = 'df0d3384b447cba1e128f22080f6780521f868169beabee8ea0d155bf9c66b8f'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.2.tar.bz2'
+        sha256 = '2d49d297dc340092021057823e8e78a312bc00f56de7d8677ac790590918ab17'
+
+        [resources.sources.28]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.0.tar.bz2'
+        sha256 = '4e8b0b74b40221e85f92ab869d0873c69a52d7e43889d9259c6259428a6a36f2'
 
         [resources.sources.27]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-27.0.0.tar.bz2'
@@ -112,7 +116,7 @@ ram.runtime = "512M"
     api.allowed = ["visitors", "all_users"]
 
     [resources.apt]
-    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, php8.2-fpm, php8.2-bz2, php8.2-imap, php8.2-gmp, php8.2-gd, php8.2-intl, php8.2-curl, php8.2-apcu, php8.2-redis, php8.2-ldap, php8.2-imagick, php8.2-zip, php8.2-mbstring, php8.2-xml, php8.2-mysql, php8.2-igbinary, php8.2-bcmath"
+    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, php8.3-fpm, php8.3-bz2, php8.3-imap, php8.3-gmp, php8.3-gd, php8.3-intl, php8.3-curl, php8.3-apcu, php8.3-redis, php8.3-ldap, php8.3-imagick, php8.3-zip, php8.3-mbstring, php8.3-xml, php8.3-mysql, php8.3-igbinary, php8.3-bcmath"
 
     [resources.database]
     type = "mysql"

@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -15,8 +9,8 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS
 #=================================================
 
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+php_version=$(ynh_app_setting_get --key=php_version)
+current_fpm_footprint=$(ynh_app_setting_get --key=fpm_footprint)
 
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
@@ -24,8 +18,8 @@ current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 
 get__maintenance_mode() {
     # Maintenance mode status
-    maintenance_mode_status="$(cd "$install_dir" && ynh_exec_as "$app" \
-        php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
+    maintenance_mode_status="$(cd "$install_dir" && ynh_exec_as_app \
+        php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
     if echo $maintenance_mode_status | grep -q "disabled"
     then
         echo "0"
@@ -33,14 +27,14 @@ get__maintenance_mode() {
     then
         echo "1"
     else
-        ynh_print_err --message="Unexpected output from maintenance status check command."
+        ynh_print_warn "Unexpected output from maintenance status check command."
         exit 0
     fi
 }
 
 get__system_addressbook_exposed() {
-	echo $(cd "$install_dir" && ynh_exec_as "$app" \
-	          php${phpversion} --define apc.enable_cli=1 occ config:app:get dav system_addressbook_exposed)
+	echo $(cd "$install_dir" && ynh_exec_as_app \
+	          php${php_version} --define apc.enable_cli=1 occ config:app:get dav system_addressbook_exposed)
 }
 
 get__fpm_footprint() {
@@ -73,40 +67,38 @@ get__fpm_free_footprint() {
 set__maintenance_mode() {
     if [ "$maintenance_mode" -eq "0" ]; then
         # If maintenance_mode was set to 0, disable maintenance mode
-        (cd "$install_dir" && ynh_exec_as "$app" \
-            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
+        (cd "$install_dir" && ynh_exec_as_app \
+            php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
         ynh_print_info "Maintenance mode disabled"
     elif [ "$maintenance_mode" -eq "1" ]; then
         # If maintenance_mode was set to 1, enable maintenance mode
-        (cd "$install_dir" && ynh_exec_as "$app" \
-            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
+        (cd "$install_dir" && ynh_exec_as_app \
+            php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
         ynh_print_info "Maintenance mode enabled"
     fi
-    ynh_app_setting_set --app=$app --key=maintenance_mode --value="$maintenance_mode"
+    ynh_app_setting_set --key=maintenance_mode --value="$maintenance_mode"
 }
 
 set__system_addressbook_exposed() {
-	(cd "$install_dir" && ynh_exec_as "$app" \
-		          php${phpversion} --define apc.enable_cli=1 occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed")
+	(cd "$install_dir" && ynh_exec_as_app \
+		          php${php_version} --define apc.enable_cli=1 occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed")
 	ynh_print_info "System addressbook is exposed: $system_addressbook_exposed"
 }
 
 set__fpm_footprint() {
     if [ "$fpm_footprint" != "specific" ]
     then
-        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_footprint"
+        ynh_app_setting_set --key=fpm_footprint --value="$fpm_footprint"
     fi
 }
 
 set__fpm_free_footprint() {
     if [ "$fpm_footprint" = "specific" ]
     then
-        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_free_footprint"
+        ynh_app_setting_set --key=fpm_footprint --value="$fpm_free_footprint"
     fi
 }
 
-#=================================================
-# GENERIC FINALIZATION
 #=================================================
 
 ynh_app_config_validate() {
@@ -121,7 +113,7 @@ ynh_app_config_validate() {
 
         if [ "$fpm_footprint" == "0" ]
         then
-            ynh_print_err --message="When selecting 'specific', you have to set a footprint value into the field below."
+            ynh_print_warn "When selecting 'specific', you have to set a footprint value into the field below."
 
             exit 0
         fi
@@ -131,7 +123,7 @@ ynh_app_config_validate() {
 ynh_app_config_apply() {
     _ynh_app_config_apply
 
-    ynh_add_fpm_config
+    ynh_config_add_phpfpm
 }
 
 ynh_app_config_run $1

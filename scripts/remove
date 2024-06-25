@@ -16,7 +16,6 @@ ynh_remove_nginx_config
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
 
-
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 

@@ -76,7 +76,7 @@ exec_occ() {
 #=================================================
 
 # If we're moving through version 29.0.2~ynh1 (in which the switch to psql is made)
-if ynh_compare_current_package_version --comparison lt --version 29.0.2~ynh1
+if ynh_compare_current_package_version --comparison lt --version 29.0.3~ynh1
 then
     # Double-check the MySQL DB is here
     if ! mysql -e "USE $db_name" 2>/dev/null 

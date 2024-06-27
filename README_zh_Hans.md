@@ -5,7 +5,7 @@
 
 # YunoHost 上的 Nextcloud
 
-[![集成程度](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![工作状态](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![集成程度](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 
 [![使用 YunoHost 安装 Nextcloud](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -29,7 +29,7 @@ In addition to Nextcloud core features, the following are made available with th
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 
-**分发版本：** 29.0.2~ynh1
+**分发版本：** 29.0.3~ynh1
 
 **演示：** <https://demo.nextcloud.com/>
 

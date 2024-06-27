@@ -5,7 +5,7 @@ NON debe editarse manualmente.
 
 # Nextcloud para YunoHost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 
 [![Instalar Nextcloud con YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -29,7 +29,7 @@ In addition to Nextcloud core features, the following are made available with th
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 
-**Versión proporcionada:** 29.0.2~ynh1
+**Versión proporcionada:** 29.0.3~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

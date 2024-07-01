@@ -8,7 +8,6 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-source ../settings/scripts/_ynh_mysql_dump_db.sh
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
@@ -28,50 +27,28 @@ ynh_backup --src_path="$install_dir"
 ynh_backup --src_path="$data_dir" --is_big
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
-#=================================================
-
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-#=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
 
 ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
-#=================================================
-# SPECIFIC BACKUP
-#=================================================
-# BACKUP LOGROTATE
-#=================================================
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_backup --src_path="/etc/logrotate.d/$app"
-
-#=================================================
-# BACKUP FAIL2BAN CONFIGURATION
-#=================================================
 
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 
-#=================================================
-# BACKUP THE CRON FILE
-#=================================================
-
 ynh_backup --src_path="/etc/cron.d/$app"
-
-#=================================================
-# BACKUP LOGS
-#=================================================
 
 ynh_backup --src_path="/var/log/$app"
 
 #=================================================
-# BACKUP THE MYSQL DATABASE
+# BACKUP THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info --message="Backing up the MySQL database..."
+ynh_print_info --message="Backing up the PostgreSQL database..."
 
-ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
+ynh_psql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # END OF SCRIPT

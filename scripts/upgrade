@@ -155,7 +155,6 @@ then
         next_major_version="$(( $current_major_version + 1 ))"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then
             ynh_print_info "Upgrading to Nextcloud $last_version"
-            cp -a ../patches_last_version/* ../patches
             source_id="main"
         else
             ynh_print_info "Upgrading to Nextcloud $next_major_version"

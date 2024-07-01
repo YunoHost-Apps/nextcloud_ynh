@@ -10,7 +10,6 @@ ynh_abort_if_errors
 #=================================================
 
 php_version=$(ynh_app_setting_get --key=php_version)
-current_fpm_footprint=$(ynh_app_setting_get --key=fpm_footprint)
 
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
@@ -35,29 +34,6 @@ get__maintenance_mode() {
 get__system_addressbook_exposed() {
 	echo $(cd "$install_dir" && ynh_exec_as_app \
 	          php${php_version} --define apc.enable_cli=1 occ config:app:get dav system_addressbook_exposed)
-}
-
-get__fpm_footprint() {
-    # Free footprint value for php-fpm
-    # Check if current_fpm_footprint is an integer
-    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
-    then
-        echo "specific"
-    else
-        echo "$current_fpm_footprint"
-    fi
-}
-
-get__fpm_free_footprint() {
-    # Free footprint value for php-fpm
-    # Check if current_fpm_footprint is an integer
-    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
-    then
-        # If current_fpm_footprint is an integer, that's a numeric value for the footprint
-        echo "$current_fpm_footprint"
-    else
-        echo "0"
-    fi
 }
 
 #=================================================
@@ -85,45 +61,6 @@ set__system_addressbook_exposed() {
 	ynh_print_info "System addressbook is exposed: $system_addressbook_exposed"
 }
 
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... | set__fpm_footprint() {
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |     if [ "$fpm_footprint" != "specific" ]
-    then
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |         ynh_app_setting_set --key=fpm_footprint --value="$fpm_footprint"
-    fi
-}
-
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... | set__fpm_free_footprint() {
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |     if [ "$fpm_footprint" = "specific" ]
-    then
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |         ynh_app_setting_set --key=fpm_footprint --value="$fpm_free_footprint"
-    fi
-}
-
 #=================================================
-
-ynh_app_config_validate() {
-    _ynh_app_config_validate
-
-    if [ "${changed[fpm_usage]}" == "true" ] || [ "${changed[fpm_footprint]}" == "true" ] || [ "${changed[fpm_free_footprint]}" == "true" ]; then
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |         # If fpm_footprint is set to 'specific', use $fpm_free_footprint value.
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |         if [ "$fpm_footprint" = "specific" ]
-        then
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |             fpm_footprint=$fpm_free_footprint
-        fi
-
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |         if [ "$fpm_footprint" == "0" ]
-        then
-            ynh_print_warn "When selecting 'specific', you have to set a footprint value into the field below."
-
-            exit 0
-        fi
-    fi
-}
-
-ynh_app_config_apply() {
-    _ynh_app_config_apply
-
-    ynh_config_add_phpfpm
-}
 
 ynh_app_config_run $1

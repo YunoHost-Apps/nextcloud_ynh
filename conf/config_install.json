@@ -2,7 +2,8 @@
   "system": {
     "datadirectory": "__DATA_DIR__/data/",
     "trusted_domains": [
-      "__DOMAIN__"
+      "__DOMAIN__",
+      "localhost"
     ]
   }
 }

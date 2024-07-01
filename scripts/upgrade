@@ -118,6 +118,7 @@ then
     fi
 fi
 
+# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
 if ynh_app_upstream_version_changed
 then
     ynh_script_progression "Upgrading $app..."
@@ -308,16 +309,11 @@ fi
 ynh_script_progression "Reapplying file permissions..."
 
 # Fix app ownerships & permissions
-chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
-find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
-find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
 chmod 640 "$install_dir/config/config.php"
-chmod 755 /home/yunohost.app
-chmod 750 $install_dir
-
+#
 #=================================================
 # REGEN SYSTEM CONFIGURATIONS
 #=================================================
@@ -359,8 +355,6 @@ ynh_config_add_nginx
 
 cron_path="/etc/cron.d/$app"
 ynh_config_add --template="nextcloud.cron" --destination="$cron_path"
-chown root: "$cron_path"
-chmod 644 "$cron_path"
 
 exec_occ background:cron
 

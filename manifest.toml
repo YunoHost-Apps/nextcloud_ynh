@@ -104,6 +104,7 @@ ram.runtime = "512M"
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["data"]

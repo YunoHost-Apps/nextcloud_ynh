@@ -3,8 +3,6 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-ynh_abort_if_errors
-
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
@@ -60,7 +58,5 @@ set__system_addressbook_exposed() {
 		          php${php_version} --define apc.enable_cli=1 occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed")
 	ynh_print_info "System addressbook is exposed: $system_addressbook_exposed"
 }
-
-#=================================================
 
 ynh_app_config_run $1

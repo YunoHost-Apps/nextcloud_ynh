@@ -79,16 +79,9 @@ ynh_restore "$data_dir"
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
-find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
-find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-chmod 640 "$install_dir/config/config.php"
-chmod 755 /home/yunohost.app
-chmod 750 $install_dir
-
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do

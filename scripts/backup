@@ -32,6 +32,7 @@ ynh_backup --src_path="$data_dir" --is_big
 #=================================================
 
 ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/${app}_notify_push.conf"
 
 #=================================================
 # BACKUP THE PHP-FPM CONFIGURATION

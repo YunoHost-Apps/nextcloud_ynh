@@ -36,6 +36,7 @@ ynh_add_fpm_config
 #=================================================
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/${app}_notify_push.conf"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"

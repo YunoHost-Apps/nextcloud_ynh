@@ -51,7 +51,7 @@ fi
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_add_nginx_config "${app}-notify-push"
+    ynh_add_nginx_notify_push_config
 fi
 
 # Create a dedicated NGINX config
@@ -283,17 +283,6 @@ ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
-
-#=================================================
-# CONFIGURE NOTIFY_PUSH APP
-#=================================================
-
-if [ $use_notify_push -eq 1 ]
-then
-    ynh_permission_create --permission="hpb" --label="High Performance Backend" --url="/push" --additional_urls="/index.php/apps/notify_push/" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
-fi
-
-ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # CHECK IF NOTIFY_PUSH WORKS

@@ -16,7 +16,7 @@ ynh_script_progression --message="Updating NGINX web server configuration..." --
 
 ynh_change_url_nginx_config
 
-ynh_change_url_nginx_config
+ynh_change_url_nginx_notify_push_config
 
 #=================================================
 # SPECIFIC MODIFICATIONS

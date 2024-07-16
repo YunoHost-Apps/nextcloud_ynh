@@ -12,6 +12,7 @@ ynh_script_progression --message="Removing system configurations related to $app
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
+ynh_remove_nginx_notify_push_config
 
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config

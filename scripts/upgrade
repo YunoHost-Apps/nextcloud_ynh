@@ -363,7 +363,7 @@ ynh_add_nginx_config
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_add_nginx_config "${app}-notify-push"
+    ynh_add_nginx_notify_push_config
 fi
 
 #=================================================

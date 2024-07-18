@@ -29,7 +29,7 @@ In addition to Nextcloud core features, the following are made available with th
  * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
 
-**Paketatutako bertsioa:** 29.0.3~ynh1
+**Paketatutako bertsioa:** 29.0.4~ynh1
 
 **Demoa:** <https://demo.nextcloud.com/>
 

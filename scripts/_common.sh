@@ -42,41 +42,25 @@ is_url_handled() {
 
 # Adapted from nginx helpers
 ynh_add_nginx_notify_push_config() {
-
-    local finalnginxconf="/etc/nginx/conf.d/$domain.d/${app}_notify_push.conf"
-
-    ynh_add_config --template="nginx_notify_push.conf" --destination="$finalnginxconf"
-
-    if [ "${path_url:-}" != "/" ]; then
-        ynh_replace_string --match_string="^#sub_path_only" --replace_string="" --target_file="$finalnginxconf"
-    else
-        ynh_replace_string --match_string="^#root_path_only" --replace_string="" --target_file="$finalnginxconf"
-    fi
-
-    ynh_store_file_checksum --file="$finalnginxconf"
-
-    ynh_systemd_action --service_name=nginx --action=reload
+    local saved_app=${app}
+    app="${app}_notify_push.conf"
+    ynh_add_nginx_config
+    app=${saved_app}
 }
 
 ynh_remove_nginx_notify_push_config() {
-    ynh_secure_remove --file="/etc/nginx/conf.d/$domain.d/${app}_notify_push.conf"
-    ynh_systemd_action --service_name=nginx --action=reload
+    local saved_app=${app}
+    app="${app}_notify_push.conf"
+    ynh_remove_nginx_config
+    app=${saved_app}
 }
 
 
 ynh_change_url_nginx_notify_push_config() {
-
-    # Make a backup of the original NGINX config file if manually modified
-    # (nb: this is possibly different from the same instruction called by
-    # ynh_add_config inside ynh_add_nginx_notify_push_config because the path may have 
-    # changed if we're changing the domain too...)
-    local old_nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/${app}_notify_push.conf
-    ynh_backup_if_checksum_is_different --file="$old_nginx_conf_path"
-    ynh_delete_file_checksum --file="$old_nginx_conf_path"
-    ynh_secure_remove --file="$old_nginx_conf_path"
-
-    # Regen the nginx conf
-    ynh_add_nginx_notify_push_config
+    local saved_app=${app}
+    app="${app}_notify_push.conf"
+    ynh_change_url_nginx_config
+    app=${saved_app}
 }
 
 #=================================================

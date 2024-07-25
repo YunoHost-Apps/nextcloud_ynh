@@ -85,7 +85,7 @@ ram.runtime = "512M"
         prefetch = false
 
         [resources.sources.25]
-        url = https://download.nextcloud.com/server/releases/nextcloud-25.0.13.tar.bz2'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.13.tar.bz2'
         sha256 = '387bac148a696244f1ec02698a082d408283a875b3de85eb9719dd4493eebe33'
         prefetch = false
 

@@ -70,32 +70,33 @@ ram.runtime = "512M"
         sha256 = '19c469e264b31ee80400f8396460854546569e88db4c15fc0854e192f96027eb'
 
         [resources.sources.28]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.0.tar.bz2'
-        sha256 = '4e8b0b74b40221e85f92ab869d0873c69a52d7e43889d9259c6259428a6a36f2'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.8.tar.bz2'
+        sha256 = '55a2f745fcc8f01b5816b23333f1e3014d2040a66794e132ddd0d219a37be53a'
+        prefetch = false
 
         [resources.sources.27]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-27.0.0.tar.bz2'
-        sha256 = '3d312a09b9345ac058758dd7b4059bf3cf0b1f0f1d747251b6fac3585ba6533f'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-27.1.11.tar.bz2'
+        sha256 = '4edd2570f4c83442f8f0f0616fb774ed2663b11cf9f6ea49e795ab43aeef9645'
         prefetch = false
 
         [resources.sources.26]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-26.0.0.tar.bz2'
-        sha256 = 'f163150363aee9366ecb5cd5259bf6756ed4f073cea78b5fa515cada7a0d0c3d'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-26.0.13.tar.bz2'
+        sha256 = '0a362df7a1233348f99d1853fd7e79f0667b552c145dc45012fab54ac31c79ae'
         prefetch = false
 
         [resources.sources.25]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.0.tar.bz2'
-        sha256 = '2c05ac9d7b72b44ef8b3d2ae03ff0fd6121e254b8054556f5163bd8760dd8f49'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.13.tar.bz2'
+        sha256 = '387bac148a696244f1ec02698a082d408283a875b3de85eb9719dd4493eebe33'
         prefetch = false
 
         [resources.sources.24]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-24.0.0.tar.bz2'
-        sha256 = '176cb5620f20465fb4759bdf3caaebeb7acff39d6c8630351af9f8738c173780'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-24.0.12.tar.bz2'
+        sha256 = '2f093bdf7d34faf38d22f38a5e11f3aee32746ff4add3df17c790b9b36390836'
         prefetch = false
 
         [resources.sources.23]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-23.0.0.tar.bz2'
-        sha256 = 'c37592abc3b65c8fd28459281a24f414b87af52fc8c2ea979be3f9be75d01a2c'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-23.0.12.tar.bz2'
+        sha256 = 'ad3637fd987e9f1ed5bd5dbd177bdce1e39228e3daf95bc4a3c590d4b1522b1e'
         prefetch = false
 
     [resources.system_user]

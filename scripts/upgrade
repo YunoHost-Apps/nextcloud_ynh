@@ -11,17 +11,17 @@ upgrade_type=$(ynh_check_app_version_changed)
 ynh_script_progression --message="Ensuring downward compatibility..."
 
 if [ -z ${system_addressbook_exposed:-} ]; then
-	ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
+    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
     system_addressbook_exposed=0
 fi
 
 # Fix system_addressbook_exposed as a boolean
 if [ "${system_addressbook_exposed,,}" = "yes" ]; then
-	ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=1
-	system_addressbook_exposed=1
+    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=1
+    system_addressbook_exposed=1
 elif [ "${system_addressbook_exposed,,}" = "no" ]; then
-	ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
-	system_addressbook_exposed=0
+    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
+    system_addressbook_exposed=0
 fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
@@ -293,12 +293,6 @@ then
     #=================================================
 
     exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
-    
-    #=================================================
-    # ENABLE OR DISABLE SYSTEM ADDRESS BOOK
-    #=================================================
-
-    exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed"
 
     #=================================================
     # MOUNT HOME FOLDERS AS EXTERNAL STORAGE

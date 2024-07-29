@@ -36,7 +36,7 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 - Website aplikasi resmi: <https://nextcloud.com>
 - Dokumentasi pengguna resmi: <https://docs.nextcloud.com/server/latest/user_manual/en/>
 - Dokumentasi admin resmi: <https://docs.nextcloud.com/server/stable/admin_manual/>
-- Repositori kode aplikasi hulu: <https://github.com/nextcloud/server>
+- Depot kode aplikasi hulu: <https://github.com/nextcloud/server>
 - Gudang YunoHost: <https://apps.yunohost.org/app/nextcloud>
 - Laporkan bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 

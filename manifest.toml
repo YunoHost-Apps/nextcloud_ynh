@@ -57,9 +57,8 @@ ram.runtime = "512M"
     [install.system_addressbook_exposed]
     ask.en = "Should there be a system address book listing all users, accessible by all users?"
     ask.fr = "Devrait-il y avoir un carnet d'adresses système listant tous les comptes, accessible par tous les comptes ?"
-    type = "select"
-    choices = ["yes", "no"]
-    default = "yes"
+    type = "boolean"
+    default = true
 
 [resources]
 

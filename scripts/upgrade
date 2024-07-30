@@ -12,6 +12,20 @@ ynh_app_setting_set_default --key=php_memory_limit --value=512M
 #=================================================
 ynh_script_progression "Ensuring downward compatibility..."
 
+if [ -z ${system_addressbook_exposed:-} ]; then
+    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
+    system_addressbook_exposed=0
+fi
+
+# Fix system_addressbook_exposed as a boolean
+if [ "${system_addressbook_exposed,,}" = "yes" ]; then
+    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=1
+    system_addressbook_exposed=1
+elif [ "${system_addressbook_exposed,,}" = "no" ]; then
+    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
+    system_addressbook_exposed=0
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only
 

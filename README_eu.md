@@ -5,7 +5,7 @@ EZ editatu eskuz.
 
 # Nextcloud YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Integrazio maila](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 
 [![Instalatu Nextcloud YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -16,20 +16,14 @@ EZ editatu eskuz.
 
 ## Aurreikuspena
 
-Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
+Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
-### YunoHost-specific features
+In the context of YunoHost, Nextcloud integrates with the SSO / user portal (YunoHost accounts are automatically connected to Nextcloud).
 
-In addition to Nextcloud core features, the following are made available with this package:
-
- * Integrate with YunoHost users and SSO - i.e. logout button
- * Allow one user to be the administrator (set at the installation)
- * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
+The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
 
-**Paketatutako bertsioa:** 29.0.2~ynh1
+**Paketatutako bertsioa:** 29.0.4~ynh1
 
 **Demoa:** <https://demo.nextcloud.com/>
 

@@ -138,8 +138,7 @@ then
     ynh_script_progression --message="Upgrading $app..." --weight=3
 
     # Set write access for the following commands
-    find "$install_dir" -not \( -user $app -and -group www-data \) -exec chown $app:www-data {} \+
-    find "$data_dir" -not \( -user $app -and -group $app \) -exec chown $app: {} \+
+    chown -R $app:www-data "$install_dir"
 
     # Print the current version number of Nextcloud
     exec_occ -V
@@ -208,8 +207,7 @@ then
         mv "$tmpdir" "$install_dir"
 
         # Set write access for the following commands
-        find "$install_dir" -not \( -user $app -and -group www-data \) -exec chown $app:www-data {} \+
-        find "$data_dir" -not \( -user $app -and -group $app \) -exec chown $app: {} \+
+        chown -R $app:www-data "$install_dir"
 
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
@@ -326,8 +324,7 @@ fi
 ynh_script_progression --message="Reapplying file permissions..." --weight=2
 
 # Fix app ownerships & permissions
-find "$install_dir" -not \( -user $app -and -group www-data \) -exec chown $app:www-data {} \+
-find "$data_dir" -not \( -user $app -and -group $app \) -exec chown $app: {} \+
+chown -R $app:www-data "$install_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640

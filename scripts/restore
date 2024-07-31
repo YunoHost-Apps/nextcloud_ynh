@@ -79,8 +79,8 @@ ynh_restore_file --origin_path="$data_dir" --not_mandatory
 #=================================================
 
 # Fix app ownerships & permissions
-find "$install_dir" -not \( -user $app -and -group www-data \) -exec chown $app:www-data {} \+
-find "$data_dir" -not \( -user $app -and -group $app \) -exec chown $app: {} \+
+chown -R $app:www-data "$install_dir"
+chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640

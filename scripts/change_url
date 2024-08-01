@@ -14,14 +14,17 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
 
-# Check if .well-known is available for this domain
-if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
+if [ $change_domain -eq 1 ]
 then
-    ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+    # Check if .well-known is available for this domain
+    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
+    then
+        ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
-    # Remove lines about .well-known/carddav and caldav with sed.
-    sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
-    ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+        # Remove lines about .well-known/carddav and caldav with sed.
+        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+        ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+    fi
 fi
 
 ynh_change_url_nginx_config

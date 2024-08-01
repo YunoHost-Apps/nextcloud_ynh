@@ -65,7 +65,6 @@ exec_occ() {
 
 # Set write access for the following commands
 chown -R $app:www-data "$install_dir"
-chmod 600 "$install_dir/config/config.php"
 chown -R $app: "$data_dir"
 
 # Define password in an intermediate var

@@ -139,7 +139,6 @@ then
 
     # Set write access for the following commands
     chown -R $app:www-data "$install_dir"
-    chmod 600 "$install_dir/config/config.php"
 
     # Print the current version number of Nextcloud
     exec_occ -V
@@ -209,7 +208,6 @@ then
 
         # Set write access for the following commands
         chown -R $app:www-data "$install_dir"
-        chmod 600 "$install_dir/config/config.php"
 
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off

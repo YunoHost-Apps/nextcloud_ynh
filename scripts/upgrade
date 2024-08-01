@@ -357,14 +357,7 @@ ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$a
 # Wait untils NGINX has fully reloaded
 ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
 
-# Nginx may take some time to support the new configuration, wait for the nextcloud configuration file to disappear from nginx before checking the CalDAV/CardDAV URL.
-timeout=30
-for i in $(seq 1 $timeout); do
-    if ! ynh_exec_warn_less nginx -T | grep --quiet "# configuration file /etc/nginx/conf.d/$domain.d/$app.conf:"; then
-        break
-    fi
-    sleep 1
-done
+wait_nginx_reload
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"

@@ -17,7 +17,7 @@ wait_nginx_reload() {
             break
         fi
         sleep 1
-done
+    done
 }
 
 

@@ -60,6 +60,12 @@ ram.runtime = "512M"
     type = "boolean"
     default = true
 
+    [install.version_to_follow]
+    ask.en = "Which version do you want"
+    type = "select"
+    choices = ["stable", "oldstable"]
+    default = "stable"
+
 [resources]
 
     [resources.sources]

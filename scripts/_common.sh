@@ -19,7 +19,8 @@ wait_nginx_reload() {
         sleep 1
     done
 }
-
+# Wait untils nginx has fully reloaded (avoid curl fail with http2) 
+sleep 2
 
 # Check if an URL is already handled
 # usage: is_url_handled --domain=DOMAIN --path=PATH_URI

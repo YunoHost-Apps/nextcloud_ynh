@@ -67,7 +67,15 @@ then
 
     ynh_systemd_action --service_name=nginx --action=reload
 
+    case $YNH_ARCH in
+        amd64) arch="x86_64";;
+        arm64) arch="aarch64";;
+        armel|armhf) arch="armv7";;
+    esac
+
     ynh_add_systemd_config --service="${app}-notify-push"
+    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
 
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart
 

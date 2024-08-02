@@ -24,6 +24,11 @@ elif [ "${system_addressbook_exposed,,}" = "no" ]; then
     system_addressbook_exposed=0
 fi
 
+if [ -z ${enable_notify_push:-} ]; then
+    ynh_app_setting_set --app=$app --key=enable_notify_push --value=0
+    enable_notify_push=0
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
@@ -433,7 +438,7 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
 
-if [ $use_notify_push -eq 1 ]
+if [ $enable_notify_push -eq 1 ]
 then
     ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart

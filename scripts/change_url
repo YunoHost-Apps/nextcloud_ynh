@@ -29,8 +29,6 @@ fi
 
 ynh_change_url_nginx_config
 
-ynh_change_url_nginx_notify_push_config
-
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
@@ -52,6 +50,8 @@ then
 
     # Reload php fpm, necessary for force nextcloud to re-read config.php, cf opcache.revalidate_freq
     ynh_systemd_action --service_name=php${phpversion}-fpm --action=reload
+
+    mv /etc/nginx/conf.d/$old_domain.d/$app.d /etc/nginx/conf.d/$new_domain.d/$app.d
 fi
 
 #=================================================
@@ -62,11 +62,20 @@ if [ $enable_notify_push -eq 1 ]
 then
     domain="$new_domain"
     path_url="$new_path"
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain$path_url/push
+
+    ynh_add_config --template="notify_push.conf" --destination="/etc/nginx/conf.d/$domain.d/$app.d/notify_push.conf"
+
+    ynh_systemd_action --service_name=nginx --action=reload
 
     ynh_add_systemd_config --service="${app}-notify-push"
 
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain$path_url/push
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
+    fi
 fi
 
 #=================================================

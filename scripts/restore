@@ -36,7 +36,7 @@ ynh_add_fpm_config
 #=================================================
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/${app}_notify_push.conf"
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.d"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
@@ -76,21 +76,6 @@ ynh_script_progression --message="Restoring data directory..." --weight=2
 ynh_restore_file --origin_path="$data_dir" --not_mandatory
 
 #=================================================
-# RESTORE THE NOTIFY_PUSH APP
-#=================================================
-
-if [ $enable_notify_push -eq 1 ]
-then
-    mkdir -p /var/run/$app/
-    chown $app: /var/run/$app/
-
-    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push.service"
-
-    systemctl enable "${app}-notify-push".service --quiet
-    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
-fi
-
-#=================================================
 # RESTORE USER RIGHTS
 #=================================================
 
@@ -104,11 +89,6 @@ find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
 chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
-
-if [ $enable_notify_push -eq 1 ]
-then
-    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
-fi
 
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
@@ -145,6 +125,23 @@ fi
 ynh_systemd_action --action=restart --service_name=fail2ban
 
 #=================================================
+# RESTORE THE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push.service"
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.service"
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.path"
+
+    systemctl enable "${app}-notify-push".service --quiet
+    systemctl enable "${app}-notify-push-watcher".service --quiet
+fi
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX
@@ -164,8 +161,9 @@ exec_occ() {
 
 if [ $enable_notify_push -eq 1 ]
 then
+    ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart
-
+    
     if ! exec_occ notify_push:self-test; then
         ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
     fi

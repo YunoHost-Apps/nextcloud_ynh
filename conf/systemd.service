@@ -2,10 +2,10 @@
 Description = Push daemon for Nextcloud clients
 
 [Service]
-Environment=SOCKET_PATH=__FINAL_PATH__/notify-push.sock
-Environment=NEXTCLOUD_URL=https://__DOMAIN____PATH__
+Environment=SOCKET_PATH=__INSTALL_DIR__/notify-push.sock
 Environment=ALLOW_SELF_SIGNED=true
-ExecStart=__FINAL_PATH__/apps/notify_push/bin/x86_64/notify_push __FINAL_PATH__/config/config.php
+ExecStart=__INSTALL_DIR__/apps/notify_push/bin/__ARCH__/notify_push __INSTALL_DIR__/config/config.php
+Type=notify
 User=__APP__
 Group=__APP__
 

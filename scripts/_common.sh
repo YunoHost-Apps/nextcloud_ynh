@@ -54,29 +54,6 @@ is_url_handled() {
     fi
 }
 
-# Adapted from nginx helpers
-ynh_add_nginx_notify_push_config() {
-    local saved_app=${app}
-    app="${app}_notify_push.conf"
-    ynh_add_nginx_config
-    app=${saved_app}
-}
-
-ynh_remove_nginx_notify_push_config() {
-    local saved_app=${app}
-    app="${app}_notify_push.conf"
-    ynh_remove_nginx_config
-    app=${saved_app}
-}
-
-
-ynh_change_url_nginx_notify_push_config() {
-    local saved_app=${app}
-    app="${app}_notify_push.conf"
-    ynh_change_url_nginx_config
-    app=${saved_app}
-}
-
 #=================================================
 # FUTURE OFFICIAL HELPERS
 #=================================================

@@ -331,11 +331,6 @@ chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 
-if [ $enable_notify_push -eq 1 ]
-then
-    chmod 740 $final_path/apps/notify_push/bin/x86_64/notify_push
-fi
-
 #=================================================
 # REGEN SYSTEM CONFIGURATIONS
 #=================================================
@@ -371,12 +366,15 @@ then
 fi
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
+mkdir -p "$nginx_extra_conf_dir"
 
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_add_nginx_notify_push_config
+    ynh_add_config --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
 
 #=================================================
@@ -408,8 +406,8 @@ then
     chown $app: /var/run/$app/
 
     ynh_add_systemd_config --service="${app}-notify-push"
-
-    ynh_systemd_action --service_name="${app}-notify-push" --action=restart
+    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
 fi
 
 #=================================================
@@ -431,6 +429,7 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 
 if [ $use_notify_push -eq 1 ]
 then
+    ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart
 
     if ! exec_occ notify_push:self-test; then

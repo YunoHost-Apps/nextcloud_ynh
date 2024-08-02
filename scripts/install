@@ -243,7 +243,7 @@ ynh_multimedia_addaccess $app
 if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain$path_url/push
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/
@@ -302,7 +302,7 @@ then
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart
 
     if ! exec_occ notify_push:self-test; then
-        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart $app-notify-push.service\", and run \"sudo -u $app php${phpversion} $final_path/occ notify_push:self-test\" to verify that everything is green."
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 

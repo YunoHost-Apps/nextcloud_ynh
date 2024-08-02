@@ -374,13 +374,13 @@ fi
 nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
 mkdir -p "$nginx_extra_conf_dir"
 
-# Create a dedicated NGINX config
-ynh_add_nginx_config
-
 if [ $enable_notify_push -eq 1 ]
 then
     ynh_add_config --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 #=================================================
 # CRON JOB

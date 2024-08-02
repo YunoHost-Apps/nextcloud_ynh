@@ -69,7 +69,8 @@ exec_occ() {
 }
 
 # Set write access for the following commands
-chown -R $app: "$install_dir" "$data_dir"
+chown -R $app:www-data "$install_dir"
+chown -R $app: "$data_dir"
 
 # Define password in an intermediate var
 # The fact that it's called _password allows it to be
@@ -260,7 +261,7 @@ find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-chmod 640 "$install_dir/config/config.php"
+chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 if [ $enable_notify_push -eq 1 ]

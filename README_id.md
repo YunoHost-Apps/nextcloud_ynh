@@ -16,20 +16,14 @@ Ini TIDAK boleh diedit dengan tangan.
 
 ## Ringkasan
 
-Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
+Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
-### YunoHost-specific features
+In the context of YunoHost, Nextcloud integrates with the SSO / user portal (YunoHost accounts are automatically connected to Nextcloud).
 
-In addition to Nextcloud core features, the following are made available with this package:
-
- * Integrate with YunoHost users and SSO - i.e. logout button
- * Allow one user to be the administrator (set at the installation)
- * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
+The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
 
-**Versi terkirim:** 29.0.3~ynh1
+**Versi terkirim:** 29.0.4~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 
@@ -42,7 +36,7 @@ In addition to Nextcloud core features, the following are made available with th
 - Website aplikasi resmi: <https://nextcloud.com>
 - Dokumentasi pengguna resmi: <https://docs.nextcloud.com/server/latest/user_manual/en/>
 - Dokumentasi admin resmi: <https://docs.nextcloud.com/server/stable/admin_manual/>
-- Repositori kode aplikasi hulu: <https://github.com/nextcloud/server>
+- Depot kode aplikasi hulu: <https://github.com/nextcloud/server>
 - Gudang YunoHost: <https://apps.yunohost.org/app/nextcloud>
 - Laporkan bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 

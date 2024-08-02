@@ -8,6 +8,20 @@
 # EXPERIMENTAL HELPERS
 #=================================================
 
+wait_nginx_reload() {
+    # Nginx may take some time to support the new configuration,
+    # wait for the nextcloud configuration file to disappear from nginx before checking the CalDAV/CardDAV URL.
+    timeout=30
+    for i in $(seq 1 $timeout); do
+        if ! ynh_exec_warn_less nginx -T | grep --quiet "# configuration file /etc/nginx/conf.d/$domain.d/$app.conf:"; then
+            break
+        fi
+        sleep 1
+    done
+    # Wait untils nginx has fully reloaded (avoid curl fail with http2) 
+    sleep 2
+}
+
 # Check if an URL is already handled
 # usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {

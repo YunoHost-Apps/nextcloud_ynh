@@ -45,7 +45,7 @@ is_url_handled() {
     # Return 1 if the URL isn't handled.
     # Which means either cURL got a 404 (or the admin) or the SSO.
     # A handled URL should redirect to a publicly accessible URL.
-    # Return 1 if the url has returned 404
+    # Return 1 if the URL has returned 404
     if [ "$http_code" = "404" ] || [[ $redirection =~ "/yunohost/admin" ]]; then
         return 1
     # Return 1 if the URL is redirected to the SSO

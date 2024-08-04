@@ -28,7 +28,14 @@ ynh_backup --src_path="$install_dir"
 ynh_backup --src_path="$data_dir" --is_big
 
 #=================================================
-# SYSTEM CONFIGURATION
+# BACKUP THE NGINX CONFIGURATION
+#=================================================
+
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.d"
+
+#=================================================
+# BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
 
 # Backup the PHP-FPM configuration
@@ -58,6 +65,17 @@ ynh_backup --src_path="/var/log/$app"
 ynh_print_info --message="Backing up the MySQL database..."
 
 ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
+
+#=================================================
+# BACKUP THE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    ynh_backup --src_path="/etc/systemd/system/${app}-notify-push.service"
+    ynh_backup --src_path="/etc/systemd/system/${app}-notify-push-watcher.service"
+    ynh_backup --src_path="/etc/systemd/system/${app}-notify-push-watcher.path"
+fi
 
 #=================================================
 # END OF SCRIPT

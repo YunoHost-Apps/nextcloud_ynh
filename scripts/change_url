@@ -14,6 +14,19 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
 
+if [ $change_domain -eq 1 ]
+then
+    # Check if .well-known is available for this domain
+    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
+    then
+        ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+
+        # Remove lines about .well-known/carddav and caldav with sed.
+        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+        ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+    fi
+fi
+
 ynh_change_url_nginx_config
 
 #=================================================
@@ -35,18 +48,8 @@ then
     # Change hostname for activity notifications
     exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
 
-    # Reload php fpm, necessary for force nextcloud to re-read config.php, cf opcache.revalidate_freq
+    # Reload PHP-FPM, necessary for force Nextcloud to re-read config.php, cf opcache.revalidate_freq
     ynh_systemd_action --service_name=php${phpversion}-fpm --action=reload
-
-    # Check if .well-known is available for this domain
-    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
-    then
-        ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
-
-        # Remove lines about .well-known/carddav and caldav with sed.
-        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
-        ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
-    fi
 fi
 
 #=================================================

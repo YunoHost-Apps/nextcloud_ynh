@@ -8,7 +8,6 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-source ../settings/scripts/_ynh_mysql_dump_db.sh
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
@@ -53,11 +52,11 @@ ynh_backup --src_path="/etc/cron.d/$app"
 ynh_backup --src_path="/var/log/$app"
 
 #=================================================
-# BACKUP THE MYSQL DATABASE
+# BACKUP THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info --message="Backing up the MySQL database..."
+ynh_print_info --message="Backing up the PostgreSQL database..."
 
-ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
+ynh_psql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # END OF SCRIPT

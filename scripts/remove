@@ -30,7 +30,7 @@ ynh_secure_remove --file="/etc/cron.d/$app"
 for i in $(ls /home); do
   # Clean ACL in every directories in /home, except those which start with 'yunohost.'
   [[ ! $i == yunohost.* ]] \
-    && setfacl --remove g:$app:rwx 2>&1
+    && setfacl --remove g:$app 2>&1
 done
 
 #=================================================

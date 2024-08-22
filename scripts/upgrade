@@ -35,6 +35,13 @@ then
     ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
+if [ -z "${version_to_follow:-}" ]
+then
+    version_to_follow=stable
+    ynh_app_setting_set --app=$app --key=version_to_follow --value="$version_to_follow"
+fi
+    
+
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
@@ -123,6 +130,11 @@ current_major_version=${current_version%%.*}
 
 last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
 last_major_version=${last_version%%.*}
+if [[ "$version_to_follow" == "oldstable" ]]
+then
+    last_major_version=$((last_major_version--))
+    last_version=$(ynh_read_manifest --manifest_key="resources.sources.${last_major_version}.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
+fi
 
 if [[ "$last_major_version" != "$current_major_version" ]]
 then
@@ -164,17 +176,20 @@ then
     fi
 
     # While the current version is not the last version, do an upgrade
-    while [ "$last_version" != "$current_version" ]
+    while [ "$last_version" > "$current_version" ]
     do
 
         next_major_version="$(( $current_major_version + 1 ))"
+        source_id="$next_major_version"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then
             ynh_print_info --message="Upgrading to Nextcloud $last_version"
             cp -a ../sources/patches_last_version/* ../sources/patches
-            source_id="main"
+            if [[ "$version_to_follow" != "oldstable" ]]
+            then
+                source_id="main"
+            fi
         else
             ynh_print_info --message="Upgrading to Nextcloud $next_major_version"
-            source_id="$next_major_version"
         fi
 
         # Create a temporary directory

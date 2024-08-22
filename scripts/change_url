@@ -48,7 +48,7 @@ then
     # Change hostname for activity notifications
     exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
 
-    # Reload php fpm, necessary for force nextcloud to re-read config.php, cf opcache.revalidate_freq
+    # Reload PHP-FPM, necessary for force Nextcloud to re-read config.php, cf opcache.revalidate_freq
     ynh_systemd_action --service_name=php${phpversion}-fpm --action=reload
 fi
 

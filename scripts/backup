@@ -28,41 +28,27 @@ ynh_backup --src_path="$install_dir"
 ynh_backup --src_path="$data_dir" --is_big
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
 
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-#=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
-#=================================================
-
+# Backup the PHP-FPM configuration
 ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
-#=================================================
-# SPECIFIC BACKUP
-#=================================================
-# BACKUP LOGROTATE
-#=================================================
+# Backup the nginx configuration
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
+# Backup the logrotate configuration
 ynh_backup --src_path="/etc/logrotate.d/$app"
 
-#=================================================
-# BACKUP FAIL2BAN CONFIGURATION
-#=================================================
-
+# Backup the Fail2Ban config
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 
 #=================================================
-# BACKUP THE CRON FILE
+# BACKUP VARIOUS FILES
 #=================================================
 
 ynh_backup --src_path="/etc/cron.d/$app"
-
-#=================================================
-# BACKUP LOGS
-#=================================================
 
 ynh_backup --src_path="/var/log/$app"
 

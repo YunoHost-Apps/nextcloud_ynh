@@ -132,7 +132,7 @@ last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | g
 last_major_version=${last_version%%.*}
 if [[ "$version_to_follow" == "oldstable" ]]
 then
-    last_major_version=$((last_major_version--))
+    last_major_version=$(( $last_major_version - 1 ))
     last_version=$(ynh_read_manifest --manifest_key="resources.sources.${last_major_version}.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
 fi
 
@@ -178,7 +178,7 @@ then
     # While the current version is not the last version, do an upgrade
     while [ "$last_version" > "$current_version" ]
     do
-
+        ynh_print_info --message="last: $last_version | current: $current_version"
         next_major_version="$(( $current_major_version + 1 ))"
         source_id="$next_major_version"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then

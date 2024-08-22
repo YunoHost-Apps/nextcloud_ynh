@@ -176,9 +176,8 @@ then
     fi
 
     # While the current version is not the last version, do an upgrade
-    while [ "$last_version" > "$current_version" ]
+    while [[ "$last_version" > "$current_version" ]]
     do
-        ynh_print_info --message="last: $last_version | current: $current_version"
         next_major_version="$(( $current_major_version + 1 ))"
         source_id="$next_major_version"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then

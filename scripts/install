@@ -204,6 +204,29 @@ exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressb
 ynh_store_file_checksum --file="$install_dir/config/config.php"
 
 #=================================================
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    exec_occ app:install notify_push
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    case $YNH_ARCH in
+        amd64) arch="x86_64";;
+        arm64) arch="aarch64";;
+        armel|armhf) arch="armv7";;
+    esac
+
+    ynh_add_systemd_config --service="${app}-notify-push"
+    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+fi
+
+#=================================================
 # ADD A CRON JOB
 #=================================================
 
@@ -235,29 +258,6 @@ create_external_storage "/home/yunohost.multimedia/\$user" "Multimedia"
 create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
 # Allow nextcloud to write into these directories
 ynh_multimedia_addaccess $app
-
-#=================================================
-# CONFIGURE NOTIFY_PUSH APP
-#=================================================
-
-if [ $enable_notify_push -eq 1 ]
-then
-    exec_occ app:install notify_push
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
-
-    mkdir -p /var/run/$app/
-    chown $app: /var/run/$app/
-
-    case $YNH_ARCH in
-        amd64) arch="x86_64";;
-        arm64) arch="aarch64";;
-        armel|armhf) arch="armv7";;
-    esac
-
-    ynh_add_systemd_config --service="${app}-notify-push"
-    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
-    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
-fi
 
 #=================================================
 # GENERIC FINALIZATION
@@ -298,8 +298,6 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php
-
     ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd"
     

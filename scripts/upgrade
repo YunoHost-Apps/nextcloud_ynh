@@ -383,17 +383,6 @@ fi
 ynh_add_nginx_config
 
 #=================================================
-# CRON JOB
-#=================================================
-
-cron_path="/etc/cron.d/$app"
-ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
-chown root: "$cron_path"
-chmod 644 "$cron_path"
-
-exec_occ background:cron
-
-#=================================================
 # CONFIGURE NOTIFY_PUSH APP
 #=================================================
 
@@ -422,6 +411,18 @@ then
     ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
 fi
 
+
+#=================================================
+# CRON JOB
+#=================================================
+
+cron_path="/etc/cron.d/$app"
+ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
+
+exec_occ background:cron
+
 #=================================================
 # LOGROTATE
 #=================================================
@@ -441,8 +442,6 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php
-
     ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
 

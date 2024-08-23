@@ -2,6 +2,8 @@ test_format = 1.0
 
 [default]
 
+    args.version_to_follow = "stable"
+    
     # -------------------------------
     # Commits to test upgrade from
     # -------------------------------
@@ -9,5 +11,11 @@ test_format = 1.0
     test_upgrade_from.c5cf91ad.name = "Upgrade from 25.0.2"
     test_upgrade_from.caf917f3.name = "Upgrade from 26.0.2"
     test_upgrade_from.9c6d1eea.name = "Upgrade from 27.1.4"
+    test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
+    test_upgrade_from.e9f82ab7.args.system_addressbook_exposed = "yes"
+
+[oldstable]
+
+    args.version_to_follow = "oldstable"
     test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
     test_upgrade_from.e9f82ab7.args.system_addressbook_exposed = "yes"

@@ -15,7 +15,7 @@ name = "Nextcloud configuration"
         ask.en = "Set permissions for all data (Can take up to several hours if users have a lot of data)"
         type = "button"
         style = "success"
-    
+
     [main.version]
         [main.version.version_to_follow]
         ask.en = "Upgrade channel to use"
@@ -23,7 +23,6 @@ name = "Nextcloud configuration"
         choices = ["stable", "oldstable"]
         default = "stable"
         help.en = "Recent major releases contains sometimes some annoying bugs or regressions. Using the oldstable channel during this period can be useful if you need high stability."
-
 
     [main.addressbook]
     name = "Address book configuration"
@@ -33,7 +32,7 @@ name = "Nextcloud configuration"
         type = "boolean"
         yes = "yes"
         no = "no"
-    
+
     [main.php_fpm_config]
     name = "PHP-FPM configuration"
 

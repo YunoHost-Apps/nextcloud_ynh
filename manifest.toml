@@ -61,7 +61,8 @@ ram.runtime = "512M"
     default = true
 
     [install.version_to_follow]
-    ask.en = "Which version do you want"
+    ask.en = "Upgrade channel to use"
+    help.en = "Recent major releases contains sometimes some annoying bugs or regressions. Using the oldstable channel during this period can be useful if you need high stability."
     type = "select"
     choices = ["stable", "oldstable"]
     default = "stable"

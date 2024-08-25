@@ -30,7 +30,7 @@ test_format = 1.0
     file.logged_on_sso = true
     file.expect_content = "# Welcome to Nextcloud!"
 
-    caldav.base_url = "https://domain.tld"
+    caldav.base_url = "https://__DOMAIN__"
     caldav.path = "/.well-known/caldav"
     caldav.logged_on_sso = true
     caldav.expect_content = "This is the WebDAV interface."

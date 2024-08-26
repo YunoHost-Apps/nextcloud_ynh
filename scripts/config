@@ -105,8 +105,9 @@ set__enable_notify_push() {
         fi
 
         ynh_remove_systemd_config --service="${app}-notify-push"
-        ynh_remove_systemd_config --service="${app}-notify-push-watcher"
+        systemctl disable --now "${app}-notify-push-watcher.path"
         ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
+        ynh_remove_systemd_config --service="${app}-notify-push-watcher"
 
         ynh_print_info "Notify push disabled"
     elif [ "$enable_notify_push" -eq "1" ]; then
@@ -136,8 +137,9 @@ set__enable_notify_push() {
         esac
 
         ynh_add_systemd_config --service="${app}-notify-push"
-        ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
         ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+        ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+        systemctl enable --now ${app}-notify-push-watcher.path
         
         exec_occ background:cron
 

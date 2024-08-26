@@ -137,9 +137,9 @@ then
     ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.service"
     ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.path"
 
-    systemctl enable --now "${app}-notify-push".service --quiet
-    systemctl enable --now "${app}-notify-push-watcher".service --quiet
-    systemctl enable --now "${app}-notify-push-watcher".path --quiet
+    systemctl enable --now "${app}-notify-push-watcher.service" --quiet
+    systemctl enable --now "${app}-notify-push-watcher.path" --quiet
+    systemctl enable --now "${app}-notify-push.service" --quiet
 fi
 
 #=================================================

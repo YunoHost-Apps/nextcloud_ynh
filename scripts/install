@@ -49,6 +49,14 @@ then
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
 fi
 
+nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
+mkdir -p "$nginx_extra_conf_dir"
+
+if [ $enable_notify_push -eq 1 ]
+then
+    ynh_add_config --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
+fi
+
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
@@ -196,6 +204,30 @@ exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressb
 ynh_store_file_checksum --file="$install_dir/config/config.php"
 
 #=================================================
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    exec_occ app:install notify_push
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
+    case $YNH_ARCH in
+        amd64) arch="x86_64";;
+        arm64) arch="aarch64";;
+        armel|armhf) arch="armv7";;
+    esac
+
+    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+    systemctl enable --now ${app}-notify-push-watcher.path
+    ynh_add_systemd_config --service="${app}-notify-push"
+fi
+
+#=================================================
 # ADD A CRON JOB
 #=================================================
 
@@ -260,6 +292,27 @@ ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+
+#=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    count=0
+    while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    do
+        sleep 1
+        count=$((count + 1))
+    done
+
+    ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd"
+    
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+    fi
+fi
 
 #=================================================
 # END OF SCRIPT

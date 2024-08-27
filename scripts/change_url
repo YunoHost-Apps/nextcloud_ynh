@@ -78,7 +78,12 @@ then
     systemctl enable --now ${app}-notify-push-watcher.path
     ynh_add_systemd_config --service="${app}-notify-push"
 
-    ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php
+    count=0
+    while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    do
+        sleep 1
+        count=$((count + 1))
+    done
 
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
 

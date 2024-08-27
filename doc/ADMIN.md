@@ -14,7 +14,7 @@ ONLYOFFICE is an online rich text document editor which can be integrated in Nex
 
 #### High Performance Backend
 
-This is an application on Nextcloud that should speed up the instance, more information here: https://github.com/nextcloud/notify_push#about
+High Performance Backend is an application on Nextcloud that should speed up the instance, more information here: https://github.com/nextcloud/notify_push#about
 
 #### With YunoHost App (ARM64 support, better performance)
 

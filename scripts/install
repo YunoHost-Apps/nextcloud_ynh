@@ -155,7 +155,7 @@ then
     create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
     done
 fi
 

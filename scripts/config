@@ -142,7 +142,7 @@ set__enable_notify_push() {
         ynh_add_systemd_config --service="${app}-notify-push"
         
         count=0
-        while ! exec_occ background:cron && [[ $count -lt 30 ]]
+        while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
         do
             sleep 1
             count=$((count + 1))

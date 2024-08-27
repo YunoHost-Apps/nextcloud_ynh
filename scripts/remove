@@ -12,6 +12,7 @@ ynh_script_progression --message="Removing system configurations related to $app
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
+ynh_secure_remove --file="/etc/nginx/conf.d/$domain.d/$app.d"
 
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
@@ -21,6 +22,13 @@ ynh_remove_logrotate
 
 # Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
+
+# Remove notify push
+ynh_remove_systemd_config --service="${app}-notify-push"
+ynh_exec_warn_less systemctl disable --now ${app}-notify-push-watcher.path
+ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
+ynh_remove_systemd_config --service="${app}-notify-push-watcher"
+ynh_secure_remove --file="/var/run/$app"
 
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)

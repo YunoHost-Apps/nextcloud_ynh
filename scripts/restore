@@ -9,38 +9,38 @@ source ../settings/scripts/_ynh_mysql_connect_as.sh
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
-ynh_script_progression --message="Restoring the app main directory..."
+ynh_script_progression "Restoring the app main directory..."
 
-ynh_restore_file --origin_path="$install_dir"
+ynh_restore "$install_dir"
 
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
-ynh_script_progression --message="Restoring the MySQL database..." --weight=9
+ynh_script_progression "Restoring the MySQL database..."
 
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name --default_character_set="utf8mb4" < ./db.sql
+ynh_mysql_db_shell < ./db.sql
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Reconfiguring PHP-FPM..." --weight=50
+ynh_script_progression "Reconfiguring PHP-FPM..."
 
 # Restore the file first, so it can have a backup if different
-ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
+ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
 # Recreate a dedicated PHP-FPM config
-ynh_add_fpm_config
+ynh_config_add_phpfpm
 
 #=================================================
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 
-ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+    ynh_print_warn "Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/CardDAV and CalDAV with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
@@ -49,46 +49,45 @@ fi
 #=================================================
 # RESTORE THE CRON FILE
 #=================================================
-ynh_script_progression --message="Restoring cron job..." --weight=1
+ynh_script_progression "Restoring cron job..."
 
-ynh_restore_file --origin_path="/etc/cron.d/$app"
+ynh_restore "/etc/cron.d/$app"
 
 #=================================================
 # RESTORE LOGS
 #=================================================
 
-ynh_restore_file --origin_path="/var/log/$app"
+ynh_restore "/var/log/$app"
 
 #=================================================
 # BACKUP THE LOGROTATE CONFIGURATION
 #=================================================
-ynh_script_progression --message="Restoring the logrotate configuration..." --weight=1
+ynh_script_progression "Restoring the logrotate configuration..."
 
-ynh_restore_file --origin_path="/etc/logrotate.d/$app"
+ynh_restore "/etc/logrotate.d/$app"
 
 #=================================================
 # RESTORE THE DATA DIRECTORY
 #=================================================
-ynh_script_progression --message="Restoring data directory..." --weight=2
+ynh_script_progression "Restoring data directory..."
 
-# Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
-ynh_restore_file --origin_path="$data_dir" --not_mandatory
+# Use || true for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
+ynh_restore "$data_dir"
 
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app:www-data "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-chmod 600 "$install_dir/config/config.php"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-chmod 750 $install_dir
-
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do
@@ -99,7 +98,7 @@ done
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
-ynh_script_progression --message="Adding multimedia directories..." --weight=4
+ynh_script_progression "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -109,10 +108,10 @@ ynh_multimedia_addaccess $app
 #=================================================
 # RESTORE THE FAIL2BAN CONFIGURATION
 #=================================================
-ynh_script_progression --message="Restoring the Fail2Ban configuration..." --weight=7
+ynh_script_progression "Restoring the Fail2Ban configuration..."
 
-ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
-ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
+ynh_restore "/etc/fail2ban/jail.d/$app.conf"
+ynh_restore "/etc/fail2ban/filter.d/$app.conf"
 
 # Make sure a log file exists (mostly for CI tests)
 logfile="/var/log/$app/nextcloud.log"
@@ -121,19 +120,17 @@ if [ ! -f "$logfile" ]; then
 	chown "$app:" "$logfile"
 fi
 
-ynh_systemd_action --action=restart --service_name=fail2ban
+ynh_systemctl --action=restart --service=fail2ban
 
-#=================================================
-# GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --weight=3
+ynh_script_progression "Reloading NGINX web server..."
 
-ynh_systemd_action --service_name=nginx --action=reload
+ynh_systemctl --service=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Restoration completed for $app" --last
+ynh_script_progression "Restoration completed for $app"

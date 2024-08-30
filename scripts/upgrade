@@ -3,40 +3,40 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-upgrade_type=$(ynh_check_app_version_changed)
+ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
+
+ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..."
+ynh_script_progression "Ensuring downward compatibility..."
 
 if [ -z ${system_addressbook_exposed:-} ]; then
-    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
+    ynh_app_setting_set --key=system_addressbook_exposed --value=0
     system_addressbook_exposed=0
 fi
 
 # Fix system_addressbook_exposed as a boolean
 if [ "${system_addressbook_exposed,,}" = "yes" ]; then
-    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=1
+    ynh_app_setting_set --key=system_addressbook_exposed --value=1
     system_addressbook_exposed=1
 elif [ "${system_addressbook_exposed,,}" = "no" ]; then
-    ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
+    ynh_app_setting_set --key=system_addressbook_exposed --value=0
     system_addressbook_exposed=0
 fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
-ynh_app_setting_delete --app=$app --key=backup_core_only
+ynh_app_setting_delete --key=backup_core_only
 
 phpflags="--define apc.enable_cli=1"
-ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
+ynh_app_setting_set --key=phpflags --value="$phpflags"
 
-if ynh_compare_current_package_version --comparison lt --version 22.2~ynh1
+if ynh_app_upgrading_from_version_before 22.2~ynh1
 then
-    ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
+    ynh_die "Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-#=================================================
-# SPECIFIC UPGRADE
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
@@ -66,19 +66,19 @@ exec_occ() {
         NEXTCLOUD_PHP_VERSION="7.4"
     fi
 
-    # NB : be super careful when designing this part of the code, because calling ynh_install_app_dependencies
-    # will do magic regarding php configuration and $phpversion when the php version of the dependencies changes ...
-    phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-    if [[ "$NEXTCLOUD_PHP_VERSION" != "$phpversion" ]]; then
+    # NB : be super careful when designing this part of the code, because calling ynh_apt_install_dependencies
+    # will do magic regarding php configuration and $php_version when the php version of the dependencies changes ...
+    php_version=$(ynh_app_setting_get --key=php_version)
+    if [[ "$NEXTCLOUD_PHP_VERSION" != "$php_version" ]]; then
         local pkg_dependencies="$(dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps)"
-        pkg_dependencies="${pkg_dependencies//$phpversion/$NEXTCLOUD_PHP_VERSION}"
-        # Packaging v1 ~legacy : ynh_install_app_dependencies is designed to be called several times
+        pkg_dependencies="${pkg_dependencies//$php_version/$NEXTCLOUD_PHP_VERSION}"
+        # Packaging v1 ~legacy : ynh_apt_install_dependencies is designed to be called several times
         # but the second time it will *append* the list of dependencies rather than replace the existing dependencies
         # resulting in a crash when parsing what's the php version the app uses, hence we need to force the full-replacement
         YNH_INSTALL_APP_DEPENDENCIES_REPLACE=true
-        ynh_install_app_dependencies "$pkg_dependencies"
+        ynh_apt_install_dependencies "$pkg_dependencies"
     fi
-(cd "$install_dir" && ynh_exec_as "$app" \
+(cd "$install_dir" && ynh_exec_as_app \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@") 2> >(filter_boring_occ_warnings >&2)
 }
 
@@ -90,7 +90,7 @@ create_external_storage() {
     local mount_id=$(exec_occ files_external:create --output=json \
         "$mount_name" 'local' 'null::null' -c "datadir=$mount_dir" || true)
     ! [[ $mount_id =~ ^[0-9]+$ ]] \
-        && ynh_print_warn --message="Unable to create external storage" \
+        && ynh_print_warn "Unable to create external storage" \
         || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 
@@ -117,11 +117,10 @@ function list_installed_apps_not_compatible_with_future_version()
     comm -23 <(comm -23 $installed_apps $core_apps_in_current_version) $nextcloud_destination_appcatalog
 }
 
-
 current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
+last_version=$(ynh_read_manifest | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
 last_major_version=${last_version%%.*}
 
 if [[ "$last_major_version" != "$current_major_version" ]]
@@ -129,24 +128,24 @@ then
     installed_apps_not_compatible_with_future_version="$(list_installed_apps_not_compatible_with_future_version $last_major_version)"
     if [[ -n "$installed_apps_not_compatible_with_future_version" ]]
     then
-        ynh_die --message="The following apps are not (yet?) compatible with Nextcloud $last_major_version. You should make sure to upgrade the app, or disable it, or wait for it to become compatible before running this upgrade : $installed_apps_not_compatible_with_future_version"
+        ynh_die "The following apps are not (yet?) compatible with Nextcloud $last_major_version. You should make sure to upgrade the app, or disable it, or wait for it to become compatible before running this upgrade : $installed_apps_not_compatible_with_future_version"
     fi
 fi
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
+# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
+if ynh_app_upstream_version_changed
 then
-    ynh_script_progression --message="Upgrading $app..." --weight=3
+    ynh_script_progression "Upgrading $app..."
 
     # Set write access for the following commands
-    chown -R $app:www-data "$install_dir"
-
+    #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
     # Print the current version number of Nextcloud
     exec_occ -V
 
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-        db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
+        db_pwd=$(ynh_app_setting_get --key=db_pwd)
         # Change your databases character set and collation
-        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+        ynh_mysql_db_shell \
         <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
         # Set the mysql.utf8mb4 config to true in config.php
         exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
@@ -169,11 +168,11 @@ then
 
         next_major_version="$(( $current_major_version + 1 ))"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then
-            ynh_print_info --message="Upgrading to Nextcloud $last_version"
-            cp -a ../sources/patches_last_version/* ../sources/patches
+            ynh_print_info "Upgrading to Nextcloud $last_version"
+            cp -a ../patches_last_version/* ../patches
             source_id="main"
         else
-            ynh_print_info --message="Upgrading to Nextcloud $next_major_version"
+            ynh_print_info "Upgrading to Nextcloud $next_major_version"
             source_id="$next_major_version"
         fi
 
@@ -203,16 +202,15 @@ then
         )
 
         # Replace the old Nextcloud by the new one
-        ynh_secure_remove --file="$install_dir"
+        ynh_safe_rm "$install_dir"
         mv "$tmpdir" "$install_dir"
 
         # Set write access for the following commands
-        chown -R $app:www-data "$install_dir"
-
+        #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade \
-        || [ $? -eq 3 ] || ynh_die --message="Unable to upgrade $app"
+        || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
 
         # Get the new current version number
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
@@ -230,13 +228,13 @@ then
     #=================================================
     # CONFIGURE NEXTCLOUD
     #=================================================
-    ynh_script_progression --message="Reconfiguring $app..." --weight=9
+    ynh_script_progression "Reconfiguring $app..."
 
     # Verify the checksum and backup the file if it's different
-    ynh_backup_if_checksum_is_different --file="$install_dir/config/config.php"
+    ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
 
     nc_conf="${install_dir}/config.json"
-    ynh_add_config --template="config.json" --destination="$nc_conf"
+    ynh_config_add --template="config.json" --destination="$nc_conf"
 
     # Reneable the mail app
     if [ $mail_app_must_be_reactived -eq 1 ]; then
@@ -257,7 +255,7 @@ then
     # but it must be after the exec_occ() definition, so it's here
     if [ -f "$data_dir/data/nextcloud.log" ]; then
         mkdir -p "/var/log/$app"
-        chmod 750 "/var/log/$app"
+        #REMOVEME? Assuming ynh_config_add_logrotate is called, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 "/var/log/$app"
         mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
         # adapt the nextcloud config
         exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
@@ -267,7 +265,7 @@ then
     exec_occ config:import "$nc_conf"
 
     # Then remove the config file
-    ynh_secure_remove --file="$nc_conf"
+    ynh_safe_rm "$nc_conf"
 
     #=================================================
     # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
@@ -315,67 +313,66 @@ then
     #=================================================
 
     # Calculate and store the config file checksum into the app settings
-    ynh_store_file_checksum --file="${install_dir}/config/config.php"
+    ynh_store_file_checksum "${install_dir}/config/config.php"
 fi
 
 #=================================================
 # REGEN PERMISSIONS
 #=================================================
-ynh_script_progression --message="Reapplying file permissions..." --weight=2
+ynh_script_progression "Reapplying file permissions..."
 
 # Fix app ownerships & permissions
-chown -R $app:www-data "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
-chmod 600 "$install_dir/config/config.php"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-chmod 750 $install_dir
-
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
 #=================================================
 # REGEN SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Regenerating system configurations for $app..." --weight=2
+ynh_script_progression "Regenerating system configurations for $app..."
 
 #-------------------------------------------------
 # PHP-FPM
 #-------------------------------------------------
 
-ynh_add_fpm_config
+ynh_config_add_phpfpm
 
 #-------------------------------------------------
 # NGINX
 #-------------------------------------------------
 
 # Delete current NGINX configuration to be able to check if .well-known is already served.
-ynh_backup_if_checksum_is_different --file="/etc/nginx/conf.d/$domain.d/$app.conf"
-ynh_remove_nginx_config
-ynh_app_setting_delete --app=$app --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
+ynh_backup_if_checksum_is_different "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_config_remove_nginx
+ynh_app_setting_delete --key="checksum__etc_nginx_conf.d_$domain.d_$app.conf"
 
 # Wait untils NGINX has fully reloaded
-ynh_systemd_action --service_name=nginx --action=reload --line_match="Reloaded" --log_path="systemd"
+ynh_systemctl --service=nginx --action=reload --wait_until="Reloaded" --log_path="systemd"
 
 wait_nginx_reload
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+    ynh_print_warn "Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/carddav and caldav with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
 fi
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 #=================================================
 # CRON JOB
 #=================================================
 
 cron_path="/etc/cron.d/$app"
-ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
-chown root: "$cron_path"
-chmod 644 "$cron_path"
+ynh_config_add --template="nextcloud.cron" --destination="$cron_path"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown root: "$cron_path"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 644 "$cron_path"
 
 exec_occ background:cron
 
@@ -383,17 +380,17 @@ exec_occ background:cron
 # LOGROTATE
 #=================================================
 
-ynh_use_logrotate --non-append
+ynh_config_add_logrotate
 
 #=================================================
 # FAIL2BAN
 #=================================================
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --last
+ynh_script_progression "Upgrade of $app completed"

@@ -130,9 +130,6 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 
 if [ $enable_notify_push -eq 1 ]
 then
-    mkdir -p /var/run/$app/
-    chown $app: /var/run/$app/
-
     ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push.service"
     ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.service"
     ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.path"

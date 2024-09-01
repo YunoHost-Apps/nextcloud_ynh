@@ -212,9 +212,6 @@ then
     exec_occ app:install notify_push
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 
-    mkdir -p /var/run/$app/
-    chown $app: /var/run/$app/
-
     case $YNH_ARCH in
         amd64) arch="x86_64";;
         arm64) arch="aarch64";;

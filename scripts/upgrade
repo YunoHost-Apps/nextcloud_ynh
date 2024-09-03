@@ -302,9 +302,8 @@ then
     # Occasionally new mimetypes are added to better handle certain file types.
     # Migrating the mimetypes take a long time on larger instances
     # so this is not done automatically during upgrades.
-    # Use the command `occ maintenance:repair --include-expensive` to perform the migrations.
     exec_occ maintenance:repair --include-expensive
-    
+
     #=================================================
     # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
     #=================================================

@@ -34,7 +34,7 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.d"
 
 #=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
 
 # Backup the PHP-FPM configuration

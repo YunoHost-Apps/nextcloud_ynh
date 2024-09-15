@@ -252,8 +252,6 @@ create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
 ynh_multimedia_addaccess $app
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
 

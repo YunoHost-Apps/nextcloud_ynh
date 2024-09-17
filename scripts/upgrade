@@ -236,7 +236,7 @@ then
         mv "$tmpdir" "$install_dir"
 
         # Set write access for the following commands
-        #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+        chown -R $app:www-data "$install_dir"
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade \
@@ -357,12 +357,13 @@ fi
 ynh_script_progression "Reapplying file permissions..."
 
 # Fix app ownerships & permissions
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+chown -R $app:www-data "$install_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
+chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
+chmod 750 $install_dir
+
 #=================================================
 # REGEN SYSTEM CONFIGURATIONS
 #=================================================
@@ -406,7 +407,6 @@ then
     ynh_config_add --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
 
-# Create a dedicated NGINX config
 ynh_config_add_nginx
 
 #=================================================

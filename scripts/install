@@ -66,7 +66,7 @@ exec_occ() {
 }
 
 # Set write access for the following commands
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 
 # Define password in an intermediate var
@@ -215,7 +215,7 @@ then
 
     ynh_config_add --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
     ynh_config_add_systemd --service="${app}-notify-push-watcher" --template="watcher.service"
-    systemctl enable --now ${app}-notify-push-watcher.path
+    systemctl enable --now --quiet ${app}-notify-push-watcher.path
     ynh_config_add_systemd --service="${app}-notify-push"
 fi
 

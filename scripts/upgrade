@@ -114,7 +114,7 @@ then
     else
         ynh_print_info "Migrating to PostgreSQL database..."
         ynh_hide_warnings exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
-        # FIXMEhelpers2.1 ynh_mysql_drop_db && ynh_mysql_drop_user --db_user=$db_user --db_name=$db_name
+        ynh_mysql_drop_db $db_name && ynh_mysql_drop_user $db_user
     fi
 fi
 

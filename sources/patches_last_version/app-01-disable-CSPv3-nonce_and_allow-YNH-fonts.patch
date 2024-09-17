@@ -1,0 +1,33 @@
+ .../Security/CSP/ContentSecurityPolicyNonceManager.php        | 4 ++++
+ lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php   | 3 ++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php b/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php
+index 795d8cc864..5f3c961445 100644
+--- a/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php
++++ b/lib/private/Security/CSP/ContentSecurityPolicyNonceManager.php
+@@ -70,6 +70,10 @@ class ContentSecurityPolicyNonceManager {
+ 	 * @return bool
+ 	 */
+ 	public function browserSupportsCspV3(): bool {
++		// YunoHost patch: disable CSPv3 nonces to:
++		// - avoid white page on first login from YunoHost portal
++		// - allow YunoHost tile display
++		return false;
+ 		$browserWhitelist = [
+ 			Request::USER_AGENT_CHROME,
+ 			// Firefox 45+
+diff --git a/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php b/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php
+index 3fcef1d0ef..7ce01a68fc 100644
+--- a/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php
++++ b/lib/public/AppFramework/Http/EmptyContentSecurityPolicy.php
+@@ -449,7 +449,8 @@ class EmptyContentSecurityPolicy {
+
+ 		if(!empty($this->allowedFontDomains)) {
+ 			$policy .= 'font-src ' . implode(' ', $this->allowedFontDomains);
+-			$policy .= ';';
++			// YunoHost patch: extend font-src to load data fonts embedded in YunoHost tile script
++			$policy .= ' data:;';
+ 		}
+
+ 		if(!empty($this->allowedConnectDomains)) {

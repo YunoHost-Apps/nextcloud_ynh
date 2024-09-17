@@ -1,0 +1,17 @@
+ lib/public/AppFramework/Http/ContentSecurityPolicy.php | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/lib/public/AppFramework/Http/ContentSecurityPolicy.php b/lib/public/AppFramework/Http/ContentSecurityPolicy.php
+index e9ecf00036..8e69c8d2dc 100644
+--- a/lib/public/AppFramework/Http/ContentSecurityPolicy.php
++++ b/lib/public/AppFramework/Http/ContentSecurityPolicy.php
+@@ -42,7 +42,8 @@ class ContentSecurityPolicy extends EmptyContentSecurityPolicy {
+ 	/** @var bool Whether inline JS snippets are allowed */
+ 	protected $inlineScriptAllowed = false;
+ 	/** @var bool Whether eval in JS scripts is allowed */
+-	protected $evalScriptAllowed = false;
++	// YunoHost patch: allow for eval in JS scripts for YunoHost tile
++	protected $evalScriptAllowed = true;
+	/** @var bool Whether WebAssembly compilation is allowed */
+	protected ?bool $evalWasmAllowed = false;
+	/** @var bool Whether strict-dynamic should be set */

@@ -52,7 +52,6 @@ then
     ynh_config_add --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
 
-# Create a dedicated NGINX config
 ynh_config_add_nginx
 
 #=================================================
@@ -226,8 +225,8 @@ fi
 
 cron_path="/etc/cron.d/$app"
 ynh_config_add --template="nextcloud.cron" --destination="$cron_path"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown root: "$cron_path"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 644 "$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
 
 exec_occ background:cron
 
@@ -260,21 +259,21 @@ ynh_multimedia_addaccess $app
 #=================================================
 
 # Fix app ownerships & permissions
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
+chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
+chmod 750 $install_dir
+
 #=================================================
 # SETUP LOGROTATE
 #=================================================
 ynh_script_progression "Configuring log rotation..."
 
-# Use logrotate to manage application logfile(s)
 ynh_config_add_logrotate
 
 #=================================================
@@ -282,7 +281,6 @@ ynh_config_add_logrotate
 #=================================================
 ynh_script_progression "Configuring Fail2Ban..."
 
-# Create a dedicated Fail2Ban config
 ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$"
 
 #=================================================

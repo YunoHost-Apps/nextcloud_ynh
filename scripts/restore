@@ -11,6 +11,13 @@ ynh_script_progression "Restoring the app main directory..."
 ynh_restore "$install_dir"
 
 #=================================================
+# RESTORE THE DATA DIRECTORY
+#=================================================
+ynh_script_progression "Restoring data directory..."
+
+ynh_restore "$data_dir"
+
+#=================================================
 # RESTORE THE POSTGRESQL DATABASE
 #=================================================
 ynh_script_progression "Restoring the PostgreSQL database..."
@@ -22,10 +29,8 @@ ynh_psql_db_shell < ./db.sql
 #=================================================
 ynh_script_progression "Reconfiguring PHP-FPM..."
 
-# Restore the file first, so it can have a backup if different
 ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
-# Recreate a dedicated PHP-FPM config
 ynh_config_add_phpfpm
 
 #=================================================
@@ -65,27 +70,19 @@ ynh_script_progression "Restoring the logrotate configuration..."
 ynh_restore "/etc/logrotate.d/$app"
 
 #=================================================
-# RESTORE THE DATA DIRECTORY
-#=================================================
-ynh_script_progression "Restoring data directory..."
-
-# Use || true for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
-ynh_restore "$data_dir"
-
-#=================================================
 # RESTORE USER RIGHTS
 #=================================================
 
 # Fix app ownerships & permissions
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
+chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
+chmod 750 $install_dir
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
 for u in $(ynh_user_list); do

@@ -22,26 +22,18 @@ ynh_backup "$install_dir"
 ynh_backup "$data_dir"
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
 
-#=================================================
-# SYSTEM CONFIGURATION
-#=================================================
-
-# Backup the PHP-FPM configuration
 ynh_backup "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
-# Backup the nginx configuration
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Backup the logrotate configuration
 ynh_backup "/etc/logrotate.d/$app"
 
-# Backup the Fail2Ban config
 ynh_backup "/etc/fail2ban/jail.d/$app.conf"
 ynh_backup "/etc/fail2ban/filter.d/$app.conf"
 

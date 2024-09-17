@@ -7,8 +7,6 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-#REMOVEME? ynh_abort_if_errors
-
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
@@ -43,29 +41,6 @@ get__maintenance_mode() {
 
 get__system_addressbook_exposed() {
 	echo $(exec_occ config:app:get dav system_addressbook_exposed)
-}
-
-get__fpm_footprint() {
-    # Free footprint value for php-fpm
-    # Check if current_fpm_footprint is an integer
-    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
-    then
-        echo "specific"
-    else
-        echo "$current_fpm_footprint"
-    fi
-}
-
-get__fpm_free_footprint() {
-    # Free footprint value for php-fpm
-    # Check if current_fpm_footprint is an integer
-    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
-    then
-        # If current_fpm_footprint is an integer, that's a numeric value for the footprint
-        echo "$current_fpm_footprint"
-    else
-        echo "0"
-    fi
 }
 
 #=================================================
@@ -153,20 +128,6 @@ set__enable_notify_push() {
     ynh_app_setting_set --key=enable_notify_push --value="$enable_notify_push"
 }
 
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... | set__fpm_footprint() {
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |     if [ "$fpm_footprint" != "specific" ]
-    then
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |         ynh_app_setting_set --key=fpm_footprint --value="$fpm_footprint"
-    fi
-}
-
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... | set__fpm_free_footprint() {
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |     if [ "$fpm_footprint" = "specific" ]
-    then
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |         ynh_app_setting_set --key=fpm_footprint --value="$fpm_free_footprint"
-    fi
-}
-
 #=================================================
 # SPECIFIC RUNNERS FOR TOML SHORT KEYS
 #=================================================
@@ -174,36 +135,21 @@ set__enable_notify_push() {
 function run__set_permissions_button() {
     local data_dir=$(ynh_app_setting_get --key=data_dir)
     ynh_print_info "Set permissions, it may take some time..."
-    #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+    chown -R $app:www-data "$install_dir"
     chown -R $app: "$data_dir"
     find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
     find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
     find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
     find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-    #REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 640 "$install_dir/config/config.php"
+    chmod 640 "$install_dir/config/config.php"
     chmod 755 /home/yunohost.app
-    #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
+    chmod 750 $install_dir
 }
 
 #=================================================
 
 ynh_app_config_validate() {
     _ynh_app_config_validate
-
-    if [ "${changed[fpm_usage]}" == "true" ] || [ "${changed[fpm_footprint]}" == "true" ] || [ "${changed[fpm_free_footprint]}" == "true" ]; then
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |         # If fpm_footprint is set to 'specific', use $fpm_free_footprint value.
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |         if [ "$fpm_footprint" = "specific" ]
-        then
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |             fpm_footprint=$fpm_free_footprint
-        fi
-
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |         if [ "$fpm_footprint" == "0" ]
-        then
-            ynh_print_warn "When selecting 'specific', you have to set a footprint value into the field below."
-
-            exit 0
-        fi
-    fi
 }
 
 ynh_app_config_apply() {

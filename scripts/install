@@ -17,7 +17,7 @@ ynh_app_setting_set --key=phpflags --value="$phpflags"
 ynh_script_progression "Setting up source files..."
 
 # Enable YunoHost patches on Nextcloud sources
-cp -a ../sources/patches_last_version/* ../patches/
+cp -a ../sources/patches_last_version/* ../sources/patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 

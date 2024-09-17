@@ -3,38 +3,42 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_app_setting_set --key=php_upload_max_filesize --value=10G
+
+ynh_app_setting_set --key=php_memory_limit --value=512M
+
 phpflags="--define apc.enable_cli=1"
 
-ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
+ynh_app_setting_set --key=phpflags --value="$phpflags"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --weight=5
+ynh_script_progression "Setting up source files..."
 
 # Enable YunoHost patches on Nextcloud sources
-cp -a ../sources/patches_last_version/* ../sources/patches
+cp -a ../patches_last_version/* ../patches
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=5
+ynh_script_progression "Configuring PHP-FPM..."
 
-ynh_app_setting_set --app=$app --key=fpm_footprint --value=high
-ynh_app_setting_set --app=$app --key=fpm_usage --value=medium
-ynh_add_fpm_config
+ynh_app_setting_set --key=fpm_footprint --value=high
+ynh_app_setting_set --key=fpm_usage --value=medium
+ynh_config_add_phpfpm
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring NGINX web server..." --weight=2
+ynh_script_progression "Configuring NGINX web server..."
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
 then
-    ynh_print_warn --message="Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+    ynh_print_warn "Another app already uses the domain $domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
 
     # Remove lines about .well-known/carddav and caldav with sed.
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "../conf/nginx.conf"
@@ -45,25 +49,25 @@ mkdir -p "$nginx_extra_conf_dir"
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_add_config --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
+    ynh_config_add --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 #=================================================
 # INSTALL NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Installing $app..." --weight=30
+ynh_script_progression "Installing $app..."
 
 # Define a function to execute commands with `occ`
 exec_occ() {
-  (cd "$install_dir" && ynh_exec_as "$app" \
-      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+  (cd "$install_dir" && ynh_exec_as_app \
+      php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
 }
 
 # Set write access for the following commands
-chown -R $app:www-data "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 
 # Define password in an intermediate var
@@ -77,12 +81,12 @@ exec_occ maintenance:install \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$data_dir/data" \
-    || ynh_die --message="Unable to install $app"
+    || ynh_die "Unable to install $app"
 
 #=================================================
 # CONFIGURE NEXTCLOUD
 #=================================================
-ynh_script_progression --message="Configuring $app..." --weight=8
+ynh_script_progression "Configuring $app..."
 
 # Set the mysql.utf8mb4 config to true in config.php
 exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
@@ -99,21 +103,21 @@ exec_occ ldap:create-empty-config
 
 # Load the installation config file in Nextcloud
 nc_conf="$install_dir/config_install.json"
-ynh_add_config --template="config_install.json" --destination="$nc_conf"
+ynh_config_add --template="config_install.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
-ynh_secure_remove --file="$nc_conf"
+ynh_safe_rm "$nc_conf"
 
 # Load the additional config file (used also for upgrade)
 nc_conf="$install_dir/config.json"
-ynh_add_config --template="config.json" --destination="$nc_conf"
+ynh_config_add --template="config.json" --destination="$nc_conf"
 
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
-ynh_secure_remove --file="$nc_conf"
+ynh_safe_rm "$nc_conf"
 
 #=================================================
 # CHECK THE LDAP CONFIG
@@ -121,7 +125,7 @@ ynh_secure_remove --file="$nc_conf"
 
 # Check LDAP configuration to see if everything worked well
 exec_occ ldap:test-config '' \
-  || ynh_die --message="An error occured during LDAP configuration"
+  || ynh_die "An error occured during LDAP configuration"
 
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
@@ -135,7 +139,7 @@ create_external_storage() {
   local mount_id=`exec_occ files_external:create --output=json \
       "$mount_name" 'local' 'null::null' -c "datadir=$mount_dir" || true`
   ! [[ $mount_id =~ ^[0-9]+$ ]] \
-      && ynh_print_warn --message="Unable to create external storage" \
+      && ynh_print_warn "Unable to create external storage" \
       || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 
@@ -176,7 +180,7 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 #=================================================
 
 # Set the user as admin
-ynh_psql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+ynh_psql_db_shell \
     <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 
 # And delete admin user
@@ -193,7 +197,7 @@ exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressb
 #=================================================
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$install_dir/config/config.php"
+ynh_store_file_checksum "$install_dir/config/config.php"
 
 #=================================================
 # CONFIGURE NOTIFY_PUSH APP
@@ -210,10 +214,10 @@ then
         armel|armhf) arch="armv7";;
     esac
 
-    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
-    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+    ynh_config_add --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+    ynh_config_add_systemd --service="${app}-notify-push-watcher" --template="watcher.service"
     systemctl enable --now ${app}-notify-push-watcher.path
-    ynh_add_systemd_config --service="${app}-notify-push"
+    ynh_config_add_systemd --service="${app}-notify-push"
 fi
 
 #=================================================
@@ -221,9 +225,9 @@ fi
 #=================================================
 
 cron_path="/etc/cron.d/$app"
-ynh_add_config --template="nextcloud.cron" --destination="$cron_path"
-chown root: "$cron_path"
-chmod 644 "$cron_path"
+ynh_config_add --template="nextcloud.cron" --destination="$cron_path"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown root: "$cron_path"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 644 "$cron_path"
 
 exec_occ background:cron
 
@@ -238,7 +242,7 @@ exec_occ db:convert-filecache-bigint -n
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
-ynh_script_progression --message="Adding multimedia directories..." --weight=6
+ynh_script_progression "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
@@ -256,31 +260,30 @@ ynh_multimedia_addaccess $app
 #=================================================
 
 # Fix app ownerships & permissions
-chown -R $app:www-data "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 chown -R $app: "$data_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-chmod 600 "$install_dir/config/config.php"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
-chmod 750 $install_dir
-
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Configuring log rotation..." --weight=1
+ynh_script_progression "Configuring log rotation..."
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate
+ynh_config_add_logrotate
 
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Configuring Fail2Ban..." --weight=8
+ynh_script_progression "Configuring Fail2Ban..."
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
+ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$"
 
 #=================================================
 # CHECK IF NOTIFY_PUSH WORKS
@@ -289,17 +292,17 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))
     done
 
-    ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
-    ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd"
-    
+    ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
+    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd"
+
     if ! exec_occ notify_push:self-test; then
-        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+        ynh_print_warn "The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"ynh_exec_as_app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 
@@ -307,4 +310,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --last
+ynh_script_progression "Installation of $app completed"

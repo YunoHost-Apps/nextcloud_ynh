@@ -9,7 +9,7 @@ name = "Nextcloud configuration"
         [main.maintenance.maintenance_mode]
         ask = "Enable maintenance mode"
         type = "boolean"
-        default = "0"
+        default = false
 
         [main.maintenance.set_permissions_button]
         ask.en = "Set permissions for all data (Can take up to several hours if users have a lot of data)"
@@ -22,8 +22,17 @@ name = "Nextcloud configuration"
         [main.addressbook.system_addressbook_exposed]
         ask = "Should there be a system address book listing all users, accessible by all users?"
         type = "boolean"
-        yes = "yes"
-        no = "no"
+
+    [main.notify_push]
+    name = "Notify Push configuration"
+
+        [main.notify_push.enable_notify_push]
+        ask.en = "Configure the High Performance Backend?"
+        ask.fr = "Configurer le Backend Hautes Performances ?"
+        type = "boolean"
+        help.en = "Also called 'notify push' and corresponds to a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
+        help.fr = "Aussi appelé 'notifications push' et corresponds à un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
+
 
     [main.php_fpm_config]
     name = "PHP-FPM configuration"

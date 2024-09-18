@@ -12,6 +12,10 @@ Alternatively, you may open a 'Nextcloud shell' with `sudo yunohost app shell __
 
 ONLYOFFICE is an online rich text document editor which can be integrated in Nextcloud
 
+#### High Performance Backend
+
+High Performance Backend is an application on Nextcloud that should speed up the instance, more information here: https://github.com/nextcloud/notify_push#about
+
 #### With YunoHost App (ARM64 support, better performance)
 
 For better performance and ARM64 support (Raspberry Pi, OLinuXino...), install the [OnlyOffice YunoHost app](https://apps.yunohost.org/app/onlyoffice) and connect it to Nextcloud, see the tutorial in the [doc of onlyoffice_ynh package](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)

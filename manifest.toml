@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "29.0.5~ynh1"
+version = "29.0.7~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -66,14 +66,23 @@ ram.runtime = "512M"
     type = "select"
     choices = ["stable", "oldstable"]
     default = "stable"
+    
+    [install.enable_notify_push]
+    ask.en = "Configure the High Performance Backend?"
+    ask.fr = "Configurer le Backend Hautes Performances ?"
+    type = "boolean"
+    default = false
+    help.en = "Also called 'notify push' and corresponds to a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
+    help.fr = "Aussi appelé 'notifications push' et corresponds à un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
+
 
 [resources]
 
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.5.tar.bz2'
-        sha256 = 'c7fe9c61e5ec30a5e599e8f152a1825df684d30e899db0caa8868c8d67b53a2c'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.7.tar.bz2'
+        sha256 = 'f532ffc31be5a8374b5e072b86fff8765ec19fda0c8509cee39873081db2c544'
 
         [resources.sources.28]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.8.tar.bz2'

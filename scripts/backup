@@ -41,9 +41,6 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.d"
 # Backup the PHP-FPM configuration
 ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
-# Backup the nginx configuration
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
 # Backup the logrotate configuration
 ynh_backup --src_path="/etc/logrotate.d/$app"
 

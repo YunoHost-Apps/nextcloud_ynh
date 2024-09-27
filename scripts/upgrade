@@ -10,11 +10,7 @@ ynh_script_progression "Ensuring downward compatibility..."
 
 ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
-
-if [ -z ${system_addressbook_exposed:-} ]; then
-    ynh_app_setting_set --key=system_addressbook_exposed --value=0
-    system_addressbook_exposed=0
-fi
+ynh_app_setting_set_default --key=system_addressbook_exposed --value=0
 
 # Fix system_addressbook_exposed as a boolean
 if [ "${system_addressbook_exposed,,}" = "yes" ]; then

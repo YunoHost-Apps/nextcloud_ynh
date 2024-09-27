@@ -30,8 +30,6 @@ ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
 
 ynh_backup "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
-
 ynh_backup "/etc/logrotate.d/$app"
 
 ynh_backup "/etc/fail2ban/jail.d/$app.conf"

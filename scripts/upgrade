@@ -407,7 +407,6 @@ then
     ynh_add_config --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
 
-# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -459,7 +458,6 @@ ynh_use_logrotate --non-append
 # FAIL2BAN
 #=================================================
 
-# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$" --max_retry=5
 
 #=================================================

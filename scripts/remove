@@ -8,17 +8,13 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Removing system configurations related to $app..." --weight=10
 
-# Remove the dedicated NGINX config
 ynh_remove_nginx_config
 ynh_secure_remove --file="/etc/nginx/conf.d/$domain.d/$app.d"
 
-# Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
 
-# Remove the app-specific logrotate config
 ynh_remove_logrotate
 
-# Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
 
 # Remove notify push

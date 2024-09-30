@@ -8,13 +8,13 @@ sudo -u __APP__ php__PHPVERSION__ --define apc.enable_cli=1 __INSTALL_DIR__/occ 
 
 Alternatively, you may open a 'Nextcloud shell' with `sudo yunohost app shell __APP__`, then run `php occ ...`
 
+### High Performance Backend
+
+High Performance Backend is an application on Nextcloud that should speed up the instance, more information here: https://github.com/nextcloud/notify_push#about
+
 ### ONLYOFFICE integration
 
 ONLYOFFICE is an online rich text document editor which can be integrated in Nextcloud
-
-#### High Performance Backend
-
-High Performance Backend is an application on Nextcloud that should speed up the instance, more information here: https://github.com/nextcloud/notify_push#about
 
 #### With YunoHost App (ARM64 support, better performance)
 

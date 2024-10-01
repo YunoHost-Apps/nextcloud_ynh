@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 source ../settings/scripts/_ynh_mysql_dump_db.sh
@@ -28,26 +22,16 @@ ynh_backup --src_path="$install_dir"
 ynh_backup --src_path="$data_dir" --is_big
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
+
+ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.d"
 
-#=================================================
-# SYSTEM CONFIGURATION
-#=================================================
-
-# Backup the PHP-FPM configuration
-ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
-
-# Backup the nginx configuration
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-# Backup the logrotate configuration
 ynh_backup --src_path="/etc/logrotate.d/$app"
 
-# Backup the Fail2Ban config
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
 

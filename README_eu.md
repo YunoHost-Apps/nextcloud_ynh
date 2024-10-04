@@ -25,7 +25,6 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 **Paketatutako bertsioa:** 29.0.7~ynh2
 
-
 **Demoa:** <https://demo.nextcloud.com/>
 
 ## Pantaila-argazkiak

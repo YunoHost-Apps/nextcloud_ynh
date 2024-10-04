@@ -26,3 +26,14 @@ Nextcloud features a direct integration of ONLYOFFICE through a Nextcloud app.
 - Install *Community Document Server* application in your Nextcloud. That's the part that runs ONLYOFFICE server.
 - Install *ONLYOFFICE* application. That's the client part that will connect to an ONLYOFFICE server.
 - Then in Settings -> ONLYOFFICE (`https://__DOMAIN____PATH__/settings/admin/onlyoffice`), if you want to configure which file formats should be opened by ONLYOFFICE.
+
+### Trashbin and file versions retention
+
+By default, Nextcloud keeps files in trashbin and old versions of files, and delete them only when the disk space is almost full. (cf : https://docs.nextcloud.com/server/18/admin_manual/configuration_server/config_sample_php_parameters.html#deleted-items-trash-bin)
+You can change this by editing this file : /var/www/nextcloud/config/config.php
+Just add this lines :
+```
+  'trashbin_retention_obligation' => 'auto, 30',
+  'versions_retention_obligation' => 'auto, 90',
+```
+In this case, nextcloud will delete files in trashbin older than 30 days, and file versions older than 90 days.

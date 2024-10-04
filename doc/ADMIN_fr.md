@@ -26,3 +26,14 @@ Nextcloud inclut une intégration directe via une application Nextcloud.
 - Installez l'application *Community Document Server* dans votre Nextcloud. C'est la partie qui fait tourner un serveur ONLYOFFICE.
 - Installez l'application *ONLYOFFICE*. C'est la partie cliente qui va se connecter au serveur ONLYOFFICE.
 - Ensuite dans les Paramètres -> ONLYOFFICE (`https://__DOMAIN____PATH__/settings/admin/onlyoffice`), si vous voulez configurer quels formats de fichier s'ouvrent avec ONLYOFFICE.
+
+### Gestion des versions et de la corbeille de nextcloud
+
+Par défaut, Nextcloud conserve les fichiers supprimés et les anciennes versions, et ne les supprime quand l'espace disque est presque plein (cf : https://docs.nextcloud.com/server/18/admin_manual/configuration_server/config_sample_php_parameters.html#deleted-items-trash-bin)
+On peut modifier ce comportement en éditant ce fichier : /var/www/nextcloud/config/config.php
+Et en ajoutant ces lignes :
+```
+  'trashbin_retention_obligation' => 'auto, 30',
+  'versions_retention_obligation' => 'auto, 90',
+```
+Dans ce cas, nextcloud va supprimer les fichiers de la corbeille après 30 jours, et les versions plus vieilles que 90 jours.

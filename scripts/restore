@@ -151,6 +151,7 @@ exec_occ() {
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
+    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
     while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1

@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 

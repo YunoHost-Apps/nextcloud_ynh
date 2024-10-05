@@ -66,6 +66,8 @@ ram.runtime = "512M"
     ask.fr = "Configurer le Backend Hautes Performances ?"
     type = "boolean"
     default = false
+    help.en = "Also called 'notify push' and corresponds to a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
+    help.fr = "Aussi appelé 'notifications push' et corresponds à un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
 
 [resources]
 

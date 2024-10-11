@@ -19,7 +19,7 @@ ynh_remove_fail2ban_config
 
 # Remove notify push
 ynh_remove_systemd_config --service="${app}-notify-push"
-ynh_exec_warn_less systemctl disable --now ${app}-notify-push-watcher.path
+systemctl disable --now --quiet ${app}-notify-push-watcher.path
 ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
 ynh_remove_systemd_config --service="${app}-notify-push-watcher"
 

@@ -405,7 +405,7 @@ then
 
     ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
     ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
-    systemctl enable --now ${app}-notify-push-watcher.path
+    systemctl enable --now --quiet ${app}-notify-push-watcher.path
     ynh_add_systemd_config --service="${app}-notify-push"
 fi
 

@@ -14,6 +14,19 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
 
+if [ $change_domain -eq 1 ]
+then
+    # Check if .well-known is available for this domain
+    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
+    then
+        ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+
+        # Remove lines about .well-known/carddav and caldav with sed.
+        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+        ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+    fi
+fi
+
 ynh_change_url_nginx_config
 
 #=================================================
@@ -35,27 +48,64 @@ then
     # Change hostname for activity notifications
     exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
 
-    # Reload php fpm, necessary for force nextcloud to re-read config.php, cf opcache.revalidate_freq
+    # Reload PHP-FPM, necessary for force Nextcloud to re-read config.php, cf opcache.revalidate_freq
     ynh_systemd_action --service_name=php${phpversion}-fpm --action=reload
 
-    # Check if .well-known is available for this domain
-    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
-    then
-        ynh_print_warn --message="Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+    mv /etc/nginx/conf.d/$old_domain.d/$app.d /etc/nginx/conf.d/$new_domain.d/$app.d
+fi
 
-        # Remove lines about .well-known/carddav and caldav with sed.
-        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
-        ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+#=================================================
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    domain="$new_domain"
+    path_url="$new_path"
+
+    ynh_add_config --template="notify_push.conf" --destination="/etc/nginx/conf.d/$domain.d/$app.d/notify_push.conf"
+
+    ynh_systemd_action --service_name=nginx --action=reload
+
+    case $YNH_ARCH in
+        amd64) arch="x86_64";;
+        arm64) arch="aarch64";;
+        armel|armhf) arch="armv7";;
+    esac
+
+    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+    systemctl enable --now ${app}-notify-push-watcher.path
+    ynh_add_systemd_config --service="${app}-notify-push"
+
+    count=0
+    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
+    while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    do
+        sleep 1
+        count=$((count + 1))
+    done
+
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 
 #=================================================
-# SETUP SSOWAT
+# GENERIC FINALISATION
 #=================================================
-ynh_script_progression --message="Configuring permissions..."
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..."
 
 # Temporary fix for the API permission (workaround for https://github.com/YunoHost/issues/issues/2294 )
 ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --auth_header="false" --clear_urls
+
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT

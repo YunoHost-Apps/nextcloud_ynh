@@ -6,18 +6,14 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-# REMOVE SYSTEMD SERVICE 
-#=================================================
 ynh_script_progression --message="Removing system configurations related to $app..." --weight=5
 
 # Remove the dedicated NGINX config
 ynh_remove_nginx_config
+ynh_secure_remove --file="/etc/nginx/conf.d/$domain.d/$app.d"
 
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
-
-# remove logs
-ynh_secure_remove --file="/var/log/$app"
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
@@ -25,15 +21,21 @@ ynh_remove_logrotate
 # Remove the dedicated Fail2Ban config
 ynh_remove_fail2ban_config
 
+# Remove notify push
+ynh_remove_systemd_config --service="${app}-notify-push"
+ynh_exec_warn_less systemctl disable --now ${app}-notify-push-watcher.path
+ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
+ynh_remove_systemd_config --service="${app}-notify-push-watcher"
+
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
 ynh_secure_remove --file="/etc/cron.d/$app"
 
 # Cleaning ACL in home directories
-for i in $(ls /home); do
+for path in /home/*; do
   # Clean ACL in every directories in /home, except those which start with 'yunohost.'
-  [[ ! $i == yunohost.* ]] \
-    && setfacl --remove g:$app:rwx 2>&1
+  [[ ! $path == /home/yunohost.* ]] \
+    && setfacl --remove g:$app -- "$path" 2>&1
 done
 
 #=================================================

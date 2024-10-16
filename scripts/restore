@@ -36,6 +36,7 @@ ynh_add_fpm_config
 #=================================================
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.d"
 
 # Check if .well-known is available for this domain
 if is_url_handled --domain="$domain" --path="/.well-known/caldav" || is_url_handled --domain="$domain" --path="/.well-known/carddav"
@@ -85,7 +86,7 @@ find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
 find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
 find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
-chmod 640 "$install_dir/config/config.php"
+chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
 
@@ -124,6 +125,21 @@ fi
 ynh_systemd_action --action=restart --service_name=fail2ban
 
 #=================================================
+# RESTORE THE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push.service"
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.service"
+    ynh_restore_file --origin_path="/etc/systemd/system/${app}-notify-push-watcher.path"
+
+    systemctl enable --now "${app}-notify-push-watcher.service" --quiet
+    systemctl enable --now "${app}-notify-push-watcher.path" --quiet
+    systemctl enable --now "${app}-notify-push.service" --quiet
+fi
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX
@@ -131,6 +147,33 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 ynh_script_progression --message="Reloading NGINX web server..." --weight=3
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# CHECK IF NOTIFY_PUSH WORKS
+#=================================================
+
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as "$app" \
+      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
+
+if [ $enable_notify_push -eq 1 ]
+then
+    count=0
+    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
+    while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    do
+        sleep 1
+        count=$((count + 1))
+    done
+
+    ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
+    ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+    
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+    fi
+fi
 
 #=================================================
 # END OF SCRIPT

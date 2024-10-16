@@ -30,7 +30,8 @@
         "verify_peer": false,
         "verify_peer_name": false
       }
-    }
+    },
+    "trusted_proxies": [ "127.0.0.1", "::1" ]
   },
   "apps": {
     "user_ldap": {

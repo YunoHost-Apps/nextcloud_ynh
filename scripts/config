@@ -18,6 +18,11 @@ ynh_abort_if_errors
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as "$app" \
+      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
+
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
@@ -39,8 +44,7 @@ get__maintenance_mode() {
 }
 
 get__system_addressbook_exposed() {
-	echo $(cd "$install_dir" && ynh_exec_as "$app" \
-	          php${phpversion} --define apc.enable_cli=1 occ config:app:get dav system_addressbook_exposed)
+	echo $(exec_occ config:app:get dav system_addressbook_exposed)
 }
 
 get__fpm_footprint() {
@@ -73,22 +77,84 @@ get__fpm_free_footprint() {
 set__maintenance_mode() {
     if [ "$maintenance_mode" -eq "0" ]; then
         # If maintenance_mode was set to 0, disable maintenance mode
-        (cd "$install_dir" && ynh_exec_as "$app" \
-            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --off)
+        exec_occ maintenance:mode --off
         ynh_print_info "Maintenance mode disabled"
     elif [ "$maintenance_mode" -eq "1" ]; then
         # If maintenance_mode was set to 1, enable maintenance mode
-        (cd "$install_dir" && ynh_exec_as "$app" \
-            php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode --on)
+        exec_occ maintenance:mode --on
         ynh_print_info "Maintenance mode enabled"
     fi
     ynh_app_setting_set --app=$app --key=maintenance_mode --value="$maintenance_mode"
 }
 
 set__system_addressbook_exposed() {
-	(cd "$install_dir" && ynh_exec_as "$app" \
-		          php${phpversion} --define apc.enable_cli=1 occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed")
+	exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed"
 	ynh_print_info "System addressbook is exposed: $system_addressbook_exposed"
+}
+
+
+set__enable_notify_push() {
+    if [ "$enable_notify_push" -eq "0" ]; then
+        nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
+        ynh_secure_remove --file="$nginx_extra_conf_dir/notify_push.conf"
+        ynh_systemd_action --service_name="nginx" --action=reload
+
+        # If notify_push is enabled, disable it
+        if exec_occ app:list | awk '/Enabled/{f=1;next} f' | grep -q -w notify_push; then
+            exec_occ app:disable notify_push
+        fi
+
+        ynh_remove_systemd_config --service="${app}-notify-push"
+        systemctl disable --now "${app}-notify-push-watcher.path"
+        ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
+        ynh_remove_systemd_config --service="${app}-notify-push-watcher"
+
+        ynh_print_info "Notify push disabled"
+    elif [ "$enable_notify_push" -eq "1" ]; then
+        nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
+        mkdir -p "$nginx_extra_conf_dir"
+
+        ynh_add_config --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
+
+        ynh_systemd_action --service_name="nginx" --action=reload
+
+        # If notify_push is disabled, reenable it
+        if exec_occ app:list | awk '/Disabled/{f=1;next} f' | grep -q -w notify_push; then
+            exec_occ app:enable notify_push
+        # If notify_push is not installed, install it
+        elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
+            exec_occ app:install notify_push
+        fi
+        exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+        case $YNH_ARCH in
+            amd64) arch="x86_64";;
+            arm64) arch="aarch64";;
+            armel|armhf) arch="armv7";;
+        esac
+
+        ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+        ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
+        systemctl enable --now ${app}-notify-push-watcher.path
+        ynh_add_systemd_config --service="${app}-notify-push"
+        
+        count=0
+    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
+        while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+        do
+            sleep 1
+            count=$((count + 1))
+        done
+
+        ynh_systemd_action --service_name="${app}-notify-push-watcher" --action=restart
+        ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd"
+        
+        if ! exec_occ notify_push:self-test; then
+            ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+        fi
+        ynh_print_info "Notify push enabled"
+    fi
+    ynh_app_setting_set --app=$app --key=enable_notify_push --value="$enable_notify_push"
 }
 
 set__fpm_footprint() {
@@ -103,6 +169,24 @@ set__fpm_free_footprint() {
     then
         ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_free_footprint"
     fi
+}
+
+#=================================================
+# SPECIFIC RUNNERS FOR TOML SHORT KEYS
+#=================================================
+
+function run__set_permissions_button() {
+    local data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
+    ynh_print_info "Set permissions, it may take some time..."
+    chown -R $app:www-data "$install_dir"
+    chown -R $app: "$data_dir"
+    find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
+    find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
+    find $data_dir/data/ -type f -print0 | xargs -r0 chmod 0640
+    find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
+    chmod 640 "$install_dir/config/config.php"
+    chmod 755 /home/yunohost.app
+    chmod 750 $install_dir
 }
 
 #=================================================

@@ -25,7 +25,7 @@ ynh_script_progression --message="Setting up source files..." --weight=5
 cp -a ../sources/patches_last_version/* ../sources/patches
 
 source_id="main"
-if [ "$version_to_follow" == "oldstable" ]; then
+if [ "$version_to_follow" == "manage-oldstable-version" ]; then
     last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9][0-9]')
     last_major_version=${last_version%%.*}
     last_major_version=$(( $last_major_version - 1 ))
@@ -209,27 +209,6 @@ exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressb
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum --file="$install_dir/config/config.php"
-
-#=================================================
-# CONFIGURE NOTIFY_PUSH APP
-#=================================================
-
-if [ $enable_notify_push -eq 1 ]
-then
-    exec_occ app:install notify_push
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
-
-    case $YNH_ARCH in
-        amd64) arch="x86_64";;
-        arm64) arch="aarch64";;
-        armel|armhf) arch="armv7";;
-    esac
-
-    ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
-    ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
-    systemctl enable --now ${app}-notify-push-watcher.path
-    ynh_add_systemd_config --service="${app}-notify-push"
-fi
 
 #=================================================
 # ADD A CRON JOB

@@ -26,7 +26,7 @@ cp -a ../sources/patches_last_version/* ../sources/patches
 
 source_id="main"
 if [ "$version_to_follow" == "oldstable" ]; then
-    last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9][0-9]')
+    last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
     last_major_version=${last_version%%.*}
     last_major_version=$(( $last_major_version - 1 ))
 fi

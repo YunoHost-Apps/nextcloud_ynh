@@ -23,7 +23,7 @@ In the context of YunoHost, Nextcloud integrates with the SSO / user portal (Yun
 The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
 
-**Shipped version:** 30.0.0~ynh1
+**Shipped version:** 30.0.1~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

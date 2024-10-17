@@ -24,6 +24,11 @@ elif [ "${system_addressbook_exposed,,}" = "no" ]; then
     system_addressbook_exposed=0
 fi
 
+if [ -z ${enable_notify_push:-} ]; then
+    ynh_app_setting_set --app=$app --key=enable_notify_push --value=0
+    enable_notify_push=0
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --app=$app --key=backup_core_only
 
@@ -34,6 +39,13 @@ if ynh_compare_current_package_version --comparison lt --version 22.2~ynh1
 then
     ynh_die --message="Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
+
+if [ -z "${version_to_follow:-}" ]
+then
+    version_to_follow=stable
+    ynh_app_setting_set --app=$app --key=version_to_follow --value="$version_to_follow"
+fi
+
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -53,7 +65,7 @@ filter_boring_occ_warnings() {
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version = "last" ] || [ $current_major_version -ge 26 ]
+    if [ $current_major_version = "$last_major_version" ] || [ $current_major_version -ge 26 ]
     then
         NEXTCLOUD_PHP_VERSION="8.2"
     elif [ $current_major_version -ge 24 ]

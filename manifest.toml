@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "29.0.7~ynh2"
+version = "28.0.11~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -66,7 +66,7 @@ ram.runtime = "512M"
     type = "select"
     choices = ["stable", "oldstable"]
     default = "stable"
-    
+
     [install.enable_notify_push]
     ask.en = "Configure the High Performance Backend?"
     ask.fr = "Configurer le Backend Hautes Performances ?"
@@ -81,13 +81,8 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.7.tar.bz2'
-        sha256 = 'f532ffc31be5a8374b5e072b86fff8765ec19fda0c8509cee39873081db2c544'
-
-        [resources.sources.28]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.8.tar.bz2'
-        sha256 = '55a2f745fcc8f01b5816b23333f1e3014d2040a66794e132ddd0d219a37be53a'
-        prefetch = false
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.11.tar.bz2'
+        sha256 = '4baaecec6a6f145832dbc3c635d72e20cd4804acad9a664e6a74b90a7981e348'
 
         [resources.sources.27]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-27.1.11.tar.bz2'
@@ -132,7 +127,7 @@ ram.runtime = "512M"
     api.allowed = ["visitors", "all_users"]
 
     [resources.apt]
-    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, redis-server, php8.3-fpm, php8.3-bz2, php8.3-imap, php8.3-gmp, php8.3-gd, php8.3-intl, php8.3-curl, php8.3-apcu, php8.3-redis, php8.3-ldap, php8.3-imagick, php8.3-zip, php8.3-mbstring, php8.3-xml, php8.3-mysql, php8.3-igbinary, php8.3-bcmath"
+    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, redis-server, php8.2-fpm, php8.2-bz2, php8.2-imap, php8.2-gmp, php8.2-gd, php8.2-intl, php8.2-curl, php8.2-apcu, php8.2-redis, php8.2-ldap, php8.2-imagick, php8.2-zip, php8.2-mbstring, php8.2-xml, php8.2-mysql, php8.2-igbinary, php8.2-bcmath"
 
     [resources.database]
     type = "mysql"

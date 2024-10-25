@@ -12,6 +12,8 @@ ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
 ynh_app_setting_set_default --key=system_addressbook_exposed --value=0
 
+ynh_app_setting_set_default --key=phpflags --value="--define apc.enable_cli=1"
+
 # Fix system_addressbook_exposed as a boolean
 if [ "${system_addressbook_exposed,,}" = "yes" ]; then
     ynh_app_setting_set --key=system_addressbook_exposed --value=1
@@ -28,9 +30,6 @@ fi
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only
-
-phpflags="--define apc.enable_cli=1"
-ynh_app_setting_set --key=phpflags --value="$phpflags"
 
 if ynh_app_upgrading_from_version_before 22.2~ynh1
 then

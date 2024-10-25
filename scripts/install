@@ -4,11 +4,9 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_app_setting_set --key=php_upload_max_filesize --value=10G
-
 ynh_app_setting_set --key=php_memory_limit --value=512M
 
 phpflags="--define apc.enable_cli=1"
-
 ynh_app_setting_set --key=phpflags --value="$phpflags"
 
 #=================================================

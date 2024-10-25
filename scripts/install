@@ -85,7 +85,7 @@ exec_occ maintenance:install \
 ynh_script_progression --message="Configuring $app..." --weight=8
 
 # Set the mysql.utf8mb4 config to true in config.php
-exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+#exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # move the logs from the data_dir to the standard /var/log
 exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"

@@ -7,12 +7,14 @@ name = "Nextcloud configuration"
     name = "Maintenance"
 
         [main.maintenance.maintenance_mode]
-        ask = "Enable maintenance mode"
+        ask.en = "Enable maintenance mode"
+        ask.fr = "Activer le mode maintenance"
         type = "boolean"
         default = false
 
         [main.maintenance.set_permissions_button]
         ask.en = "Set permissions for all data (Can take up to several hours if users have a lot of data)"
+        ask.fr = "Définir des autorisations pour toutes les données (cela peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données)"
         type = "button"
         style = "success"
 
@@ -20,7 +22,8 @@ name = "Nextcloud configuration"
     name = "Address book configuration"
 
         [main.addressbook.system_addressbook_exposed]
-        ask = "Should there be a system address book listing all users, accessible by all users?"
+        ask.en = "Should there be a system address book listing all users, accessible by all users?"
+        ask.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
         type = "boolean"
 
     [main.notify_push]

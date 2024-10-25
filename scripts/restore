@@ -31,7 +31,7 @@ ynh_script_progression "Restoring system configurations related to $app..."
 
 ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
-ynh_config_add_phpfpm
+#ynh_config_add_phpfpm
 
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.d"

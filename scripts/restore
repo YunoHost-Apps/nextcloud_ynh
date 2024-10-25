@@ -25,17 +25,13 @@ ynh_script_progression "Restoring the PostgreSQL database..."
 ynh_psql_db_shell < ./db.sql
 
 #=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
+# RESTORE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Reconfiguring PHP-FPM..."
+ynh_script_progression "Restoring system configurations related to $app..."
 
 ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
 ynh_config_add_phpfpm
-
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
 
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.d"
@@ -49,25 +45,15 @@ then
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
+ynh_restore "/etc/logrotate.d/$app"
+
 #=================================================
-# RESTORE THE CRON FILE
+# RESTORE VARIOUS FILES
 #=================================================
-ynh_script_progression "Restoring cron job..."
 
 ynh_restore "/etc/cron.d/$app"
 
-#=================================================
-# RESTORE LOGS
-#=================================================
-
 ynh_restore "/var/log/$app"
-
-#=================================================
-# BACKUP THE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression "Restoring the logrotate configuration..."
-
-ynh_restore "/etc/logrotate.d/$app"
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -97,6 +83,7 @@ ynh_script_progression "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
+
 # Allow nextcloud to write into these directories
 ynh_multimedia_addaccess $app
 

@@ -1,30 +1,36 @@
 version = "1.0"
 
 [main]
-name = "Nextcloud configuration"
+name.en = "Nextcloud configuration"
+name.fr = "Configuration Nextcloud"
 
     [main.maintenance]
     name = "Maintenance"
 
         [main.maintenance.maintenance_mode]
-        ask = "Enable maintenance mode"
+        ask.en = "Enable maintenance mode"
+        ask.fr = "Activer le mode maintenance"
         type = "boolean"
         default = false
 
         [main.maintenance.set_permissions_button]
         ask.en = "Set permissions for all data (Can take up to several hours if users have a lot of data)"
+        ask.fr = "Définir des autorisations pour toutes les données (cela peut prendre jusqu'à plusieurs heures)"
         type = "button"
         style = "success"
 
     [main.addressbook]
-    name = "Address book configuration"
+    name.en = "Address book configuration"
+    name.fr = "Configuration du carnet d'adresses"
 
         [main.addressbook.system_addressbook_exposed]
-        ask = "Should there be a system address book listing all users, accessible by all users?"
+        ask.en = "Should there be a system address book listing all users, accessible by all users?"
+        ask.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
         type = "boolean"
 
     [main.notify_push]
-    name = "Notify Push configuration"
+    name.en = "Notify Push configuration"
+    name.fr = "Configuration de la notification push"
 
         [main.notify_push.enable_notify_push]
         ask.en = "Configure the High Performance Backend?"
@@ -35,7 +41,8 @@ name = "Nextcloud configuration"
 
 
     [main.php_fpm_config]
-    name = "PHP-FPM configuration"
+    name.en = "PHP-FPM configuration"
+    name.fr = "Configuration de PHP-FPM"
 
         [main.php_fpm_config.fpm_footprint]
         ask = "Memory footprint"

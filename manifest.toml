@@ -19,11 +19,10 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.3.0"
+yunohost = ">= 11.2.30"
 helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
-
 ldap = true
 sso = true
 
@@ -49,24 +48,26 @@ ram.runtime = "512M"
     default = "visitors"
 
     [install.user_home]
-    ask.en = "Access the users home folder from Nextcloud?"
-    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"
+    ask.en = "Access the users home folder from Nextcloud"
+    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud"
     type = "boolean"
     default = false
 
     [install.system_addressbook_exposed]
-    ask.en = "Should there be a system address book listing all users, accessible by all users?"
-    ask.fr = "Devrait-il y avoir un carnet d'adresses système listant tous les comptes, accessible par tous les comptes ?"
+    ask.en = "Enable address book"
+    ask.fr = "Activer le carnet d’adresses"
     type = "boolean"
     default = true
+    help.en = "Should there be a system address book listing all users, accessible by all users?"
+    help.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
 
     [install.enable_notify_push]
-    ask.en = "Configure the High Performance Backend?"
-    ask.fr = "Configurer le Backend Hautes Performances ?"
+    ask.en = "Enable Notify Push"
+    ask.fr = "Activer la Notification Push"
     type = "boolean"
     default = false
-    help.en = "Also called 'notify push' and corresponds to a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
-    help.fr = "Aussi appelé 'notifications push' et corresponds à un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
+    help.en = "Mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
+    help.fr = "Mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
 
 [resources]
 

@@ -2,7 +2,7 @@ version = "1.0"
 
 [main]
 name.en = "Nextcloud configuration"
-name.fr = "Configuration Nextcloud"
+name.fr = "Configuration de Nextcloud"
 
     [main.maintenance]
     name = "Maintenance"

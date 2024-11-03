@@ -13,7 +13,10 @@ name.fr = "Configuration de Nextcloud"
         type = "boolean"
         default = false
 
-        [main.maintenance.set_permissions_button]
+    [main.permissions]
+    name = "Permissions"
+
+        [main.permissions.set_permissions_button]
         ask.en = "Reset permissions"
         ask.fr = "Redéfinir les autorisations"
         type = "button"

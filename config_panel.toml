@@ -14,10 +14,12 @@ name.fr = "Configuration de Nextcloud"
         default = false
 
         [main.maintenance.set_permissions_button]
-        ask.en = "Set permissions for all data (Can take up to several hours if users have a lot of data)"
-        ask.fr = "Définir des autorisations pour toutes les données (cela peut prendre jusqu'à plusieurs heures)"
+        ask.en = "Reset permissions"
+        ask.fr = "Redéfinir les autorisations"
         type = "button"
         style = "success"
+        help.en = "This action sets permissions for all data. Beware, this action can take up to several hours if users have a lot of data."
+        help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
     [main.addressbook]
     name.en = "Address book configuration"

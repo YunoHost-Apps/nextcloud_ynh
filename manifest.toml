@@ -49,8 +49,8 @@ ram.runtime = "512M"
     default = "visitors"
 
     [install.user_home]
-    ask.en = "Access the users home folder from Nextcloud?"
-    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"
+    ask.en = "Access the users home folder from Nextcloud"
+    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud"
     type = "boolean"
     default = false
 
@@ -61,12 +61,12 @@ ram.runtime = "512M"
     default = true
 
     [install.enable_notify_push]
-    ask.en = "Configure the High Performance Backend?"
-    ask.fr = "Configurer le Backend Hautes Performances ?"
+    ask.en = "Enable Notify Push"
+    ask.fr = "Activer la Notification Push"
     type = "boolean"
     default = false
-    help.en = "Also called 'notify push' and corresponds to a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
-    help.fr = "Aussi appelé 'notifications push' et corresponds à un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
+    help.en = "Mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
+    help.fr = "Mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
 
 [resources]
 

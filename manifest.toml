@@ -55,10 +55,13 @@ ram.runtime = "512M"
     default = false
 
     [install.system_addressbook_exposed]
-    ask.en = "Should there be a system address book listing all users, accessible by all users?"
-    ask.fr = "Devrait-il y avoir un carnet d'adresses système listant tous les comptes, accessible par tous les comptes ?"
+    ask.en = "Enable address book"
+    ask.fr = "Activer le carnet d’adresses"
     type = "boolean"
     default = true
+    help.en = "Should there be a system address book listing all users, accessible by all users?"
+    help.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
+
 
     [install.enable_notify_push]
     ask.en = "Enable Notify Push"

@@ -295,7 +295,7 @@ then
     ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd"
 
     if ! exec_occ notify_push:self-test; then
-        ynh_print_warn "The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"ynh_exec_as_app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+        ynh_print_warn --message="The Notify Push service is still not working properly. Please log in with a user to your NextCloud instance, restart the Notify Push service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 

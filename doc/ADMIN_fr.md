@@ -12,9 +12,9 @@ Ou bien, vous pouvez ouvrir un "shell Nextcloud" avec `sudo yunohost app shell _
 
 ONLYOFFICE est un éditeur de texte enrichi en ligne qui peut s'intégrer dans Nextcloud
 
-#### Backend Hautes Performances
+#### Notify Push
 
-Le backend Hautes Performances est une application sur Nextcloud qui devrait accélérer l'instance, plus d'informations ici : https://github.com/nextcloud/notify_push#about
+Notify Push est une application sur Nextcloud qui devrait accélérer l'instance, plus d'informations ici : https://github.com/nextcloud/notify_push#about
 
 #### Avec l'application YunoHost (support ARM64, meilleures performances)
 

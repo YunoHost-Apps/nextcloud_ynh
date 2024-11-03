@@ -14,7 +14,8 @@ name.fr = "Configuration de Nextcloud"
         default = false
 
     [main.permissions]
-    name = "Permissions"
+    name.en = "Permissions"
+    name.fr = "Autorisations"
 
         [main.permissions.set_permissions_button]
         ask.en = "Reset permissions"

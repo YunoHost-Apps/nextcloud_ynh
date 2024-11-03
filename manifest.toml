@@ -62,7 +62,6 @@ ram.runtime = "512M"
     help.en = "Should there be a system address book listing all users, accessible by all users?"
     help.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
 
-
     [install.enable_notify_push]
     ask.en = "Enable Notify Push"
     ask.fr = "Activer la Notification Push"

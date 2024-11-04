@@ -4,9 +4,18 @@ source _common.sh
 source /usr/share/yunohost/helpers
 source _ynh_mysql_connect_as.sh
 
-phpflags="--define apc.enable_cli=1"
+#=================================================
+# INITIALIZE AND STORE SETTINGS
+#=================================================
 
+phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --app=$app --key=phpflags --value="$phpflags"
+
+enable_notify_push="0"
+ynh_app_setting_set --app=$app --key=enable_notify_push --value=0
+
+system_addressbook_exposed="0"
+ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
 
 #=================================================
 # CREATE A MYSQL DATABASE

@@ -28,10 +28,12 @@ name.fr = "Configuration de Nextcloud"
     [main.version]
         [main.version.version_to_follow]
         ask.en = "Upgrade channel to use"
+        ask.fr = "Canal de mise à jour à utiliser"
         type = "select"
         choices = ["stable", "oldstable"]
         default = "stable"
-        help.en = "Recent major releases contains sometimes some annoying bugs or regressions. Using the oldstable channel during this period can be useful if you need high stability."
+        help.en = "Stable releases (latest Nextcloud version available) sometimes contain annoying bugs or regressions. Using the oldstable channel (one version behind the latest) during this period can be useful if you need high stability."
+        help.fr = "Les versions stables (dernière version Nextcloud disponible) contiennent parfois des bugs ou des régressions gênants. Utiliser le canal oldstable (une version en retard sur la dernière) pendant cette période peut être utile si vous avez besoin d'une grande stabilité."
 
     [main.addressbook]
     name.en = "Address book configuration"

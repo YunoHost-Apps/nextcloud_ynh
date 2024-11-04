@@ -26,6 +26,8 @@ name.fr = "Configuration de Nextcloud"
         help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
     [main.version]
+    name.en = "Upgrade channel"
+    name.fr = "Canal de mise à jour"
         [main.version.version_to_follow]
         ask.en = "Upgrade channel to use"
         ask.fr = "Canal de mise à jour à utiliser"

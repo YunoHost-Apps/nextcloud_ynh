@@ -65,8 +65,8 @@ ram.runtime = "512M"
     ask.fr = "Activer la Notification Push"
     type = "boolean"
     default = false
-    help.en = "Mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
-    help.fr = "Mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
+    help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
+    help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
 
 [resources]
 

@@ -5,8 +5,6 @@ source /usr/share/yunohost/helpers
 source ../settings/scripts/_ynh_mysql_connect_as.sh
 
 #=================================================
-# STANDARD RESTORATION STEPS
-#=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
 ynh_script_progression --message="Restoring the app main directory..."
@@ -139,8 +137,6 @@ then
     systemctl enable --now "${app}-notify-push.service" --quiet
 fi
 
-#=================================================
-# GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX
 #=================================================

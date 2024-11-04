@@ -41,8 +41,6 @@ then
 fi
 
 #=================================================
-# SPECIFIC UPGRADE
-#=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
 #=================================================

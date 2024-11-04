@@ -12,10 +12,6 @@ Ou bien, vous pouvez ouvrir un "shell Nextcloud" avec `sudo yunohost app shell _
 
 ONLYOFFICE est un éditeur de texte enrichi en ligne qui peut s'intégrer dans Nextcloud
 
-#### Notify Push
-
-Notify Push est une application sur Nextcloud qui devrait accélérer l'instance, plus d'informations ici : https://github.com/nextcloud/notify_push#about
-
 #### Avec l'application YunoHost (support ARM64, meilleures performances)
 
 Pour de meilleures performances et le support de ARM64 (Raspberry Pi, OLinuXino...), installez l'[app YunoHost OnlyOffice](https://apps.yunohost.org/app/onlyoffice), puis connectez-la à Nextcloud : voir le tutoriel dans la [doc du paquet onlyoffice_ynh](https://github.com/YunoHost-Apps/onlyoffice_ynh/blob/master/README_fr.md#configuration-de-onlyoffice-server)

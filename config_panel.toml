@@ -47,7 +47,6 @@ name.fr = "Configuration de Nextcloud"
         help.en = "Mechanism allowing more instantaneous notifications and reduce server load."
         help.fr = "Mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur."
 
-
     [main.php_fpm_config]
     name.en = "PHP-FPM configuration"
     name.fr = "Configuration de PHP-FPM"

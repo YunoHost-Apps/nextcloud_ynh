@@ -155,7 +155,7 @@ then
     create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
     done
 fi
 
@@ -211,6 +211,9 @@ if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
 
     case $YNH_ARCH in
         amd64) arch="x86_64";;
@@ -297,6 +300,7 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
+
     # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
     while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do

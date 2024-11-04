@@ -26,6 +26,7 @@ ynh_remove_systemd_config --service="${app}-notify-push"
 systemctl disable --now --quiet ${app}-notify-push-watcher.path
 ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
 ynh_remove_systemd_config --service="${app}-notify-push-watcher"
+ynh_secure_remove --file="/var/run/$app"
 
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
@@ -35,7 +36,7 @@ ynh_secure_remove --file="/etc/cron.d/$app"
 for path in /home/*; do
   # Clean ACL in every directories in /home, except those which start with 'yunohost.'
   [[ ! $path == /home/yunohost.* ]] \
-    && setfacl --remove g:$app -- "$path" 2>&1
+    && setfacl --recursive --remove g:$app,d:g:$app -- "$path" 2>&1
 done
 
 #=================================================

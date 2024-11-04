@@ -70,6 +70,12 @@ ram.runtime = "512M"
     help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new)"
     help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle)"
 
+    [install.enable_notify_push]
+    ask.en = "Configure the High Performance Backend?"
+    ask.fr = "Configurer le Backend Hautes Performances ?"
+    type = "boolean"
+    default = false
+
 [resources]
 
     [resources.sources]

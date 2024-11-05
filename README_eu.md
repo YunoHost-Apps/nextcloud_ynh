@@ -5,7 +5,7 @@ EZ editatu eskuz.
 
 # Nextcloud YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Integrazio maila](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 
 [![Instalatu Nextcloud YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -43,7 +43,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**Paketatutako bertsioa:** 27.1.10~ynh1
+**Paketatutako bertsioa:** 28.0.8~ynh1
 
 **Demoa:** <https://demo.nextcloud.com/>
 

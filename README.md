@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Nextcloud for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://dash.yunohost.org/appci/app/nextcloud) ![Working status](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Working status](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -43,7 +43,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**Shipped version:** 27.1.10~ynh1
+**Shipped version:** 28.0.8~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

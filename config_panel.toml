@@ -1,44 +1,60 @@
 version = "1.0"
 
 [main]
-name = "Nextcloud configuration"
+name.en = "Nextcloud configuration"
+name.fr = "Configuration de Nextcloud"
 
     [main.maintenance]
     name = "Maintenance"
 
         [main.maintenance.maintenance_mode]
-        ask = "Enable maintenance mode"
+        ask.en = "Enable maintenance mode"
+        ask.fr = "Activer le mode maintenance"
         type = "boolean"
         default = false
 
-        [main.maintenance.set_permissions_button]
-        ask.en = "Set permissions for all data (Can take up to several hours if users have a lot of data)"
+    [main.permissions]
+    name.en = "Permissions"
+    name.fr = "Autorisations"
+
+        [main.permissions.set_permissions_button]
+        ask.en = "Reset permissions"
+        ask.fr = "Redéfinir les autorisations"
         type = "button"
         style = "success"
+        help.en = "This action sets permissions for all data. Beware, this action can take up to several hours if users have a lot of data."
+        help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
     [main.addressbook]
-    name = "Address book configuration"
+    name.en = "Address book configuration"
+    name.fr = "Configuration du carnet d'adresses"
 
         [main.addressbook.system_addressbook_exposed]
-        ask = "Should there be a system address book listing all users, accessible by all users?"
+        ask.en = "Enable address book"
+        ask.fr = "Activer le carnet d’adresses"
         type = "boolean"
+        help.en = "Should there be a system address book listing all users, accessible by all users?"
+        help.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
 
     [main.notify_push]
-    name = "Notify Push configuration"
+    name.en = "Notify Push configuration"
+    name.fr = "Configuration Notification Push"
 
         [main.notify_push.enable_notify_push]
-        ask.en = "Configure the High Performance Backend?"
-        ask.fr = "Configurer le Backend Hautes Performances ?"
+        ask.en = "Enable Notify Push"
+        ask.fr = "Activer la Notification Push"
         type = "boolean"
-        help.en = "Also called 'notify push' and corresponds to a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new and adds complexity to the setup)"
-        help.fr = "Aussi appelé 'notifications push' et corresponds à un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle, et augmente la complexité de l'installation)"
+        help.en = "Mechanism allowing more instantaneous notifications and reduce server load."
+        help.fr = "Mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur."
 
 
     [main.php_fpm_config]
-    name = "PHP-FPM configuration"
+    name.en = "PHP-FPM configuration"
+    name.fr = "Configuration de PHP-FPM"
 
         [main.php_fpm_config.fpm_footprint]
-        ask = "Memory footprint"
+        ask.en = "Memory footprint"
+        ask.fr = "Empreinte mémoire"
         type = "select"
         choices.low = "Low, <= 20Mb per pool"
         choices.medium = "Medium, between 20Mb and 40Mb per pool"
@@ -54,8 +70,11 @@ name = "Nextcloud configuration"
         help = "Free field to specify exactly the footprint in Mb if you don't want to use one of the three previous values."
 
         [main.php_fpm_config.fpm_usage]
-        ask = "Expected usage"
+        ask.en = "Expected usage"
+        ask.fr = "Utilisation prévue"
         type = "select"
         choices = ["low", "medium", "high"]
         default = "low"
-        help = "low: Personal usage, behind the SSO. No RAM footprint when not used, but the impact on the processor can be high if many users are using the service.<br>medium: Low usage, few people or/and publicly accessible. Low RAM footprint, medium processor footprint when used.<br>high: High usage, frequently visited website. High RAM footprint, but lower on processor usage and quickly responding."
+        help.en = "low: Personal usage, behind the SSO. No RAM footprint when not used, but the impact on the processor can be high if many users are using the service.<br>medium: Low usage, few people or/and publicly accessible. Low RAM footprint, medium processor footprint when used.<br>high: High usage, frequently visited website. High RAM footprint, but lower on processor usage and quickly responding."
+        help.fr = "low : utilisation personnelle, derrière le SSO. Pas d'empreinte RAM lorsqu'il n'est pas utilisé, mais l'impact sur le processeur peut être élevé si de nombreux utilisateurs utilisent le service.<br>medium : faible utilisation, peu de personnes ou/et accessible au public. Faible empreinte RAM, empreinte processeur moyenne lorsqu'il est utilisé.<br>high : utilisation élevée, site Web fréquemment visité. Empreinte RAM élevée, mais utilisation du processeur plus faible et réponse rapide."
+

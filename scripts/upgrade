@@ -405,7 +405,7 @@ then
 
     ynh_add_config --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
     ynh_add_systemd_config --service="${app}-notify-push-watcher" --template="watcher.service"
-    systemctl enable --now ${app}-notify-push-watcher.path
+    systemctl enable --now --quiet ${app}-notify-push-watcher.path
     ynh_add_systemd_config --service="${app}-notify-push"
 fi
 
@@ -452,7 +452,7 @@ then
     ynh_systemd_action --service_name="${app}-notify-push" --action=restart --line_match="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
 
     if ! exec_occ notify_push:self-test; then
-        ynh_print_warn --message="The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+        ynh_print_warn --message="The Notify Push service is still not working properly. Please log in with a user to your NextCloud instance, restart the Notify Push service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${phpversion} $install_dir/occ notify_push:self-test\" to verify that everything is green."
     fi
 fi
 

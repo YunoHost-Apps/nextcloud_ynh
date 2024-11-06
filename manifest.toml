@@ -19,7 +19,8 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.2.30"
+yunohost = ">= 11.2.18"
+helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
 
@@ -100,6 +101,7 @@ ram.runtime = "512M"
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["data"]

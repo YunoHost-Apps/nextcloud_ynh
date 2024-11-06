@@ -18,10 +18,12 @@ ynh_config_remove_logrotate
 ynh_config_remove_fail2ban
 
 # Remove Notify Push
-ynh_config_remove_systemd "${app}-notify-push"
-systemctl disable --now --quiet ${app}-notify-push-watcher.path
-ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"
-ynh_config_remove_systemd "${app}-notify-push-watcher"
+if [ $enable_notify_push -eq 1 ]; then
+  ynh_config_remove_systemd "${app}-notify-push"
+  systemctl disable --now --quiet ${app}-notify-push-watcher.path
+  ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"
+  ynh_config_remove_systemd "${app}-notify-push-watcher"
+fi
 
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)

@@ -410,10 +410,9 @@ fi
 # CRON JOB
 #=================================================
 
-cron_path="/etc/cron.d/$app"
-ynh_config_add --template="nextcloud.cron" --destination="$cron_path"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown root: "$cron_path"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 644 "$cron_path"
+ynh_config_add --template="nextcloud.cron" --destination="/etc/cron.d/$app"
+chown root: "/etc/cron.d/$app"
+chmod 644 "/etc/cron.d/$app"
 
 exec_occ background:cron
 

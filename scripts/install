@@ -26,8 +26,7 @@ ynh_app_setting_set --key=system_addressbook_exposed --value=0
 #=================================================
 ynh_script_progression "Migrate MySQL database to utf8..."
 
-ynh_mysql_db_shell \
-    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -36,6 +35,7 @@ ynh_script_progression "Setting up source files..."
 
 # Enable YunoHost patches on Nextcloud sources
 cp -a ../patches_last_version/* ../patches
+
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
@@ -142,8 +142,7 @@ ynh_safe_rm "$nc_conf"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config '' \
-  || ynh_die "An error occured during LDAP configuration"
+exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
 
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
@@ -241,10 +240,9 @@ fi
 # ADD A CRON JOB
 #=================================================
 
-cron_path="/etc/cron.d/$app"
-ynh_config_add --template="nextcloud.cron" --destination="$cron_path"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown root: "$cron_path"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 644 "$cron_path"
+ynh_config_add --template="nextcloud.cron" --destination="/etc/cron.d/$app"
+chown root: "/etc/cron.d/$app"
+chmod 644 "/etc/cron.d/$app"
 
 exec_occ background:cron
 
@@ -284,6 +282,7 @@ find $data_dir/data/ -type d -print0 | xargs -r0 chmod 0750
 #REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 $install_dir
+
 #=================================================
 # SETUP LOGROTATE
 #=================================================

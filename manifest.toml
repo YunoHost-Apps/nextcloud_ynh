@@ -54,14 +54,6 @@ ram.runtime = "512M"
     type = "boolean"
     default = false
 
-    [install.system_addressbook_exposed]
-    ask.en = "Enable address book"
-    ask.fr = "Activer le carnet d’adresses"
-    type = "boolean"
-    default = true
-    help.en = "Should there be a system address book listing all users, accessible by all users?"
-    help.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
-
     [install.version_to_follow]
     ask.en = "Upgrade channel to use"
     ask.fr = "Canal de mise à jour à utiliser"
@@ -71,15 +63,6 @@ ram.runtime = "512M"
     choices = ["stable", "oldstable"]
     default = "stable"
     
-    [install.enable_notify_push]
-    ask.en = "Enable Notify Push"
-    ask.fr = "Activer la Notification Push"
-    type = "boolean"
-    default = false
-    help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new)"
-    help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle)"
-
-
 [resources]
 
     [resources.sources]

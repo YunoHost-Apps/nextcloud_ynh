@@ -43,7 +43,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**分发版本：** 28.0.8~ynh1
+**分发版本：** 28.0.12~ynh1
 
 **演示：** <https://demo.nextcloud.com/>
 

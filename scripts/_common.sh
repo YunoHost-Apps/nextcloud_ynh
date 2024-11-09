@@ -23,7 +23,7 @@ wait_nginx_reload() {
 # usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {
     # Declare an array to define the options of this helper.
-    #REMOVEME? local legacy_args=dp
+    local legacy_args=dp
     declare -Ar args_array=( [d]=domain= [p]=path= )
     local domain
     local path

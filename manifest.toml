@@ -120,4 +120,3 @@ ram.runtime = "512M"
 
     [resources.database]
     type = "mysql"
-    

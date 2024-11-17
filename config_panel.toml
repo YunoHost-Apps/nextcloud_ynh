@@ -49,7 +49,7 @@ name.fr = "Configuration de Nextcloud"
 
     [main.forward_email]
     name.en = "Forward Email?"
-    name.fr = "Emails de transfert?"
+    name.fr = "E-mails de transfert?"
 
         [main.forward_email.enable_forward_email]
         ask.en = "Set yunohost user's forward email instead of yunohost user's main email?"

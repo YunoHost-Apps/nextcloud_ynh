@@ -47,6 +47,17 @@ name.fr = "Configuration de Nextcloud"
         help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism  allowing more instantaneous notifications and reduce server load."
         help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur."
 
+    [main.forward_email]
+    name.en = "Forward Email?"
+    name.fr = "Emails de transfert?"
+
+        [main.forward_email.enable_forward_email]
+        ask.en = "Set yunohost user's forward email instead of yunohost user's main email?"
+        ask.fr = "Utiliser les emails de transfert des utilisateurs de yunohost plutôt que les emails principaux ?"
+        type = "boolean"
+        help.en = "If all your users have set a forward email and aren't using yunohost emails, you may choose to set their forward email as their nextcloud email setting."
+        help.fr = "Si tous vos utilisateurs ont paramétré un email de transfert et n'utilise pas du tout les emails de leur compte yunohost, vous pouvez paramétrer nextcloud d'utiliser les emails de transfert."
+
     [main.php_fpm_config]
     name.en = "PHP-FPM configuration"
     name.fr = "Configuration de PHP-FPM"

@@ -44,9 +44,8 @@ name.fr = "Configuration de Nextcloud"
         ask.en = "Enable Notify Push"
         ask.fr = "Activer la Notification Push"
         type = "boolean"
-        help.en = "Mechanism allowing more instantaneous notifications and reduce server load."
-        help.fr = "Mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur."
-
+        help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism  allowing more instantaneous notifications and reduce server load."
+        help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur."
 
     [main.php_fpm_config]
     name.en = "PHP-FPM configuration"

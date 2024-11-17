@@ -5,8 +5,6 @@ source /usr/share/yunohost/helpers
 source ../settings/scripts/_ynh_mysql_connect_as.sh
 
 #=================================================
-# STANDARD RESTORATION STEPS
-#=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
 ynh_script_progression --message="Restoring the app main directory..."
@@ -140,8 +138,6 @@ then
 fi
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
 # RELOAD NGINX
 #=================================================
 ynh_script_progression --message="Reloading NGINX web server..." --weight=3
@@ -160,7 +156,6 @@ exec_occ() {
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
     while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1

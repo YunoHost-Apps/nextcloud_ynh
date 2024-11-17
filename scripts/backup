@@ -26,6 +26,13 @@ ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
 
 #=================================================
+# BACKUP THE NGINX CONFIGURATION
+#=================================================
+
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.d"
+
+#=================================================
 # SYSTEM CONFIGURATION
 #=================================================
 

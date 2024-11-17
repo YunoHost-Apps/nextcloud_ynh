@@ -59,7 +59,7 @@ ynh_restore "/etc/cron.d/$app"
 ynh_restore "/var/log/$app"
 
 #=================================================
-# BACKUP THE LOGROTATE CONFIGURATION
+# RESTORE THE LOGROTATE CONFIGURATION
 #=================================================
 ynh_script_progression "Restoring the logrotate configuration..."
 

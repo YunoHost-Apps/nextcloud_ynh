@@ -53,7 +53,7 @@ name.fr = "Configuration de Nextcloud"
 
         [main.forward_email.enable_forward_email]
         ask.en = "Set YunoHost user's forward email instead of YunoHost user's main email?"
-        ask.fr = "Utiliser les emails de transfert des utilisateurs de yunohost plutôt que les emails principaux ?"
+        ask.fr = "Utiliser les e-mails de transfert des utilisateurs de YunoHost plutôt que les e-mails principaux ?"
         type = "boolean"
         help.en = "If all your users have set a forward email and aren't using yunohost emails, you may choose to set their forward email as their nextcloud email setting."
         help.fr = "Si tous vos utilisateurs ont paramétré un email de transfert et n'utilise pas du tout les emails de leur compte yunohost, vous pouvez paramétrer nextcloud d'utiliser les emails de transfert."

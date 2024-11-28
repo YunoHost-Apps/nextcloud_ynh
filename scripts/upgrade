@@ -124,7 +124,7 @@ function list_installed_apps_not_compatible_with_future_version()
 current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-last_version=$(ynh_read_manifest | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
+last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
 last_major_version=${last_version%%.*}
 
 if [[ "$last_major_version" != "$current_major_version" ]]
@@ -149,8 +149,7 @@ then
     if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
         db_pwd=$(ynh_app_setting_get --key=db_pwd)
         # Change your databases character set and collation
-        ynh_mysql_db_shell \
-        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+        ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
         # Set the mysql.utf8mb4 config to true in config.php
         exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
         exec_occ maintenance:repair
@@ -213,8 +212,7 @@ then
         #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
-        exec_occ upgrade \
-        || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
+        exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
 
         # Get the new current version number
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)

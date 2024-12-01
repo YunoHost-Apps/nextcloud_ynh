@@ -48,7 +48,7 @@ get__system_addressbook_exposed() {
 }
 
 get__enable_forward_email() {
-    ldapEmail=$(exec_occ ldap:show-config | grep ldapEmailAttribute)
+    ldapEmail=$(exec_occ ldap:show-config "" | grep ldapEmailAttribute)
     if [ $(echo $ldapEmail | grep -Po "maildrop") = "maildrop" ]
     then
         echo "1"

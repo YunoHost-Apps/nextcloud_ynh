@@ -3,8 +3,6 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-#REMOVEME? ynh_abort_if_errors
-
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
@@ -46,29 +44,6 @@ get__enable_forward_email() {
     if [ "$(echo $ldapEmail | grep -Po "maildrop")" = "maildrop" ]
     then
         echo "1"
-    else
-        echo "0"
-    fi
-}
-
-get__fpm_footprint() {
-    # Free footprint value for php-fpm
-    # Check if current_fpm_footprint is an integer
-    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
-    then
-        echo "specific"
-    else
-        echo "$current_fpm_footprint"
-    fi
-}
-
-get__fpm_free_footprint() {
-    # Free footprint value for php-fpm
-    # Check if current_fpm_footprint is an integer
-    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
-    then
-        # If current_fpm_footprint is an integer, that's a numeric value for the footprint
-        echo "$current_fpm_footprint"
     else
         echo "0"
     fi
@@ -170,20 +145,6 @@ set__enable_forward_email() {
         ynh_store_file_checksum --file="$install_dir/apps/user_ldap/lib/User/User.php"
     fi
     ynh_app_setting_set --app=$app --key=enable_forward_email --value="$enable_forward_email"
-}
-
-set__fpm_footprint() {
-    if [ "$fpm_footprint" != "specific" ]
-    then
-        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_footprint"
-    fi
-}
-
-set__fpm_free_footprint() {
-    if [ "$fpm_footprint" = "specific" ]
-    then
-        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_free_footprint"
-    fi
 }
 
 #=================================================

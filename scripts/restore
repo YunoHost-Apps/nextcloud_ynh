@@ -70,7 +70,6 @@ ynh_restore "/etc/logrotate.d/$app"
 #=================================================
 ynh_script_progression "Restoring data directory..."
 
-# Use || true for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
 ynh_restore "$data_dir"
 
 #=================================================

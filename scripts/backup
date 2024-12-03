@@ -19,20 +19,6 @@ ynh_backup "$install_dir"
 ynh_backup "$data_dir"
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
-#=================================================
-
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
-
-#=================================================
-# BACKUP THE NGINX CONFIGURATION
-#=================================================
-
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
-
-#=================================================
 # SYSTEM CONFIGURATION
 #=================================================
 

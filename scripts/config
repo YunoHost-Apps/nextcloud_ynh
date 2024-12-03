@@ -41,6 +41,39 @@ get__system_addressbook_exposed() {
 	echo $(exec_occ config:app:get dav system_addressbook_exposed)
 }
 
+get__enable_forward_email() {
+    ldapEmail=$(exec_occ ldap:show-config "" | grep ldapEmailAttribute)
+    if [ "$(echo $ldapEmail | grep -Po "maildrop")" = "maildrop" ]
+    then
+        echo "1"
+    else
+        echo "0"
+    fi
+}
+
+get__fpm_footprint() {
+    # Free footprint value for php-fpm
+    # Check if current_fpm_footprint is an integer
+    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
+    then
+        echo "specific"
+    else
+        echo "$current_fpm_footprint"
+    fi
+}
+
+get__fpm_free_footprint() {
+    # Free footprint value for php-fpm
+    # Check if current_fpm_footprint is an integer
+    if [ "$current_fpm_footprint" -eq "$current_fpm_footprint" ] 2> /dev/null
+    then
+        # If current_fpm_footprint is an integer, that's a numeric value for the footprint
+        echo "$current_fpm_footprint"
+    else
+        echo "0"
+    fi
+}
+
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
@@ -124,6 +157,33 @@ set__enable_notify_push() {
         ynh_print_info "Notify push enabled"
     fi
     ynh_app_setting_set --key=enable_notify_push --value="$enable_notify_push"
+}
+
+set__enable_forward_email() {
+    if [ "$enable_forward_email" -eq "0" ]; then
+        exec_occ ldap:set-config "" ldapEmailAttribute "mail"
+        ynh_replace_string --match_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[1\]);" --replace_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[0\]);" --target_file="$install_dir/apps/user_ldap/lib/User/User.php"
+        ynh_store_file_checksum --file="$install_dir/apps/user_ldap/lib/User/User.php"
+    elif [ "$enable_forward_email" -eq "1" ]; then
+        exec_occ ldap:set-config "" ldapEmailAttribute "maildrop"
+        ynh_replace_string --match_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[0\]);" --replace_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[1\]);" --target_file="$install_dir/apps/user_ldap/lib/User/User.php"
+        ynh_store_file_checksum --file="$install_dir/apps/user_ldap/lib/User/User.php"
+    fi
+    ynh_app_setting_set --app=$app --key=enable_forward_email --value="$enable_forward_email"
+}
+
+set__fpm_footprint() {
+    if [ "$fpm_footprint" != "specific" ]
+    then
+        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_footprint"
+    fi
+}
+
+set__fpm_free_footprint() {
+    if [ "$fpm_footprint" = "specific" ]
+    then
+        ynh_app_setting_set --app=$app --key=fpm_footprint --value="$fpm_free_footprint"
+    fi
 }
 
 #=================================================

@@ -70,7 +70,7 @@ exec_occ() {
         NEXTCLOUD_PHP_VERSION="7.4"
     fi
 
-    # NB : be super careful when designing this part of the code, because calling ynh_apt_install_dependencies
+    # NB: be super careful when designing this part of the code, because calling ynh_apt_install_dependencies
     # will do magic regarding php configuration and $php_version when the php version of the dependencies changes ...
     php_version=$(ynh_app_setting_get --key=php_version)
     if [[ "$NEXTCLOUD_PHP_VERSION" != "$php_version" ]]; then
@@ -142,7 +142,7 @@ then
     ynh_script_progression "Upgrading $app..."
 
     # Set write access for the following commands
-    #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+    chown -R $app:www-data "$install_dir"
     # Print the current version number of Nextcloud
     exec_occ -V
 

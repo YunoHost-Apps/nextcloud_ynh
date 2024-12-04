@@ -192,8 +192,8 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 #=================================================
 
 # Set the user as admin
-ynh_mysql_db_shell \
-    <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
+ynh_mysql_db_shell <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
+
 # And delete admin user
 exec_occ user:delete admin
 

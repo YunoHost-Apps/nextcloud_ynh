@@ -21,7 +21,6 @@ ynh_app_setting_set --app=$app --key=system_addressbook_exposed --value=0
 #=================================================
 ynh_script_progression "Setting up source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
 #=================================================
@@ -89,9 +88,6 @@ exec_occ maintenance:install \
 # CONFIGURE NEXTCLOUD
 #=================================================
 ynh_script_progression "Configuring $app..."
-
-# Set the mysql.utf8mb4 config to true in config.php
-#exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # move the logs from the data_dir to the standard /var/log
 exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
@@ -249,7 +245,7 @@ exec_occ app:enable files_external
 create_external_storage "/home/yunohost.multimedia/\$user" "Multimedia"
 create_external_storage "/home/yunohost.multimedia/share" "Shared multimedia"
 
-# Allow nextcloud to write into these directories
+# Allow Nextcloud to write into these directories
 ynh_multimedia_addaccess $app
 
 #=================================================

@@ -44,5 +44,16 @@ name.fr = "Configuration de Nextcloud"
         ask.en = "Enable Notify Push"
         ask.fr = "Activer la Notification Push"
         type = "boolean"
-        help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new)"
-        help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle)"
+        help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism  allowing more instantaneous notifications and reduce server load."
+        help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur."
+
+    [main.forward_email]
+    name.en = "Forward Email?"
+    name.fr = "E-mails de transfert?"
+
+        [main.forward_email.enable_forward_email]
+        ask.en = "Set YunoHost user's forward email instead of YunoHost user's main email?"
+        ask.fr = "Utiliser les e-mails de transfert des utilisateurs de YunoHost plutôt que les e-mails principaux ?"
+        type = "boolean"
+        help.en = "If all your users have set a forward email and aren't using YunoHost emails, you may choose to set their forward email as their Nextcloud email setting."
+        help.fr = "Si tous vos utilisateurs ont paramétré un e-mail de transfert et n'utilise pas du tout les e-mails de leur compte YunoHost, vous pouvez paramétrer Nextcloud d'utiliser les e-mails de transfert."

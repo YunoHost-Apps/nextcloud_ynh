@@ -82,6 +82,7 @@ exec_occ() {
         YNH_INSTALL_APP_DEPENDENCIES_REPLACE=true
         ynh_apt_install_dependencies "$pkg_dependencies"
     fi
+
 (cd "$install_dir" && ynh_exec_as_app \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@") 2> >(filter_boring_occ_warnings >&2)
 }
@@ -137,8 +138,8 @@ then
 fi
 
 # FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
-if ynh_app_upstream_version_changed
-then
+#if ynh_app_upstream_version_changed
+#then
     ynh_script_progression "Upgrading $app..."
 
     # Set write access for the following commands
@@ -315,7 +316,7 @@ then
 
     # Calculate and store the config file checksum into the app settings
     ynh_store_file_checksum "${install_dir}/config/config.php"
-fi
+#fi
 
 #=================================================
 # REGEN PERMISSIONS

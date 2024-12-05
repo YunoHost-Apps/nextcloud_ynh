@@ -5,7 +5,9 @@ It shall NOT be edited by hand.
 
 # Nextcloud for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Working status](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Integration level](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+![Working status](https://apps.yunohost.org/badge/state/nextcloud)
+![Maintenance status](https://apps.yunohost.org/badge/maintained/nextcloud)
 
 [![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 

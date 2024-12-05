@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # Nextcloud untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+![Status kerja](https://apps.yunohost.org/badge/state/nextcloud)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/nextcloud)
 
 [![Pasang Nextcloud dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -43,7 +45,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**Versi terkirim:** 28.0.12~ynh1
+**Versi terkirim:** 28.0.13~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

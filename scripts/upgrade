@@ -48,8 +48,6 @@ fi
     
 
 #=================================================
-# SPECIFIC UPGRADE
-#=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
 #=================================================
@@ -455,7 +453,6 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
     while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1

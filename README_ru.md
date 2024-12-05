@@ -5,7 +5,9 @@
 
 # Nextcloud для YunoHost
 
-[![Уровень интеграции](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Состояние работы](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Состояние сопровождения](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Уровень интеграции](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+![Состояние работы](https://apps.yunohost.org/badge/state/nextcloud)
+![Состояние сопровождения](https://apps.yunohost.org/badge/maintained/nextcloud)
 
 [![Установите Nextcloud с YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -24,7 +26,7 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-**Поставляемая версия:** 29.0.8~ynh1
+**Поставляемая версия:** 30.0.3~ynh1
 
 **Демо-версия:** <https://demo.nextcloud.com/>
 

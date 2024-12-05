@@ -56,7 +56,7 @@ filter_boring_occ_warnings() {
 current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
+last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9][0-9]')
 last_major_version=${last_version%%.*}
 
 # Define a function to execute commands with `occ`
@@ -158,7 +158,7 @@ function list_installed_apps_not_compatible_with_future_version()
 #current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
 #current_major_version=${current_version%%.*}
 
-#last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]')
+#last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9][0-9]')
 #last_major_version=${last_version%%.*}
 
 if [[ "$last_major_version" != "$current_major_version" ]]

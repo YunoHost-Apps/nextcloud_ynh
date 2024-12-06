@@ -11,14 +11,14 @@ Nie powinno być ono edytowane ręcznie.
 
 [![Zainstaluj Nextcloud z YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
-*[Przeczytaj plik README w innym języku.](./ALL_README.md)*
+_[Przeczytaj plik README w innym języku.](./ALL_README.md)_
 
-> *Ta aplikacja pozwala na szybką i prostą instalację Nextcloud na serwerze YunoHost.*  
-> *Jeżeli nie masz YunoHost zapoznaj się z [poradnikiem](https://yunohost.org/install) instalacji.*
+> _Ta aplikacja pozwala na szybką i prostą instalację Nextcloud na serwerze YunoHost._  
+> _Jeżeli nie masz YunoHost zapoznaj się z [poradnikiem](https://yunohost.org/install) instalacji._
 
 ## Przegląd
 
-Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
+Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities.
 
 In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoHost accounts are automatically connected to Nextcloud).
 
@@ -26,7 +26,7 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-**Dostarczona wersja:** 29.0.10~ynh1
+**Dostarczona wersja:** 30.0.3~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

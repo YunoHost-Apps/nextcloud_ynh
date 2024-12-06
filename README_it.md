@@ -9,10 +9,10 @@ NON DEVE essere modificato manualmente.
 
 [![Installa Nextcloud con YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
-*[Leggi questo README in altre lingue.](./ALL_README.md)*
+_[Leggi questo README in altre lingue.](./ALL_README.md)_
 
-> *Questo pacchetto ti permette di installare Nextcloud su un server YunoHost in modo semplice e veloce.*  
-> *Se non hai YunoHost, consulta [la guida](https://yunohost.org/install) per imparare a installarlo.*
+> _Questo pacchetto ti permette di installare Nextcloud su un server YunoHost in modo semplice e veloce._  
+> _Se non hai YunoHost, consulta [la guida](https://yunohost.org/install) per imparare a installarlo._
 
 ## Panoramica
 
@@ -22,14 +22,13 @@ Nextcloud Hub is a fully open-source on-premises content collaboration platform.
 
 In addition to Nextcloud core features, the following are made available with this package:
 
- * Integrate with YunoHost users and SSO - i.e. logout button
- * Allow one user to be the administrator (set at the installation)
- * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
+- Integrate with YunoHost users and SSO - i.e. logout button
+- Allow one user to be the administrator (set at the installation)
+- Allow multiple instances of this application
+- Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
+- Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
 
-
-**Versione pubblicata:** 28.0.4~ynh1
+**Versione pubblicata:** 30.0.3~ynh1
 
 **Prova:** <https://demo.nextcloud.com/>
 

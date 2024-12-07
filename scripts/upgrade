@@ -41,8 +41,6 @@ then
 fi
 
 #=================================================
-# SPECIFIC UPGRADE
-#=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
 #=================================================
@@ -126,7 +124,7 @@ function list_installed_apps_not_compatible_with_future_version()
 current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9][0-9]')
+last_version=$(ynh_read_manifest --manifest_key="resources.sources.main.url" | grep -o '[0-9][0-9]\.[0-9]\.[0-9]+')
 last_major_version=${last_version%%.*}
 
 if [[ "$last_major_version" != "$current_major_version" ]]
@@ -441,7 +439,6 @@ ynh_add_fail2ban_config --logpath="/var/log/$app/nextcloud.log" --failregex="^.*
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    # cron can sometimes fail when the database is not fully initialized, hence it's retried several times, see https://github.com/YunoHost-Apps/nextcloud_ynh/pull/720
     while ! ynh_exec_as "$app" php${phpversion} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1

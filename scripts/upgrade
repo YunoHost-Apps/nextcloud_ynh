@@ -209,7 +209,7 @@ fi
         mv "$tmpdir" "$install_dir"
 
         # Set write access for the following commands
-        #REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
+        chown -R $app:www-data "$install_dir"
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"

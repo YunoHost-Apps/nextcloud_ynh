@@ -138,8 +138,8 @@ then
 fi
 
 # FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
-#if ynh_app_upstream_version_changed
-#then
+if ynh_app_upstream_version_changed
+then
     ynh_script_progression "Upgrading $app..."
 
     # Set write access for the following commands
@@ -316,7 +316,7 @@ fi
 
     # Calculate and store the config file checksum into the app settings
     ynh_store_file_checksum "${install_dir}/config/config.php"
-#fi
+fi
 
 #=================================================
 # REGEN PERMISSIONS

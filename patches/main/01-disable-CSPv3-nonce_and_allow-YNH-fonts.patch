@@ -9,7 +9,7 @@ index 993f74ae0e4..c85aadc49db 100644
 +		// YunoHost patch: disable CSPv3 nonces to:
 +		// - avoid white page on first login from YunoHost portal
 +		// - allow YunoHost tile display
-++		return false;
++		return false;
  		$browserBlocklist = [
  			Request::USER_AGENT_IE,
  		];

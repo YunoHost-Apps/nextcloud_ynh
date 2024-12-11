@@ -97,19 +97,19 @@ exec_occ() {
 # HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
 #=================================================
 
-# If we're moving through version 29.0.10~ynh1 (in which the switch to psql is made)
+# If we're moving through version 29.0.10~ynh1 (in which the switch to PostgreSQL is made)
 if ynh_app_upgrading_from_version_before 29.0.10~ynh1
 then
-    # Double-check the MySQL DB is here
+    # Double-check the MySQL database is here
     if ! mysql -e "USE $db_name" 2>/dev/null 
     then
-        ynh_print_warn "Uhoh? The Nextcloud MySQL DB doesn't exist? We are supposed to move it to PostgreSQL... Maybe it was already migrated?"
+        ynh_print_warn "Uhoh? The Nextcloud MySQL database doesn't exist? We are supposed to move it to PostgreSQL... Maybe it was already migrated?"
         # Double check the psql is not empty, otherwise big whoops?
         if [[ "$(ynh_psql_db_shell --database=$db_name --sql="\dt" 2>/dev/null | wc -l)" == 0 ]]
         then
-                ynh_die "Apparently the PostgreSQL DB is also empty, this is kind of worrying, what happened?!"
+                ynh_die "Apparently the PostgreSQL database is also empty, this is kind of worrying, what happened?!"
         else
-                ynh_print_warn "Apparently the PostgreSQL DB is not empty, so this is probably OK?"
+                ynh_print_warn "Apparently the PostgreSQL database is not empty, so this is probably OK?"
         fi
     else
         ynh_print_info --message="Migrating to PostgreSQL database..."

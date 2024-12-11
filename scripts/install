@@ -9,6 +9,8 @@ source /usr/share/yunohost/helpers
 
 ynh_app_setting_set --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set --key=php_memory_limit --value=512M
+ynh_app_setting_set --key=fpm_footprint --value=high
+ynh_app_setting_set --key=fpm_usage --value=medium
 
 phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --key=phpflags --value="$phpflags"
@@ -31,8 +33,6 @@ ynh_setup_source --dest_dir="$install_dir"
 #=================================================
 ynh_script_progression "Configuring PHP-FPM..."
 
-ynh_app_setting_set --key=fpm_footprint --value=high
-ynh_app_setting_set --key=fpm_usage --value=medium
 ynh_config_add_phpfpm
 
 #=================================================

@@ -44,7 +44,7 @@ ynh_backup "/var/log/$app"
 #=================================================
 ynh_print_info --message="Backing up the PostgreSQL database..."
 
-ynh_psql_dump_db --database="$db_name" > db.sql
+ynh_psql_dump_db > db.sql
 
 #=================================================
 # BACKUP THE NOTIFY_PUSH APP

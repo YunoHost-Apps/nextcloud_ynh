@@ -112,7 +112,7 @@ then
                 ynh_print_warn "Apparently the PostgreSQL database is not empty, so this is probably OK?"
         fi
     else
-        ynh_print_info --message="Migrating to PostgreSQL database..."
+        ynh_print_info "Migrating to PostgreSQL database..."
         exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
         ynh_mysql_drop_db $db_name
     fi

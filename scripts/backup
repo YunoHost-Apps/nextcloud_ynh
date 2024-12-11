@@ -42,7 +42,7 @@ ynh_backup "/var/log/$app"
 #=================================================
 # BACKUP THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info --message="Backing up the PostgreSQL database..."
+ynh_print_info "Backing up the PostgreSQL database..."
 
 ynh_psql_dump_db > db.sql
 

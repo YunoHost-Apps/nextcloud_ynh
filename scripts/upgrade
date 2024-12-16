@@ -157,8 +157,6 @@ function list_installed_apps_not_compatible_with_future_version()
     comm -23 <(comm -23 $installed_apps $core_apps_in_current_version) $nextcloud_destination_appcatalog
 }
 
-
-
 if [[ "$last_major_version" != "$current_major_version" ]]
 then
     installed_apps_not_compatible_with_future_version="$(list_installed_apps_not_compatible_with_future_version $last_major_version)"
@@ -168,182 +166,181 @@ then
     fi
 fi
 
-# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
-if ynh_app_upstream_version_changed
-then
-    ynh_script_progression "Upgrading $app..."
+#=================================================
+# UPGRADE NEXTCLOUD
+#=================================================
+ynh_script_progression "Upgrading $app..."
+
+# Set write access for the following commands
+chown -R $app:www-data "$install_dir"
+# Print the current version number of Nextcloud
+exec_occ -V
+
+# Upgrade may fail if this app is enabled
+# Take all apps enabled, and check if mail is one of them
+# Then temporary disable the mail app
+mail_app_must_be_reactived=0
+
+if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w mail; then
+    exec_occ app:disable mail
+    mail_app_must_be_reactived=1
+fi
+
+# While the current version is not the last version, do an upgrade
+while [ "$last_version" != "$current_version" ]
+do
+
+    next_major_version="$(( $current_major_version + 1 ))"
+    if [[ "$next_major_version" -ge "$last_major_version" ]]; then
+        ynh_print_info "Upgrading to Nextcloud $last_version"
+        source_id="main"
+    else
+        ynh_print_info "Upgrading to Nextcloud $next_major_version"
+        source_id="$next_major_version"
+    fi
+
+    # Create a temporary directory
+    tmpdir="${install_dir}__tmp_upgrade"
+
+    ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
+
+    # Backup the config file in the temp dir
+    cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
+
+    # Enable maintenance mode
+    exec_occ maintenance:mode --on
+
+    # Backup 3rd party applications from the current Nextcloud
+    # But do not overwrite if there is any upgrade
+    # (apps directory already exists in Nextcloud archive)
+    (
+    cd $install_dir/apps
+    for nc_app_dir in */
+    do
+      if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
+      then
+        cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
+      fi
+    done
+    )
+
+    # Replace the old Nextcloud by the new one
+    ynh_safe_rm "$install_dir"
+    mv "$tmpdir" "$install_dir"
 
     # Set write access for the following commands
     chown -R $app:www-data "$install_dir"
+    # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
+    exec_occ maintenance:mode --off
+    exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
+
+    # Get the new current version number
+    current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+    current_major_version=${current_version%%.*}
+
     # Print the current version number of Nextcloud
     exec_occ -V
+done
 
-    # Upgrade may fail if this app is enabled
-    # Take all apps enabled, and check if mail is one of them
-    # Then temporary disable the mail app
-    mail_app_must_be_reactived=0
+exec_occ db:add-missing-indices -n
+exec_occ db:add-missing-columns -n
+exec_occ db:add-missing-primary-keys -n
+exec_occ db:convert-filecache-bigint -n
 
-    if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w mail; then
-        exec_occ app:disable mail
-        mail_app_must_be_reactived=1
-    fi
+#=================================================
+# CONFIGURE NEXTCLOUD
+#=================================================
+ynh_script_progression "Reconfiguring $app..."
 
-    # While the current version is not the last version, do an upgrade
-    while [ "$last_version" != "$current_version" ]
-    do
+# Verify the checksum and backup the file if it's different
+ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
 
-        next_major_version="$(( $current_major_version + 1 ))"
-        if [[ "$next_major_version" -ge "$last_major_version" ]]; then
-            ynh_print_info "Upgrading to Nextcloud $last_version"
-            source_id="main"
-        else
-            ynh_print_info "Upgrading to Nextcloud $next_major_version"
-            source_id="$next_major_version"
-        fi
+nc_conf="${install_dir}/config.json"
+ynh_config_add --template="config.json" --destination="$nc_conf"
 
-        # Create a temporary directory
-        tmpdir="${install_dir}__tmp_upgrade"
-
-        ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
-
-        # Backup the config file in the temp dir
-        cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
-
-        # Enable maintenance mode
-        exec_occ maintenance:mode --on
-
-        # Backup 3rd party applications from the current Nextcloud
-        # But do not overwrite if there is any upgrade
-        # (apps directory already exists in Nextcloud archive)
-        (
-        cd $install_dir/apps
-        for nc_app_dir in */
-        do
-          if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
-          then
-            cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
-          fi
-        done
-        )
-
-        # Replace the old Nextcloud by the new one
-        ynh_safe_rm "$install_dir"
-        mv "$tmpdir" "$install_dir"
-
-        # Set write access for the following commands
-        chown -R $app:www-data "$install_dir"
-        # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
-        exec_occ maintenance:mode --off
-        exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
-
-        # Get the new current version number
-        current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-        current_major_version=${current_version%%.*}
-
-        # Print the current version number of Nextcloud
-        exec_occ -V
-    done
-
-    exec_occ db:add-missing-indices -n
-    exec_occ db:add-missing-columns -n
-    exec_occ db:add-missing-primary-keys -n
-    exec_occ db:convert-filecache-bigint -n
-
-    #=================================================
-    # CONFIGURE NEXTCLOUD
-    #=================================================
-    ynh_script_progression "Reconfiguring $app..."
-
-    # Verify the checksum and backup the file if it's different
-    ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
-
-    nc_conf="${install_dir}/config.json"
-    ynh_config_add --template="config.json" --destination="$nc_conf"
-
-    # Reneable the mail app
-    if [ $mail_app_must_be_reactived -eq 1 ]; then
-        exec_occ app:enable mail
-    fi
-
-    # Ensure that UpdateNotification app is disabled
-    exec_occ app:disable updatenotification
-
-    # Enable LDAP plugin
-    exec_occ app:enable user_ldap
-
-    # Update all installed apps
-    exec_occ app:update --all
-
-    # move the logs from the data_dir to the standard /var/log
-    # it would be better in the ENSURE DOWNWARD COMPATIBILITY section
-    # but it must be after the exec_occ() definition, so it's here
-    if [ -f "$data_dir/data/nextcloud.log" ]; then
-        mkdir -p "/var/log/$app"
-        chmod 750 "/var/log/$app"
-        mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
-        # adapt the nextcloud config
-        exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
-    fi
-
-    # Load the config file in nextcloud
-    exec_occ config:import "$nc_conf"
-
-    # Then remove the config file
-    ynh_safe_rm "$nc_conf"
-
-    # Occasionally new mimetypes are added to better handle certain file types.
-    # Migrating the mimetypes take a long time on larger instances
-    # so this is not done automatically during upgrades.
-    exec_occ maintenance:repair --include-expensive
-
-    #=================================================
-    # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
-    #=================================================
-
-    # Add dynamic logout URL to the config
-    url_base64="$(echo -n "https://$domain$path" | base64)"
-    old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
-    current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
-    if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
-    then
-        echo "
-    //-YunoHost-
-    // set logout_url according to main domain
-    \$main_domain = file_get_contents('/etc/yunohost/current_host');
-    \$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout&r=${url_base64}';
-    //-YunoHost-
-        " >> "$install_dir/config/config.php"
-    fi
-
-    #=================================================
-    # CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
-    #=================================================
-
-    exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
-
-    #=================================================
-    # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
-    #=================================================
-
-    # Enable External Storage and create local mount to home folder as needed
-    if [ $user_home -eq 1 ]; then
-        exec_occ app:enable files_external
-        exec_occ files_external:list --output=json \
-        | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
-        || create_external_storage "/home/\$user" "Home"
-        # Iterate over users to extend their home folder permissions
-        for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
-        done
-    fi
-
-    #=================================================
-    # STORE THE CHECKSUM OF THE CONFIG FILE
-    #=================================================
-
-    # Calculate and store the config file checksum into the app settings
-    ynh_store_file_checksum "${install_dir}/config/config.php"
+# Reneable the mail app
+if [ $mail_app_must_be_reactived -eq 1 ]; then
+    exec_occ app:enable mail
 fi
+
+# Ensure that UpdateNotification app is disabled
+exec_occ app:disable updatenotification
+
+# Enable LDAP plugin
+exec_occ app:enable user_ldap
+
+# Update all installed apps
+exec_occ app:update --all
+
+# move the logs from the data_dir to the standard /var/log
+# it would be better in the ENSURE DOWNWARD COMPATIBILITY section
+# but it must be after the exec_occ() definition, so it's here
+if [ -f "$data_dir/data/nextcloud.log" ]; then
+    mkdir -p "/var/log/$app"
+    chmod 750 "/var/log/$app"
+    mv "$data_dir"/data/nextcloud.log* "/var/log/$app"
+    # adapt the nextcloud config
+    exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
+fi
+
+# Load the config file in nextcloud
+exec_occ config:import "$nc_conf"
+
+# Then remove the config file
+ynh_safe_rm "$nc_conf"
+
+# Occasionally new mimetypes are added to better handle certain file types.
+# Migrating the mimetypes take a long time on larger instances
+# so this is not done automatically during upgrades.
+exec_occ maintenance:repair --include-expensive
+
+#=================================================
+# ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
+#=================================================
+
+# Add dynamic logout URL to the config
+url_base64="$(echo -n "https://$domain$path" | base64)"
+old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
+current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
+if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
+then
+    echo "
+//-YunoHost-
+// set logout_url according to main domain
+\$main_domain = file_get_contents('/etc/yunohost/current_host');
+\$CONFIG['logout_url'] = 'https://'.\$main_domain.'/yunohost/sso/?action=logout&r=${url_base64}';
+//-YunoHost-
+    " >> "$install_dir/config/config.php"
+fi
+
+#=================================================
+# CHANGE HOSTNAME FOR ACTIVITY NOTIFICATIONS
+#=================================================
+
+exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
+
+#=================================================
+# MOUNT HOME FOLDERS AS EXTERNAL STORAGE
+#=================================================
+
+# Enable External Storage and create local mount to home folder as needed
+if [ $user_home -eq 1 ]; then
+    exec_occ app:enable files_external
+    exec_occ files_external:list --output=json \
+    | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
+    || create_external_storage "/home/\$user" "Home"
+    # Iterate over users to extend their home folder permissions
+    for u in $(ynh_user_list); do
+    setfacl --modify g:$app:rwx "/home/$u" || true
+    done
+fi
+
+#=================================================
+# STORE THE CHECKSUM OF THE CONFIG FILE
+#=================================================
+
+# Calculate and store the config file checksum into the app settings
+ynh_store_file_checksum "${install_dir}/config/config.php"
 
 #=================================================
 # REGEN PERMISSIONS

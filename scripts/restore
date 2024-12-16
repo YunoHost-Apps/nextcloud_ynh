@@ -49,26 +49,25 @@ then
     sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
 fi
 
-ynh_restore "/etc/logrotate.d/$app"
-
-ynh_restore "/etc/fail2ban/jail.d/$app.conf"
-ynh_restore "/etc/fail2ban/filter.d/$app.conf"
-
-# Make sure a log file exists (mostly for CI tests)
-if [ ! -f "/var/log/$app/nextcloud.log" ]; then
-    touch "/var/log/$app/nextcloud.log"
-    chown "$app:" "/var/log/$app/nextcloud.log"
-fi
-
-ynh_systemctl --action=restart --service=fail2ban
-
 #=================================================
-# RESTORE VARIOUS FILES
+# RESTORE THE CRON FILE
 #=================================================
+ynh_script_progression "Restoring cron job..."
 
 ynh_restore "/etc/cron.d/$app"
 
+#=================================================
+# RESTORE LOGS
+#=================================================
+
 ynh_restore "/var/log/$app"
+
+#=================================================
+# RESTORE THE LOGROTATE CONFIGURATION
+#=================================================
+ynh_script_progression "Restoring the logrotate configuration..."
+
+ynh_restore "/etc/logrotate.d/$app"
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -102,6 +101,23 @@ ynh_multimedia_build_main_dir
 
 # Allow nextcloud to write into these directories
 ynh_multimedia_addaccess $app
+
+#=================================================
+# RESTORE THE FAIL2BAN CONFIGURATION
+#=================================================
+ynh_script_progression "Restoring the Fail2Ban configuration..."
+
+ynh_restore "/etc/fail2ban/jail.d/$app.conf"
+ynh_restore "/etc/fail2ban/filter.d/$app.conf"
+
+# Make sure a log file exists (mostly for CI tests)
+logfile="/var/log/$app/nextcloud.log"
+if [ ! -f "$logfile" ]; then
+    touch "$logfile"
+    chown "$app:" "$logfile"
+fi
+
+ynh_systemctl --action=restart --service=fail2ban
 
 #=================================================
 # RESTORE THE NOTIFY_PUSH APP

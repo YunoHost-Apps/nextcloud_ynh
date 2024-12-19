@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "29.0.10~ynh2"
+version = "30.0.4~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -19,12 +19,12 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.2.30"
+yunohost = ">= 12.0.9"
+helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
 
 ldap = true
-
 sso = true
 
 disk = "650M"
@@ -59,8 +59,13 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.4.tar.bz2'
+        sha256 = 'eb6aaba9acef442f2b3e4a996b7ee8a5ed24442f9bba681237fb28ed970e1fa5'
+
+        [resources.sources.29]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.10.tar.bz2'
         sha256 = 'a5863d9f13af177f27d883317f96c3d176e7b1ca70b0ddd7958494582b494577'
+        prefetch = false
 
         [resources.sources.28]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.14.tar.bz2'
@@ -96,6 +101,7 @@ ram.runtime = "512M"
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["data"]
@@ -114,4 +120,3 @@ ram.runtime = "512M"
 
     [resources.database]
     type = "mysql"
-    

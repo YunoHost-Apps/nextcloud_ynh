@@ -1,11 +1,7 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
-#=================================================
-
-#=================================================
-# EXPERIMENTAL HELPERS
+# COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
 wait_nginx_reload() {
@@ -13,12 +9,13 @@ wait_nginx_reload() {
     # wait for the Nextcloud configuration file to disappear from NGINX before checking the CalDAV/CardDAV URL.
     timeout=30
     for i in $(seq 1 $timeout); do
-        if ! ynh_exec_warn_less nginx -T | grep --quiet "# configuration file /etc/nginx/conf.d/$domain.d/$app.conf:"; then
+        if ! ynh_hide_warnings nginx -T | grep --quiet "# configuration file /etc/nginx/conf.d/$domain.d/$app.conf:"; then
             break
         fi
         sleep 1
     done
-    # Wait untils NGINX has fully reloaded (avoid cURL fail with http2) 
+    # Wait untils NGINX has fully reloaded (avoid cURL fail with http2)
+
     sleep 2
 }
 
@@ -53,7 +50,3 @@ is_url_handled() {
         return 1
     fi
 }
-
-#=================================================
-# FUTURE OFFICIAL HELPERS
-#=================================================

@@ -146,11 +146,6 @@ ynh_systemctl --service=nginx --action=reload
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
 
-exec_occ() {
-  (cd "$install_dir" && ynh_exec_as_app \
-      php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
-}
-
 if [ $enable_notify_push -eq 1 ]
 then
     count=0

@@ -4,6 +4,12 @@
 # COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
+# Define a function to execute commands with `occ`
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as_app \
+      php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
+
 wait_nginx_reload() {
     # NGINX may take some time to support the new configuration,
     # wait for the Nextcloud configuration file to disappear from NGINX before checking the CalDAV/CardDAV URL.

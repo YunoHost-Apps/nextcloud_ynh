@@ -6,31 +6,29 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Removing system configurations related to $app..." --weight=5
+ynh_script_progression "Removing system configurations related to $app..."
 
-# Remove the dedicated NGINX config
-ynh_remove_nginx_config
-ynh_secure_remove --file="/etc/nginx/conf.d/$domain.d/$app.d"
+ynh_config_remove_nginx
+ynh_safe_rm "/etc/nginx/conf.d/$domain.d/$app.d"
 
-# Remove the dedicated PHP-FPM config
-ynh_remove_fpm_config
+ynh_config_remove_phpfpm
 
-# Remove the app-specific logrotate config
-ynh_remove_logrotate
+ynh_config_remove_logrotate
 
-# Remove the dedicated Fail2Ban config
-ynh_remove_fail2ban_config
+ynh_config_remove_fail2ban
 
 # Remove notify push
-ynh_remove_systemd_config --service="${app}-notify-push"
-systemctl disable --now --quiet ${app}-notify-push-watcher.path
-ynh_secure_remove --file="/etc/systemd/system/${app}-notify-push-watcher.path"
-ynh_remove_systemd_config --service="${app}-notify-push-watcher"
-ynh_secure_remove --file="/var/run/$app"
+if [ $enable_notify_push -eq 1 ]; then
+  ynh_config_remove_systemd"${app}-notify-push"
+  systemctl disable --now --quiet ${app}-notify-push-watcher.path
+  ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"
+  ynh_config_remove_systemd"${app}-notify-push-watcher"
+  ynh_safe_rm --file="/var/run/$app"
+fi
 
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
-ynh_secure_remove --file="/etc/cron.d/$app"
+ynh_safe_rm "/etc/cron.d/$app"
 
 # Cleaning ACL in home directories
 for path in /home/*; do
@@ -43,4 +41,4 @@ done
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Removal of $app completed" --last
+ynh_script_progression "Removal of $app completed"

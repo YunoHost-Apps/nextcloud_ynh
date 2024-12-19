@@ -5,7 +5,9 @@ Il NE doit PAS être modifié à la main.
 
 # Nextcloud pour YunoHost
 
-[![Niveau d’intégration](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Niveau d’intégration](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+![Statut du fonctionnement](https://apps.yunohost.org/badge/state/nextcloud)
+![Statut de maintenance](https://apps.yunohost.org/badge/maintained/nextcloud)
 
 [![Installer Nextcloud avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -18,12 +20,14 @@ Il NE doit PAS être modifié à la main.
 
 Nextcloud permet de rendre accessible et de synchroniser ses données, fichiers, contacts, agendas entre différents appareils (ordinateurs ou mobiles), ou de les partager avec d'autres personnes (avec ou sans comptes), et propose également des fonctionnalités avancées de communication et de travail collaboratif. Nextcloud dispose de son propre mécanisme d'applications (voir aussi [le store d'apps de Nextcloud](https://apps.nextcloud.com/)) pour disposer des fonctionnalités spécifiques.
 
-Dans le cadre de YunoHost, Nextcloud s'intègre avec le SSO / portail utilisateur (les comptes YunoHost sont automatiquements connectés à Nextcloud).
+Dans le cadre de YunoHost, Nextcloud s'intègre avec le SSO/portail utilisateur (les comptes YunoHost sont automatiquements connectés à Nextcloud).
 
 L'adresse  `/.well-known` sera automatiquement configuré pour la synchronisation CalDAV et CardDAV si aucun autre service tel que Baïkal ne l'utilise déjà.
 
+Le catalogue YunoHost dispose de deux suites bureautiques collaboratives, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) et [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), qui peuvent être intégrées à Nextcloud.
 
-**Version incluse :** 29.0.8~ynh1
+
+**Version incluse :** 30.0.4~ynh1
 
 **Démo :** <https://demo.nextcloud.com/>
 

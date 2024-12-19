@@ -5,7 +5,9 @@ Hij mag NIET handmatig aangepast worden.
 
 # Nextcloud voor Yunohost
 
-[![Integratieniveau](https://dash.yunohost.org/integration/nextcloud.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/nextcloud.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/nextcloud.maintain.svg)
+[![Integratieniveau](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
+![Mate van functioneren](https://apps.yunohost.org/badge/state/nextcloud)
+![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/nextcloud)
 
 [![Nextcloud met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud)
 
@@ -18,12 +20,13 @@ Hij mag NIET handmatig aangepast worden.
 
 Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
-In the context of YunoHost, Nextcloud integrates with the SSO / user portal (YunoHost accounts are automatically connected to Nextcloud).
+In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoHost accounts are automatically connected to Nextcloud).
 
 The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
+The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-**Geleverde versie:** 29.0.8~ynh1
+**Geleverde versie:** 30.0.4~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

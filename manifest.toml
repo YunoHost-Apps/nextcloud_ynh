@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "29.0.8~ynh1"
+version = "30.0.4~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -19,12 +19,12 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.2.30"
+yunohost = ">= 12.0.9"
+helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
 
 ldap = true
-
 sso = true
 
 disk = "650M"
@@ -54,39 +54,22 @@ ram.runtime = "512M"
     type = "boolean"
     default = false
 
-    [install.system_addressbook_exposed]
-    ask.en = "Enable address book"
-    ask.fr = "Activer le carnet d’adresses"
-    type = "boolean"
-    default = true
-    help.en = "Should there be a system address book listing all users, accessible by all users?"
-    help.fr = "Devrait-il y avoir un carnet d’adresses système répertoriant tous les utilisateurs, accessible par tous les utilisateurs ?"
-
-    [install.enable_notify_push]
-    ask.en = "Enable Notify Push"
-    ask.fr = "Activer la Notification Push"
-    type = "boolean"
-    default = false
-    help.en = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> is a mechanism allowing more instantaneous notifications and reduce server load. (However, it is still a bit new)"
-    help.fr = "<a href=https://github.com/nextcloud/notify_push#about target=_blank>Notify Push</a> est un mécanisme qui permet d'avoir des notifications plus rapides et de réduire la charge du serveur. (Cependant, cette fonctionnalité reste relativement nouvelle)"
-
-    [install.enable_notify_push]
-    ask.en = "Configure the High Performance Backend?"
-    ask.fr = "Configurer le Backend Hautes Performances ?"
-    type = "boolean"
-    default = false
-
 [resources]
 
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.8.tar.bz2'
-        sha256 = '0ab54b517f76cd26f2bd38b6fe184b9fbaed32f734246c58c1acf83473c0a4b9'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.4.tar.bz2'
+        sha256 = 'eb6aaba9acef442f2b3e4a996b7ee8a5ed24442f9bba681237fb28ed970e1fa5'
+
+        [resources.sources.29]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.10.tar.bz2'
+        sha256 = 'a5863d9f13af177f27d883317f96c3d176e7b1ca70b0ddd7958494582b494577'
+        prefetch = false
 
         [resources.sources.28]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.8.tar.bz2'
-        sha256 = '55a2f745fcc8f01b5816b23333f1e3014d2040a66794e132ddd0d219a37be53a'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.14.tar.bz2'
+        sha256 = '4a937f1882486426c9703e59ec4b293f621be8d080b7f85016f629903c3af336'
         prefetch = false
 
         [resources.sources.27]
@@ -118,6 +101,7 @@ ram.runtime = "512M"
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["data"]
@@ -136,4 +120,3 @@ ram.runtime = "512M"
 
     [resources.database]
     type = "mysql"
-    

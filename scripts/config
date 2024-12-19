@@ -99,6 +99,9 @@ set__enable_notify_push() {
         fi
         exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 
+        mkdir -p /var/run/$app/
+        chown $app: /var/run/$app/
+
         case $YNH_ARCH in
             amd64) arch="x86_64";;
             arm64) arch="aarch64";;
@@ -111,6 +114,7 @@ set__enable_notify_push() {
         ynh_config_add_systemd --service="${app}-notify-push"
 
         count=0
+
         while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
         do
             sleep 1

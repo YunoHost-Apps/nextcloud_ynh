@@ -8,7 +8,6 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 php_version=$(ynh_app_setting_get --key=php_version)
-current_fpm_footprint=$(ynh_app_setting_get --key=fpm_footprint)
 
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY

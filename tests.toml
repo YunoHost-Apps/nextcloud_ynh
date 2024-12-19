@@ -2,6 +2,8 @@ test_format = 1.0
 
 [default]
 
+    args.enable_notify_push = "0"
+
     # -------------------------------
     # Commits to test upgrade from
     # -------------------------------
@@ -10,3 +12,34 @@ test_format = 1.0
     test_upgrade_from.caf917f3.name = "Upgrade from 26.0.2"
     test_upgrade_from.9c6d1eea.name = "Upgrade from 27.1.4"
     test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
+    test_upgrade_from.541f5fde.name = "Upgrade from 29.0.8"
+
+    [default.curl_tests]
+    #home.path = "/"
+    home.expect_title = "Login - Nextcloud"
+    home.auto_test_assets = true
+
+    #dash.path = "/"
+    dash.logged_on_sso = true
+    dash.expect_title = "Dashboard - Nextcloud"
+
+    admin.path = "/settings/admin"
+    admin.logged_on_sso = true
+    admin.expect_title = "Administration settings - Nextcloud"
+
+    asset.path = "/core/img/logo/logo.svg"
+
+    file.path = "/remote.php/dav/files/__USER__/Readme.md"
+    file.logged_on_sso = true
+    file.expect_content = "# Welcome to Nextcloud!"
+
+    caldav.base_url = "https://__DOMAIN__"
+    caldav.path = "/.well-known/caldav"
+    caldav.logged_on_sso = true
+    caldav.expect_content = "This is the WebDAV interface."
+
+#[notify_push_test]
+
+#    args.enable_notify_push = "1"
+#    test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
+#    test_upgrade_from.e9f82ab7.args.system_addressbook_exposed = "yes"

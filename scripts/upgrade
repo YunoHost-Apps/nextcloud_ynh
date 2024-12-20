@@ -80,7 +80,7 @@ exec_occ() {
     # will do magic regarding php configuration and $php_version when the php version of the dependencies changes ...
     php_version=$(ynh_app_setting_get --key=php_version)
     if [[ "$NEXTCLOUD_PHP_VERSION" != "$php_version" ]]; then
-        local pkg_dependencies="$(dpkg-query --show --showformat='${Depends}' ${app}-ynh-deps)"
+        local pkg_dependencies="$(dpkg-query --show --showformat='${Depends}' ${app//_/-}-ynh-deps)"
         pkg_dependencies="${pkg_dependencies//$php_version/$NEXTCLOUD_PHP_VERSION}"
         # Packaging v1 ~legacy : ynh_apt_install_dependencies is designed to be called several times
         # but the second time it will *append* the list of dependencies rather than replace the existing dependencies

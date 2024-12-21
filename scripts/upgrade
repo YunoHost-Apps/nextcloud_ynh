@@ -184,7 +184,6 @@ then
         source_id="$next_major_version"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then
             ynh_print_info "Upgrading to Nextcloud $last_version"
-            cp -a ../sources/patches_last_version/* ../sources/patches
             if [[ "$version_to_follow" != "oldstable" ]]
             then
                 source_id="main"

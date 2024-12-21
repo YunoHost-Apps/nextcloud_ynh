@@ -1,24 +1,27 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
+# COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
-#=================================================
-# EXPERIMENTAL HELPERS
-#=================================================
+# Define a function to execute commands with `occ`
+exec_occ() {
+  (cd "$install_dir" && ynh_exec_as_app \
+      php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
 
 wait_nginx_reload() {
     # NGINX may take some time to support the new configuration,
     # wait for the Nextcloud configuration file to disappear from NGINX before checking the CalDAV/CardDAV URL.
     timeout=30
     for i in $(seq 1 $timeout); do
-        if ! ynh_exec_warn_less nginx -T | grep --quiet "# configuration file /etc/nginx/conf.d/$domain.d/$app.conf:"; then
+        if ! ynh_hide_warnings nginx -T | grep --quiet "# configuration file /etc/nginx/conf.d/$domain.d/$app.conf:"; then
             break
         fi
         sleep 1
     done
-    # Wait untils NGINX has fully reloaded (avoid cURL fail with http2) 
+    # Wait untils NGINX has fully reloaded (avoid cURL fail with http2)
+
     sleep 2
 }
 
@@ -53,7 +56,3 @@ is_url_handled() {
         return 1
     fi
 }
-
-#=================================================
-# FUTURE OFFICIAL HELPERS
-#=================================================

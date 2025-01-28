@@ -45,7 +45,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**Поставляемая версия:** 29.0.10~ynh1
+**Поставляемая версия:** 29.0.11~ynh1
 
 **Демо-версия:** <https://demo.nextcloud.com/>
 

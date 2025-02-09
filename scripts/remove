@@ -8,14 +8,14 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression "Removing system configurations related to $app..."
 
+ynh_config_remove_fail2ban
+
+ynh_config_remove_logrotate
+
 ynh_config_remove_nginx
 ynh_safe_rm "/etc/nginx/conf.d/$domain.d/$app.d"
 
 ynh_config_remove_phpfpm
-
-ynh_config_remove_logrotate
-
-ynh_config_remove_fail2ban
 
 # Remove notify push
 if [ $enable_notify_push -eq 1 ]; then

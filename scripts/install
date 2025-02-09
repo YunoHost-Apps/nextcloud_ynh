@@ -266,7 +266,6 @@ chmod 750 $install_dir
 #=================================================
 ynh_script_progression "Configuring log rotation..."
 
-# Use logrotate to manage application logfile(s)
 ynh_config_add_logrotate
 
 #=================================================
@@ -274,7 +273,6 @@ ynh_config_add_logrotate
 #=================================================
 ynh_script_progression "Configuring Fail2Ban..."
 
-# Create a dedicated Fail2Ban config
 ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$"
 
 #=================================================

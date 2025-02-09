@@ -33,10 +33,6 @@ ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
 ynh_config_add_phpfpm
 
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
-
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.d"
 
@@ -50,22 +46,12 @@ then
 fi
 
 #=================================================
-# RESTORE THE CRON FILE
+# RESTORE VARIOUS FILES
 #=================================================
-ynh_script_progression "Restoring cron job..."
 
 ynh_restore "/etc/cron.d/$app"
 
-#=================================================
-# RESTORE LOGS
-#=================================================
-
 ynh_restore "/var/log/$app"
-
-#=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression "Restoring the logrotate configuration..."
 
 ynh_restore "/etc/logrotate.d/$app"
 

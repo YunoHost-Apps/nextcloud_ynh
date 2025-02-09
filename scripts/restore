@@ -25,19 +25,13 @@ ynh_script_progression "Restoring the MySQL database..."
 ynh_mysql_db_shell < ./db.sql
 
 #=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
+# RESTORE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Reconfiguring PHP-FPM..."
+ynh_script_progression "Restoring system configurations related to $app..."
 
-# Restore the file first, so it can have a backup if different
 ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
-# Recreate a dedicated PHP-FPM config
 ynh_config_add_phpfpm
-
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
 
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.d"
@@ -52,22 +46,12 @@ then
 fi
 
 #=================================================
-# RESTORE THE CRON FILE
+# RESTORE VARIOUS FILES
 #=================================================
-ynh_script_progression "Restoring cron job..."
 
 ynh_restore "/etc/cron.d/$app"
 
-#=================================================
-# RESTORE LOGS
-#=================================================
-
 ynh_restore "/var/log/$app"
-
-#=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression "Restoring the logrotate configuration..."
 
 ynh_restore "/etc/logrotate.d/$app"
 

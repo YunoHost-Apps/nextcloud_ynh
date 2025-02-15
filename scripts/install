@@ -276,7 +276,6 @@ chmod 750 $install_dir
 #=================================================
 ynh_script_progression "Configuring log rotation..."
 
-# Use logrotate to manage application logfile(s)
 ynh_config_add_logrotate
 
 #=================================================

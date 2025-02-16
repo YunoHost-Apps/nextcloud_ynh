@@ -447,7 +447,8 @@ ynh_config_add_logrotate
 # FAIL2BAN
 #=================================================
 
-ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: '.*' \(Remote IP: '<HOST>'.*$"
+# Create a dedicated Fail2Ban config
+ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log" --failregex="^.*Login failed: .* \(Remote IP: <HOST>.*$"
 
 #=================================================
 # CHECK IF NOTIFY_PUSH WORKS

@@ -1,0 +1,122 @@
+packaging_format = 2
+
+id = "nextcloud"
+name = "Nextcloud"
+description.en = "Online storage, file sharing platform and various other applications"
+description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
+
+version = "30.0.6~ynh2"
+
+maintainers = ["kay0u"]
+
+[upstream]
+license = "AGPL-3.0"
+website = "https://nextcloud.com"
+demo = "https://demo.nextcloud.com/"
+admindoc = "https://docs.nextcloud.com/server/stable/admin_manual/"
+userdoc = "https://docs.nextcloud.com/server/latest/user_manual/en/"
+code = "https://github.com/nextcloud/server"
+cpe = "cpe:2.3:a:nextcloud:nextcloud"
+
+[integration]
+yunohost = ">= 12.0.9"
+helpers_version = "2.1"
+architectures = ["amd64", "arm64", "armhf"]
+multi_instance = true
+
+ldap = true
+sso = true
+
+disk = "650M"
+ram.build = "250M"
+ram.runtime = "512M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/nextcloud"
+
+    [install.admin]
+    type = "user"
+
+    [install.init_main_permission]
+    help.en = "You must activate 'Visitors' if you want to connect Nextcloud Desktop client to Nextcloud server. This can be changed later via the webadmin."
+    help.fr = "Vous devez activer 'Visiteurs' si vous souhaitez connecter le client Nextcloud Desktop au serveur Nextcloud. Cela peut être modifié ultérieurement via l'administrateur Web."
+    type = "group"
+    default = "visitors"
+
+    [install.user_home]
+    ask.en = "Access the users home folder from Nextcloud"
+    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud"
+    type = "boolean"
+    default = false
+
+[resources]
+
+    [resources.sources]
+
+        [resources.sources.main]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.6.tar.bz2'
+        sha256 = 'ac0e091be6920965dc0c82f149b632d6b5ade7adee84a7b3c8cfd847450a8ddc'
+
+        [resources.sources.29]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.12.tar.bz2'
+        sha256 = 'c020354ff3e1d2087370f70e058fe171713636ba0f073a5194adbdff3c1cafc6'
+        prefetch = false
+
+        [resources.sources.28]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.14.tar.bz2'
+        sha256 = '4a937f1882486426c9703e59ec4b293f621be8d080b7f85016f629903c3af336'
+        prefetch = false
+
+        [resources.sources.27]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-27.1.11.tar.bz2'
+        sha256 = '4edd2570f4c83442f8f0f0616fb774ed2663b11cf9f6ea49e795ab43aeef9645'
+        prefetch = false
+
+        [resources.sources.26]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-26.0.13.tar.bz2'
+        sha256 = '0a362df7a1233348f99d1853fd7e79f0667b552c145dc45012fab54ac31c79ae'
+        prefetch = false
+
+        [resources.sources.25]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.13.tar.bz2'
+        sha256 = '387bac148a696244f1ec02698a082d408283a875b3de85eb9719dd4493eebe33'
+        prefetch = false
+
+        [resources.sources.24]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-24.0.12.tar.bz2'
+        sha256 = '2f093bdf7d34faf38d22f38a5e11f3aee32746ff4add3df17c790b9b36390836'
+        prefetch = false
+
+        [resources.sources.23]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-23.0.12.tar.bz2'
+        sha256 = 'ad3637fd987e9f1ed5bd5dbd177bdce1e39228e3daf95bc4a3c590d4b1522b1e'
+        prefetch = false
+
+    [resources.system_user]
+    allow_email = true
+
+    [resources.install_dir]
+    group = "www-data:r-x"
+
+    [resources.data_dir]
+    subdirs = ["data"]
+
+    [resources.permissions]
+    main.url = "/"
+    
+    api.url = "re:__DOMAIN__\\/.well-known\\/.*"
+    api.auth_header = false
+    api.show_tile = false
+    api.protected= true
+    api.allowed = ["visitors", "all_users"]
+
+    [resources.apt]
+    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, redis-server, php8.3-fpm, php8.3-bz2, php8.3-imap, php8.3-gmp, php8.3-gd, php8.3-intl, php8.3-curl, php8.3-apcu, php8.3-redis, php8.3-ldap, php8.3-imagick, php8.3-zip, php8.3-mbstring, php8.3-xml, php8.3-mysql, php8.3-igbinary, php8.3-bcmath"
+
+    [resources.database]
+    type = "mysql"

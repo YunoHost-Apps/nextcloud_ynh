@@ -1,143 +1,99 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# RETRIEVE ARGUMENTS
-#=================================================
-
-old_domain=$YNH_APP_OLD_DOMAIN
-old_path=$YNH_APP_OLD_PATH
-
-new_domain=$YNH_APP_NEW_DOMAIN
-new_path=$YNH_APP_NEW_PATH
-
-app=$YNH_APP_INSTANCE_NAME
-
-#=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_script_progression --message="Loading installation settings..."
-
-# Needed for helper "ynh_add_nginx_config"
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before changing its URL (may take a while)..." --weight=1
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# Remove the new domain config file, the remove script won't do it as it doesn't know yet its location.
-	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
-
-	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-#=================================================
-# CHECK WHICH PARTS SHOULD BE CHANGED
-#=================================================
-
-change_domain=0
-if [ "$old_domain" != "$new_domain" ]
-then
-	change_domain=1
-fi
-
-change_path=0
-if [ "$old_path" != "$new_path" ]
-then
-	change_path=1
-fi
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
-ynh_script_progression --message="Updating NGINX web server configuration..." --weight=2
+ynh_script_progression "Updating NGINX web server configuration..."
 
-nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
-
-# Change the path in the NGINX config file
-if [ $change_path -eq 1 ]
-then
-	# Make a backup of the original NGINX config file if modified
-	ynh_backup_if_checksum_is_different --file="$nginx_conf_path"
-	# Set global variables for NGINX helper
-	domain="$old_domain"
-	path_url="$new_path"
-	# Create a dedicated NGINX config
-	ynh_add_nginx_config
-fi
-
-# Change the domain for NGINX
 if [ $change_domain -eq 1 ]
 then
-	# Delete file checksum for the old conf file location
-	ynh_delete_file_checksum --file="$nginx_conf_path"
-	mv $nginx_conf_path /etc/nginx/conf.d/$new_domain.d/$app.conf
-	# Store file checksum for the new config file location
-	ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+    # Check if .well-known is available for this domain
+    if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
+    then
+        ynh_print_warn "Another app already uses the domain $new_domain to serve a CalDAV/CardDAV feature. You may encounter issues when dealing with your calendar or address book."
+
+        # Remove lines about .well-known/carddav and caldav with sed.
+        sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$domain.d/$app.conf"
+        ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+    fi
 fi
+
+ynh_config_change_url_nginx
 
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-ynh_script_progression --message="Applying Nextcloud specific modifications..." --weight=2
-
-# Define a function to execute commands with `occ`
-exec_occ() {
-  (cd "$final_path" && ynh_exec_as "$app" \
-      php${phpversion} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
-}
+ynh_script_progression "Applying $app specific modifications..."
 
 if [ $change_domain -eq 1 ]
 then
-	# Change the trusted domain
-	exec_occ config:system:set trusted_domains 1 --value=$new_domain
+    # Change the trusted domain
+    exec_occ config:system:set trusted_domains 1 --value=$new_domain
 
-	# Change hostname for activity notifications
-    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}"
-fi
+    # Change hostname for activity notifications
+    exec_occ config:system:set overwrite.cli.url --value="https://${new_domain}${new_path}"
 
-if [ $change_domain -eq 1 ]
-then
-	# Check if .well-known is available for this domain
-	if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
-	then
-		ynh_print_warn --message="Another app already uses the domain $new_domain to serve a caldav/carddav feature. You may encounter issues when dealing with your calendar or address book."
+    # Reload PHP-FPM, necessary for force Nextcloud to re-read config.php, cf opcache.revalidate_freq
+    ynh_systemctl --service=php${php_version}-fpm --action=reload
 
-		# Remove lines about .well-known/carddav and caldav with sed.
-		sed --in-place --regexp-extended '/location = \/\.well\-known\/(caldav|carddav)/d' "/etc/nginx/conf.d/$new_domain.d/$app.conf"
-		ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
-	fi
+    mv /etc/nginx/conf.d/$old_domain.d/$app.d /etc/nginx/conf.d/$new_domain.d/$app.d
 fi
 
 #=================================================
-# GENERIC FINALISATION
+# CONFIGURE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    domain="$new_domain"
+    path_url="$new_path"
+
+    ynh_config_add --template="notify_push.conf" --destination="/etc/nginx/conf.d/$domain.d/$app.d/notify_push.conf"
+
+    ynh_systemctl --service=nginx --action=reload
+
+    case $YNH_ARCH in
+        amd64) arch="x86_64";;
+        arm64) arch="aarch64";;
+        armel|armhf) arch="armv7";;
+    esac
+
+    ynh_config_add --template="watcher.path" --destination="/etc/systemd/system/${app}-notify-push-watcher.path"
+    ynh_config_add_systemd --service="${app}-notify-push-watcher" --template="watcher.service"
+    systemctl enable --now ${app}-notify-push-watcher.path
+    ynh_config_add_systemd --service="${app}-notify-push"
+
+    count=0
+    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    do
+        sleep 1
+        count=$((count + 1))
+    done
+
+    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+
+    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    if ! exec_occ notify_push:self-test; then
+        ynh_print_warn "The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."
+    fi
+fi
+
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+ynh_script_progression "Reloading NGINX web server..."
 
-ynh_systemd_action --service_name=nginx --action=reload
+# Temporary fix for the API permission (workaround for https://github.com/YunoHost/issues/issues/2294 )
+ynh_permission_url --permission="api" --url="re:$new_domain\/.well-known\/.*" --auth_header="false" --clear_urls
+
+ynh_systemctl --service=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Change of URL completed for $app" --last
+ynh_script_progression "Change of URL completed for $app"

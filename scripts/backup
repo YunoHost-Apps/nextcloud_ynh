@@ -21,13 +21,6 @@ ynh_backup "$data_dir"
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
 
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.d"
-
-#=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
-#=================================================
-
 ynh_backup "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"

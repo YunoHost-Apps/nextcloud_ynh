@@ -11,6 +11,13 @@ ynh_script_progression "Restoring the app main directory..."
 ynh_restore "$install_dir"
 
 #=================================================
+# RESTORE THE DATA DIRECTORY
+#=================================================
+ynh_script_progression "Restoring data directory..."
+
+ynh_restore "$data_dir"
+
+#=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
 ynh_script_progression "Restoring the MySQL database..."
@@ -18,19 +25,13 @@ ynh_script_progression "Restoring the MySQL database..."
 ynh_mysql_db_shell < ./db.sql
 
 #=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
+# RESTORE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Reconfiguring PHP-FPM..."
+ynh_script_progression "Restoring system configurations related to $app..."
 
-# Restore the file first, so it can have a backup if different
 ynh_restore "/etc/php/$php_version/fpm/pool.d/$app.conf"
 
-# Recreate a dedicated PHP-FPM config
 ynh_config_add_phpfpm
-
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
 
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.d"
@@ -45,31 +46,14 @@ then
 fi
 
 #=================================================
-# RESTORE THE CRON FILE
+# RESTORE VARIOUS FILES
 #=================================================
-ynh_script_progression "Restoring cron job..."
 
 ynh_restore "/etc/cron.d/$app"
 
-#=================================================
-# RESTORE LOGS
-#=================================================
-
 ynh_restore "/var/log/$app"
 
-#=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression "Restoring the logrotate configuration..."
-
 ynh_restore "/etc/logrotate.d/$app"
-
-#=================================================
-# RESTORE THE DATA DIRECTORY
-#=================================================
-ynh_script_progression "Restoring data directory..."
-
-ynh_restore "$data_dir"
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -145,11 +129,6 @@ ynh_systemctl --service=nginx --action=reload
 #=================================================
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
-
-exec_occ() {
-  (cd "$install_dir" && ynh_exec_as_app \
-      php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
-}
 
 if [ $enable_notify_push -eq 1 ]
 then

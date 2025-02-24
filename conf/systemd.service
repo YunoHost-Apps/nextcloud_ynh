@@ -1,5 +1,5 @@
 [Unit]
-Description = Push daemon for Nextcloud clients
+Description=Push daemon for Nextcloud clients
 
 [Service]
 Type=notify

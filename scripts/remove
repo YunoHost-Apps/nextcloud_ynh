@@ -19,10 +19,10 @@ ynh_config_remove_phpfpm
 
 # Remove notify push
 if [ $enable_notify_push -eq 1 ]; then
-  ynh_config_remove_systemd"${app}-notify-push"
+  ynh_config_remove_systemd "${app}-notify-push"
   systemctl disable --now --quiet ${app}-notify-push-watcher.path
   ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"
-  ynh_config_remove_systemd"${app}-notify-push-watcher"
+  ynh_config_remove_systemd "${app}-notify-push-watcher"
 fi
 
 # Remove a cron file

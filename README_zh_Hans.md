@@ -26,7 +26,7 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-**分发版本：** 31.0.0~ynh1
+**分发版本：** 31.0.1~ynh1
 
 **演示：** <https://demo.nextcloud.com/>
 

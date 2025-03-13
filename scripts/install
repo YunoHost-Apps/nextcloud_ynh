@@ -274,7 +274,7 @@ ynh_config_add_logrotate
 ynh_script_progression "Configuring Fail2Ban..."
 
 # Create a dedicated Fail2Ban config
-#ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
+ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 
 #=================================================
 # CHECK IF NOTIFY_PUSH WORKS

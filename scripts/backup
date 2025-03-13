@@ -28,8 +28,8 @@ ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
 
 ynh_backup "/etc/logrotate.d/$app"
 
-#ynh_backup "/etc/fail2ban/jail.d/$app.conf"
-#ynh_backup "/etc/fail2ban/filter.d/$app.conf"
+ynh_backup "/etc/fail2ban/jail.d/$app.conf"
+ynh_backup "/etc/fail2ban/filter.d/$app.conf"
 
 #=================================================
 # BACKUP VARIOUS FILES

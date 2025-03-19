@@ -131,12 +131,8 @@ set__enable_notify_push() {
 set__enable_forward_email() {
     if [ "$enable_forward_email" -eq "0" ]; then
         exec_occ ldap:set-config "" ldapEmailAttribute "mail"
-        ynh_replace --match="\$this->updateEmail(\$ldapEntry\[\$attr\]\[1\]);" --replace="\$this->updateEmail(\$ldapEntry\[\$attr\]\[0\]);" --file="$install_dir/apps/user_ldap/lib/User/User.php"
-        ynh_store_file_checksum "$install_dir/apps/user_ldap/lib/User/User.php"
     elif [ "$enable_forward_email" -eq "1" ]; then
         exec_occ ldap:set-config "" ldapEmailAttribute "maildrop"
-        ynh_replace --match="\$this->updateEmail(\$ldapEntry\[\$attr\]\[0\]);" --replace="\$this->updateEmail(\$ldapEntry\[\$attr\]\[1\]);" --file="$install_dir/apps/user_ldap/lib/User/User.php"
-        ynh_store_file_checksum "$install_dir/apps/user_ldap/lib/User/User.php"
     fi
     ynh_app_setting_set --app=$app --key=enable_forward_email --value="$enable_forward_email"
 }

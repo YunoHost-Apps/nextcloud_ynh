@@ -27,7 +27,7 @@ L'adresse `/.well-known` sera automatiquement configuré pour la synchronisation
 Le catalogue YunoHost dispose de deux suites bureautiques collaboratives, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) et [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), qui peuvent être intégrées à Nextcloud.
 
 
-**Version incluse :** 30.0.6~ynh3
+**Version incluse :** 30.0.8~ynh1
 
 **Démo :** <https://demo.nextcloud.com/>
 

@@ -11,7 +11,7 @@
       "timeout": "0.0",
       "password": ""
      },
-    "lost_password_link" => "https://lestoitspartages.fr/yunohost/sso/password.html",
+    "lost_password_link" => "https://$domain$path/sso/password.html",
     "hashing_default_password": true,
     "localstorage.allowsymlinks": true,
     "simpleSignUpLink.shown": false,

@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "30.0.8~ynh1"
+version = "29.0.14~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -19,8 +19,7 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 12.0.9"
-helpers_version = "2.1"
+yunohost = ">= 11.2"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
 
@@ -57,15 +56,9 @@ ram.runtime = "512M"
 [resources]
 
     [resources.sources]
-
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.8.tar.bz2'
-        sha256 = 'bb086a112fb3516e744921d7ae1482cc1bd537edfd1f14051c1348d4b6ad58a2'
-
-        [resources.sources.29]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.12.tar.bz2'
-        sha256 = 'c020354ff3e1d2087370f70e058fe171713636ba0f073a5194adbdff3c1cafc6'
-        prefetch = false
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.14.tar.bz2'
+        sha256 = '9a332e032c129c3e92a7a101924b5f267b0936f689749c45d031343c88a46afb'
 
         [resources.sources.28]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-28.0.14.tar.bz2'

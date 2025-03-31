@@ -3,7 +3,7 @@ Este archivo README esta generado automaticamente<https://github.com/YunoHost/ap
 No se debe editar a mano.
 -->
 
-# Nextcloud para Yunohost
+# Nextcloud para YunoHost
 
 [![Nivel de integración](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 ![Estado funcional](https://apps.yunohost.org/badge/state/nextcloud)
@@ -26,7 +26,9 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-**Versión actual:** 30.0.8~ynh1
+
+
+**Versión actual:** 29.0.14~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

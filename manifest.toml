@@ -19,8 +19,7 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 12.0.9"
-helpers_version = "2.1"
+yunohost = ">= 11.3"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
 
@@ -57,7 +56,6 @@ ram.runtime = "512M"
 [resources]
 
     [resources.sources]
-
         [resources.sources.main]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.14.tar.bz2'
         sha256 = '9a332e032c129c3e92a7a101924b5f267b0936f689749c45d031343c88a46afb'

@@ -5,7 +5,6 @@ No se debe editar a mano.
 
 # Nextcloud para YunoHost
 
-
 [![Nivel de integración](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 ![Estado funcional](https://apps.yunohost.org/badge/state/nextcloud)
 ![Estado En Mantención](https://apps.yunohost.org/badge/maintained/nextcloud)
@@ -27,6 +26,8 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
+
+
 **Versión actual:** 29.0.14~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
@@ -44,18 +45,16 @@ The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://g
 - Catálogo YunoHost: <https://apps.yunohost.org/app/nextcloud>
 - Reportar un error: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
-### Oldstable branch
+## Información para desarrolladores
 
-Esa rama sigue old stable release porque nextcloud primera release no queda bastante stable.
+Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 
-Por favor enviar sus correcciones a la [rama `oldstable`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
+Para probar la rama `testing`, sigue asÍ:
 
-Para probar la rama `oldstable`, sigue asÍ:
-
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+```bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
+o
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
 **Mas informaciones sobre el empaquetado de aplicaciones:** <https://yunohost.org/packaging_apps>

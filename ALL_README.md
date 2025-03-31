@@ -1,6 +1,8 @@
 # All available README files by language
 
 - [Read the README in English](README.md)
+- [Llegir el README en català](README_ca.md)
+- [Die README in Deutsch lesen](README_de.md)
 - [Lea el README en español](README_es.md)
 - [Irakurri README euskaraz](README_eu.md)
 - [Lire le README en français](README_fr.md)

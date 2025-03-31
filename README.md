@@ -24,11 +24,13 @@ In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoH
 
 The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
-The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud
+The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
+
+
 
 **Shipped version:** 29.0.14~ynh1
 
-*Demo:** <https://demo.nextcloud.com/>
+**Demo:** <https://demo.nextcloud.com/>
 
 ## Screenshots
 
@@ -43,19 +45,16 @@ The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://g
 - YunoHost Store: <https://apps.yunohost.org/app/nextcloud>
 - Report a bug: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
-### Oldstable branch
+## Developer info
 
-This branch is following old stable release because nextcloud first release are often not totally stable.
+Please send your pull request to the [`testing` branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 
-Please send your pull request to the [oldstable branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
+To try the `testing` branch, please proceed like that:
 
-To try the oldstable branch, please proceed like that.
-
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+```bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
-
-
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>

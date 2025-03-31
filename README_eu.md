@@ -26,6 +26,8 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
+
+
 **Paketatutako bertsioa:** 29.0.14~ynh1
 
 **Demoa:** <https://demo.nextcloud.com/>
@@ -43,18 +45,16 @@ The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://g
 - YunoHost Denda: <https://apps.yunohost.org/app/nextcloud>
 - Eman errore baten berri: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
-### Oldstable branch
+## Garatzaileentzako informazioa
 
-This branch is following old stable release because nextcloud first release are often not totally stable.
+Bidali `pull request`a [`testing` abarrera](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 
-Bidali `pull request`a [`oldstable` abarrera](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
+`testing` abarra probatzeko, honakoa egin:
 
-`oldstable` abarra probatzeko, ondorengoa egin:
-
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+```bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
+edo
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
 **Informazio gehiago aplikazioaren paketatzeari buruz:** <https://yunohost.org/packaging_apps>

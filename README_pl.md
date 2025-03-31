@@ -17,6 +17,7 @@ Nie powinno być ono edytowane ręcznie.
 > *Jeżeli nie masz YunoHost zapoznaj się z [poradnikiem](https://yunohost.org/install) instalacji.*
 
 ## Przegląd
+
 Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
 In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoHost accounts are automatically connected to Nextcloud).
@@ -25,7 +26,9 @@ The `/.well-known` address will be automatically configured for CalDAV and CardD
 
 The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-**Dostarczona wersja:** 30.0.8~ynh1
+
+
+**Dostarczona wersja:** 29.0.14~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 
@@ -42,18 +45,16 @@ The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://g
 - Sklep YunoHost: <https://apps.yunohost.org/app/nextcloud>
 - Zgłaszanie błędów: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
-### Oldstable branch
+## Informacje od twórców
 
-This branch is following old stable release because nextcloud first release are often not totally stable.
+Wyślij swój pull request do [gałęzi `testing`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 
-Wyślij swój pull request do [gałęzi `oldstable`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
+Aby wypróbować gałąź `testing` postępuj zgodnie z instrukcjami:
 
-Aby wypróbować gałąź `oldstable` postępuj zgodnie z instrukcjami:
-
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+```bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
+lub
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
 **Więcej informacji o tworzeniu paczek aplikacji:** <https://yunohost.org/packaging_apps>

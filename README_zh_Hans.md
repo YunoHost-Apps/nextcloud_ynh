@@ -18,18 +18,43 @@
 
 ## 概况
 
-### Oldstable branch
+Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
-This branch is following old stable release because nextcloud first release are often not totally stable.
+In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoHost accounts are automatically connected to Nextcloud).
 
-请向 [`oldstable` 分支](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
+The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
-如要尝试 `oldstable` 分支，请这样操作：
+The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+
+
+**分发版本：** 29.0.14~ynh1
+
+**演示：** <https://demo.nextcloud.com/>
+
+## 截图
+
+![Nextcloud 的截图](./doc/screenshots/screenshot.png)
+
+## 文档与资源
+
+- 官方应用网站： <https://nextcloud.com>
+- 官方用户文档： <https://docs.nextcloud.com/server/latest/user_manual/en/>
+- 官方管理文档： <https://docs.nextcloud.com/server/stable/admin_manual/>
+- 上游应用代码库： <https://github.com/nextcloud/server>
+- YunoHost 商店： <https://apps.yunohost.org/app/nextcloud>
+- 报告 bug： <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
+
+## 开发者信息
+
+请向 [`testing` 分支](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing) 发送拉取请求。
+
+如要尝试 `testing` 分支，请这样操作：
+
+```bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
+或
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
 **有关应用打包的更多信息：** <https://yunohost.org/packaging_apps>

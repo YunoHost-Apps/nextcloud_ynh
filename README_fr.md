@@ -26,20 +26,34 @@ L'adresse `/.well-known` sera automatiquement configuré pour la synchronisation
 
 Le catalogue YunoHost dispose de deux suites bureautiques collaboratives, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) et [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), qui peuvent être intégrées à Nextcloud.
 
+
 **Version incluse :** 29.0.14~ynh1
 
-## Branche olstable
+**Démo :** <https://demo.nextcloud.com/>
 
-Cette branche suit une ancienne version stable, car souvent les premières versions de nextcloud ne sont pas totalement stables.
+## Captures d’écran
 
-Merci de faire vos pull request sur la [branche testing](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+![Capture d’écran de Nextcloud](./doc/screenshots/screenshot.png)
 
-Pour essayer la branche oldstable, procédez comme suit.
+## Documentations et ressources
 
-``` bash
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+- Site officiel de l’app : <https://nextcloud.com>
+- Documentation officielle utilisateur : <https://docs.nextcloud.com/server/latest/user_manual/en/>
+- Documentation officielle de l’admin : <https://docs.nextcloud.com/server/stable/admin_manual/>
+- Dépôt de code officiel de l’app : <https://github.com/nextcloud/server>
+- YunoHost Store : <https://apps.yunohost.org/app/nextcloud>
+- Signaler un bug : <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
+
+## Informations pour les développeurs
+
+Merci de faire vos pull request sur la [branche `testing`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+
+Pour essayer la branche `testing`, procédez comme suit :
+
+```bash
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ou
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
 ```
 
 **Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>

@@ -235,7 +235,8 @@ ynh_script_progression "Reconfiguring $app..."
 # Verify the checksum and backup the file if it's different
 ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
 
-nc_conf="${install_dir}/config.json" 
+nc_conf="${install_dir}/config.json"
+ynh_config_add --template="config.json" --destination="$nc_conf"
 
 # Reneable the mail app
 if [ $mail_app_must_be_reactived -eq 1 ]; then

@@ -1,74 +1,64 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-source ../settings/scripts/_ynh_mysql_dump_db.sh
 
-#=================================================
-# DECLARE DATA AND CONF FILES TO BACKUP
-#=================================================
-ynh_print_info --message="Declaring files to be backed up..."
+ynh_print_info "Declaring files to be backed up..."
 
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
 
-ynh_backup --src_path="$install_dir"
+ynh_backup "$install_dir"
 
 #=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
 
-ynh_backup --src_path="$data_dir" --is_big
+ynh_backup "$data_dir"
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
 
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup "/etc/php/$php_version/fpm/pool.d/$app.conf"
+
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.d"
+
+ynh_backup "/etc/logrotate.d/$app"
+
+ynh_backup "/etc/fail2ban/jail.d/$app.conf"
+ynh_backup "/etc/fail2ban/filter.d/$app.conf"
 
 #=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
+# BACKUP VARIOUS FILES
 #=================================================
 
-ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
+ynh_backup "/etc/cron.d/$app"
 
-#=================================================
-# SPECIFIC BACKUP
-#=================================================
-# BACKUP LOGROTATE
-#=================================================
-
-ynh_backup --src_path="/etc/logrotate.d/$app"
-
-#=================================================
-# BACKUP FAIL2BAN CONFIGURATION
-#=================================================
-
-ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
-ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
-
-#=================================================
-# BACKUP THE CRON FILE
-#=================================================
-
-ynh_backup --src_path="/etc/cron.d/$app"
+ynh_backup "/var/log/$app"
 
 #=================================================
 # BACKUP THE MYSQL DATABASE
 #=================================================
-ynh_print_info --message="Backing up the MySQL database..."
+ynh_print_info "Backing up the MySQL database..."
 
-ynh_mysql_dump_db --database="$db_name" --default_character_set="utf8mb4" > db.sql
+ynh_mysql_dump_db > db.sql
+
+#=================================================
+# BACKUP THE NOTIFY_PUSH APP
+#=================================================
+
+if [ $enable_notify_push -eq 1 ]
+then
+    ynh_backup "/etc/systemd/system/${app}-notify-push.service"
+    ynh_backup "/etc/systemd/system/${app}-notify-push-watcher.service"
+    ynh_backup "/etc/systemd/system/${app}-notify-push-watcher.path"
+fi
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
+ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

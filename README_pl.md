@@ -17,35 +17,15 @@ Nie powinno być ono edytowane ręcznie.
 > *Jeżeli nie masz YunoHost zapoznaj się z [poradnikiem](https://yunohost.org/install) instalacji.*
 
 ## Przegląd
+Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
-Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
+In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoHost accounts are automatically connected to Nextcloud).
 
-### YunoHost-specific features
+The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
-In addition to Nextcloud core features, the following are made available with this package:
+The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
- * Integrate with YunoHost users and SSO - i.e. logout button
- * Allow one user to be the administrator (set at the installation)
- * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
-
-### Oldstable branch
-
-This branch is following old stable release because nextcloud first release are often not totally stable.
-
-Please send your pull request to the [oldstable branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
-
-To try the oldstable branch, please proceed like that.
-
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-```
-
-
-**Dostarczona wersja:** 29.0.14~ynh1
+**Dostarczona wersja:** 30.0.8~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 
@@ -62,16 +42,18 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 - Sklep YunoHost: <https://apps.yunohost.org/app/nextcloud>
 - Zgłaszanie błędów: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
-## Informacje od twórców
+### Oldstable branch
 
-Wyślij swój pull request do [gałęzi `testing`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+This branch is following old stable release because nextcloud first release are often not totally stable.
 
-Aby wypróbować gałąź `testing` postępuj zgodnie z instrukcjami:
+Wyślij swój pull request do [gałęzi `oldstable`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
 
-```bash
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
-lub
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
+Aby wypróbować gałąź `oldstable` postępuj zgodnie z instrukcjami:
+
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+or
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
 ```
 
 **Więcej informacji o tworzeniu paczek aplikacji:** <https://yunohost.org/packaging_apps>

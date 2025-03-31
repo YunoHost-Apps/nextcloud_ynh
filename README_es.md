@@ -5,6 +5,7 @@ No se debe editar a mano.
 
 # Nextcloud para YunoHost
 
+
 [![Nivel de integración](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 ![Estado funcional](https://apps.yunohost.org/badge/state/nextcloud)
 ![Estado En Mantención](https://apps.yunohost.org/badge/maintained/nextcloud)
@@ -18,32 +19,13 @@ No se debe editar a mano.
 
 ## Descripción general
 
-Nextcloud Hub is a fully open-source on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces.
+Nextcloud lets you access and synchronize data, files, contacts and calendars between different devices (PCs or mobiles), or share them with other people (with or without accounts), and also offers advanced communication and collaborative working features. Nextcloud features its own application mechanism (see also [Nextcloud's app store](https://apps.nextcloud.com/)) for specific functionalities. 
 
-### YunoHost-specific features
+In the context of YunoHost, Nextcloud integrates with the SSO/User Portal (YunoHost accounts are automatically connected to Nextcloud).
 
-In addition to Nextcloud core features, the following are made available with this package:
+The `/.well-known` address will be automatically configured for CalDAV and CardDAV synchronization if no other service such as Baïkal is already using it.
 
- * Integrate with YunoHost users and SSO - i.e. logout button
- * Allow one user to be the administrator (set at the installation)
- * Allow multiple instances of this application
- * Optionally access the user home folder from Nextcloud files (set at the installation, the sharing is enabled by default)
- * Serve `/.well-known` paths for CalDAV and CardDAV on the domain only if it's not already served - i.e. by Baïkal
-
-### Oldstable branch
-
-This branch is following old stable release because nextcloud first release are often not totally stable.
-
-Please send your pull request to the [oldstable branch](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
-
-To try the oldstable branch, please proceed like that.
-
-```
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-or
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
-```
-
+The YunoHost catalog has two collaborative office suites, [OnlyOffice](https://github.com/YunoHost-Apps/onlyoffice_ynh) and [Collabora](https://github.com/YunoHost-Apps/collabora_ynh), which can be integrated with Nextcloud.
 
 **Versión actual:** 29.0.14~ynh1
 
@@ -62,16 +44,18 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 - Catálogo YunoHost: <https://apps.yunohost.org/app/nextcloud>
 - Reportar un error: <https://github.com/YunoHost-Apps/nextcloud_ynh/issues>
 
-## Información para desarrolladores
+### Oldstable branch
 
-Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
+Esa rama sigue old stable release porque nextcloud primera release no queda bastante stable.
 
-Para probar la rama `testing`, sigue asÍ:
+Por favor enviar sus correcciones a la [rama `oldstable`](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable).
 
-```bash
-sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
-o
-sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug
+Para probar la rama `oldstable`, sigue asÍ:
+
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
+or
+sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/oldstable --debug
 ```
 
 **Mas informaciones sobre el empaquetado de aplicaciones:** <https://yunohost.org/packaging_apps>

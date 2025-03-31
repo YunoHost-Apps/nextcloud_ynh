@@ -19,12 +19,12 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.0.9"
+helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
 
 ldap = true
-
 sso = true
 
 disk = "650M"
@@ -49,8 +49,8 @@ ram.runtime = "512M"
     default = "visitors"
 
     [install.user_home]
-    ask.en = "Access the users home folder from Nextcloud?"
-    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud ?"
+    ask.en = "Access the users home folder from Nextcloud"
+    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud"
     type = "boolean"
     default = false
 
@@ -68,34 +68,35 @@ ram.runtime = "512M"
         prefetch = false
 
         [resources.sources.27]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-27.1.10.tar.bz2'
-        sha256 = '943e1270d771a7c80daa2b32e7294ce8c3b77b9eaef72ad8b38487d58c850756'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-27.1.11.tar.bz2'
+        sha256 = '4edd2570f4c83442f8f0f0616fb774ed2663b11cf9f6ea49e795ab43aeef9645'
         prefetch = false
 
         [resources.sources.26]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-26.0.0.tar.bz2'
-        sha256 = 'f163150363aee9366ecb5cd5259bf6756ed4f073cea78b5fa515cada7a0d0c3d'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-26.0.13.tar.bz2'
+        sha256 = '0a362df7a1233348f99d1853fd7e79f0667b552c145dc45012fab54ac31c79ae'
         prefetch = false
 
         [resources.sources.25]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.0.tar.bz2'
-        sha256 = '2c05ac9d7b72b44ef8b3d2ae03ff0fd6121e254b8054556f5163bd8760dd8f49'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-25.0.13.tar.bz2'
+        sha256 = '387bac148a696244f1ec02698a082d408283a875b3de85eb9719dd4493eebe33'
         prefetch = false
 
         [resources.sources.24]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-24.0.0.tar.bz2'
-        sha256 = '176cb5620f20465fb4759bdf3caaebeb7acff39d6c8630351af9f8738c173780'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-24.0.12.tar.bz2'
+        sha256 = '2f093bdf7d34faf38d22f38a5e11f3aee32746ff4add3df17c790b9b36390836'
         prefetch = false
 
         [resources.sources.23]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-23.0.0.tar.bz2'
-        sha256 = 'c37592abc3b65c8fd28459281a24f414b87af52fc8c2ea979be3f9be75d01a2c'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-23.0.12.tar.bz2'
+        sha256 = 'ad3637fd987e9f1ed5bd5dbd177bdce1e39228e3daf95bc4a3c590d4b1522b1e'
         prefetch = false
 
     [resources.system_user]
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["data"]
@@ -110,8 +111,7 @@ ram.runtime = "512M"
     api.allowed = ["visitors", "all_users"]
 
     [resources.apt]
-    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, php8.2-fpm, php8.2-bz2, php8.2-imap, php8.2-gmp, php8.2-gd, php8.2-intl, php8.2-curl, php8.2-apcu, php8.2-redis, php8.2-ldap, php8.2-imagick, php8.2-zip, php8.2-mbstring, php8.2-xml, php8.2-mysql, php8.2-igbinary, php8.2-bcmath"
+    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, redis-server, php8.3-fpm, php8.3-bz2, php8.3-imap, php8.3-gmp, php8.3-gd, php8.3-intl, php8.3-curl, php8.3-apcu, php8.3-redis, php8.3-ldap, php8.3-imagick, php8.3-zip, php8.3-mbstring, php8.3-xml, php8.3-mysql, php8.3-igbinary, php8.3-bcmath, php8.3-sqlite3"
 
     [resources.database]
     type = "mysql"
-    

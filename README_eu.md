@@ -45,7 +45,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**Paketatutako bertsioa:** 29.0.13~ynh1
+**Paketatutako bertsioa:** 29.0.14~ynh1
 
 **Demoa:** <https://demo.nextcloud.com/>
 
@@ -66,7 +66,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 
 Bidali `pull request`a [`testing` abarrera](https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing).
 
-`testing` abarra probatzeko, ondorengoa egin:
+`testing` abarra probatzeko, honakoa egin:
 
 ```bash
 sudo yunohost app install https://github.com/YunoHost-Apps/nextcloud_ynh/tree/testing --debug

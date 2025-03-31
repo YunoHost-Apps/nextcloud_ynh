@@ -3,7 +3,7 @@ Este archivo README esta generado automaticamente<https://github.com/YunoHost/ap
 No se debe editar a mano.
 -->
 
-# Nextcloud para Yunohost
+# Nextcloud para YunoHost
 
 [![Nivel de integración](https://apps.yunohost.org/badge/integration/nextcloud)](https://ci-apps.yunohost.org/ci/apps/nextcloud/)
 ![Estado funcional](https://apps.yunohost.org/badge/state/nextcloud)
@@ -45,7 +45,7 @@ sudo yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextclou
 ```
 
 
-**Versión actual:** 29.0.13~ynh1
+**Versión actual:** 29.0.14~ynh1
 
 **Demo:** <https://demo.nextcloud.com/>
 

@@ -60,7 +60,7 @@ ram.runtime = "512M"
 
         [resources.sources.main]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.9.tar.bz2'
-        sha256 = ''
+        sha256 = '82458bd7086c082a87ad1f1495d923b89e2331109a8d95e8b00e639bbd0e1f16'
 
         [resources.sources.29]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.12.tar.bz2'

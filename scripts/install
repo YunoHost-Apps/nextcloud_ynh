@@ -153,7 +153,7 @@ then
     create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
     done
 fi
 
@@ -209,6 +209,9 @@ if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
 
     case $YNH_ARCH in
         amd64) arch="x86_64";;

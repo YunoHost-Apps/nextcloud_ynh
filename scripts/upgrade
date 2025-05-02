@@ -97,8 +97,8 @@ exec_occ() {
 # HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
 #=================================================
 
-# If we're moving through version 30.0.6~ynh1 (in which the switch to PostgreSQL is made)
-if ynh_app_upgrading_from_version_before 30.0.6~ynh1
+# If we're moving through version 31.0.4~ynh2 (in which the switch to PostgreSQL is made)
+if ynh_app_upgrading_from_version_before 31.0.4~ynh2
 then
     # Double-check the MySQL database is here
     if ! mysql -e "USE $db_name" 2>/dev/null 

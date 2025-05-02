@@ -98,7 +98,8 @@ exec_occ() {
 #=================================================
 
 # If we're moving through version 30.0.6~ynh1 (in which the switch to PostgreSQL is made)
-if ynh_app_upgrading_from_version_before 30.0.6~ynh1
+# OR (for the people that upgraded to the postgres version prior to 30.0.6 ...) if there's a Nextcloud Mysql DB and no Nextcloud postgresl DB
+if ynh_app_upgrading_from_version_before 30.0.6~ynh1 || { mysql -e "USE $db_name" 2>/dev/null && [[ "$(ynh_psql_db_shell --database=$db_name --sql="\dt" 2>/dev/null | wc -l)" == 0 ]]; }
 then
     # Double-check the MySQL database is here
     if ! mysql -e "USE $db_name" 2>/dev/null 

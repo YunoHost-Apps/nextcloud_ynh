@@ -105,7 +105,7 @@ then
     then
         ynh_print_warn "Uhoh? The Nextcloud MySQL database doesn't exist? We are supposed to move it to PostgreSQL... Maybe it was already migrated?"
         # Double check the psql is not empty, otherwise big whoops?
-        if [[ "$(ynh_psql_db_shell --database=$db_name --sql="\dt" 2>/dev/null | wc -l)" == 0 ]]
+        if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l 2>/dev/null | wc -l)" == 0 ]]
         then
                 ynh_die "Apparently the PostgreSQL database is also empty, this is kind of worrying, what happened?!"
         else

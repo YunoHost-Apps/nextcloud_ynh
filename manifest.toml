@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "30.0.8~ynh1"
+version = "31.0.4~ynh2"
 
 maintainers = ["kay0u"]
 
@@ -59,12 +59,17 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.8.tar.bz2'
-        sha256 = 'bb086a112fb3516e744921d7ae1482cc1bd537edfd1f14051c1348d4b6ad58a2'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.4.tar.bz2'
+        sha256 = 'a47541566d5c6ac6f63e4f617e27da295156da47daa2cd22eee3400fd2ad1251'
+
+        [resources.sources.30]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.10.tar.bz2'
+        sha256 = 'e3495d17c5f5c9164542d93f636d696acc8f38b60bec70cf1ad2e79c76d995ba'
+        prefetch = false
 
         [resources.sources.29]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.12.tar.bz2'
-        sha256 = 'c020354ff3e1d2087370f70e058fe171713636ba0f073a5194adbdff3c1cafc6'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.16.tar.bz2'
+        sha256 = '499bf61ab19edcd4e542af86609243c5b4f440eb5bb06c2ba7da0c2faa525322'
         prefetch = false
 
         [resources.sources.28]
@@ -108,7 +113,7 @@ ram.runtime = "512M"
 
     [resources.permissions]
     main.url = "/"
-    
+
     api.url = "re:__DOMAIN__\\/.well-known\\/.*"
     api.auth_header = false
     api.show_tile = false
@@ -116,7 +121,41 @@ ram.runtime = "512M"
     api.allowed = ["visitors", "all_users"]
 
     [resources.apt]
-    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, redis-server, php8.3-fpm, php8.3-bz2, php8.3-imap, php8.3-gmp, php8.3-gd, php8.3-intl, php8.3-curl, php8.3-apcu, php8.3-redis, php8.3-ldap, php8.3-imagick, php8.3-zip, php8.3-mbstring, php8.3-xml, php8.3-mysql, php8.3-igbinary, php8.3-bcmath, php8.3-sqlite3"
+    packages = [
+        "imagemagick",
+        "acl",
+        "tar",
+        "smbclient",
+        "at",
+        "mariadb-server",
+        "redis-server",
+        "php8.3-apcu",
+        "php8.3-bcmath",
+        "php8.3-bz2",
+        "php8.3-curl",
+        "php8.3-fpm",
+        "php8.3-gd",
+        "php8.3-gmp",
+        "php8.3-igbinary",
+        "php8.3-imagick",
+        "php8.3-imap",
+        "php8.3-intl",
+        "php8.3-ldap",
+        "php8.3-mbstring",
+        "php8.3-mysql",
+        "php8.3-redis",
+        "php8.3-sqlite3",
+        "php8.3-xml",
+        "php8.3-zip",
+    ]
+
+    packages_from_raw_bash = """
+        case $YNH_DEBIAN_VERSION in
+            bullseye)   echo libmagickcore-6.q16-6-extra ;;
+            bookworm)   echo libmagickcore-6.q16-6-extra ;;
+            trixie)     echo libmagickcore-7.q16-10-extra ;;
+        esac
+    """
 
     [resources.database]
     type = "mysql"

@@ -1,5 +1,7 @@
 {
   "system": {
+    "trashbin_retention_obligation": "auto, 30",
+    "versions_retention_obligation": "auto, 30",
     "updatechecker": false,
     "memcache.local": "\\OC\\Memcache\\APCu",
     "integrity.check.disabled": true,

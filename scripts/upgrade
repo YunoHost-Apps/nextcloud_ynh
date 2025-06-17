@@ -196,6 +196,9 @@ do
         fi
     else
         ynh_print_info "Upgrading to Nextcloud $next_major_version"
+
+        # We don't apply patches if it's not the destination version
+        ynh_safe_rm "../patches/$source_id"
     fi
 
     # Create a temporary directory

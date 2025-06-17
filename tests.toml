@@ -2,6 +2,7 @@ test_format = 1.0
 
 [default]
 
+    args.version_to_follow = "stable"
     args.enable_notify_push = "0"
 
     # -------------------------------
@@ -37,8 +38,12 @@ test_format = 1.0
     caldav.logged_on_sso = true
     caldav.expect_content = "This is the WebDAV interface."
 
-#[notify_push_test]
-
-#    args.enable_notify_push = "1"
-#    test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
-#    test_upgrade_from.e9f82ab7.args.system_addressbook_exposed = "yes"
+[oldstable]
+    args.version_to_follow = "oldstable"
+    test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
+    test_upgrade_from.e9f82ab7.args.system_addressbook_exposed = "yes"
+    
+[notify_push_test]
+    args.enable_notify_push = "1"
+    test_upgrade_from.e9f82ab7.name = "Upgrade from 28.0.6"
+    test_upgrade_from.e9f82ab7.args.system_addressbook_exposed = "yes"

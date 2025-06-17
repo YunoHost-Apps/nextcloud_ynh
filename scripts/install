@@ -34,7 +34,16 @@ ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE ut
 #=================================================
 ynh_script_progression "Setting up source files..."
 
-ynh_setup_source --dest_dir="$install_dir"
+
+source_id="main"
+if [ "$version_to_follow" == "oldstable" ]; then
+    last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+    last_major_version=${last_version%%.*}
+    last_major_version=$(( $last_major_version - 1 ))
+    source_id="$last_major_version"
+fi
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$install_dir" --source_id="$source_id"
 
 #=================================================
 # PHP-FPM CONFIGURATION

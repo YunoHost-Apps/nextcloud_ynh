@@ -140,7 +140,12 @@ set__enable_forward_email() {
     fi
     ynh_app_setting_set --app=$app --key=enable_forward_email --value="$enable_forward_email"
 }
+set__version_to_follow() {
+    ynh_app_setting_set --app=$app --key=version_to_follow --value="$version_to_follow"
+    ynh_print_info "Upgrading nextcloud, it may take some time..."
+    yunohost app upgrade $app --force
 
+}
 #=================================================
 # SPECIFIC RUNNERS FOR TOML SHORT KEYS
 #=================================================

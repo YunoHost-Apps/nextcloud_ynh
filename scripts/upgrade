@@ -182,68 +182,71 @@ if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w 
     mail_app_must_be_reactived=1
 fi
 
-# While the current version is not the last version, do an upgrade
-while [ "$last_version" != "$current_version" ]
-do
+# Avoid to downgrade Nextcloud, if channel has changed from stable to oldstable.
+if [[ "$current_major_version" -le "$last_major_version" ]]; then
 
-    next_major_version="$(( $current_major_version + 1 ))"
-    source_id="$next_major_version"
-    if [[ "$next_major_version" -ge "$last_major_version" ]]; then
-        ynh_print_info "Upgrading to Nextcloud $last_version"
-        if [[ "$version_to_follow" != "oldstable" ]]
-        then
-            source_id="main"
-        fi
-    else
-        ynh_print_info "Upgrading to Nextcloud $next_major_version"
-
-        # We don't apply patches if it's not the destination version
-        ynh_safe_rm "../patches/$source_id"
-    fi
-
-    # Create a temporary directory
-    tmpdir="${install_dir}__tmp_upgrade"
-
-    ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
-
-    # Backup the config file in the temp dir
-    cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
-
-    # Enable maintenance mode
-    exec_occ maintenance:mode --on
-
-    # Backup 3rd party applications from the current Nextcloud
-    # But do not overwrite if there is any upgrade
-    # (apps directory already exists in Nextcloud archive)
-    (
-    cd $install_dir/apps
-    for nc_app_dir in */
+    # While the current version is not the last version, do an upgrade
+    while [ "$last_version" != "$current_version" ]
     do
-      if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
-      then
-        cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
-      fi
+
+        next_major_version="$(( $current_major_version + 1 ))"
+        source_id="$next_major_version"
+        if [[ "$next_major_version" -ge "$last_major_version" ]]; then
+            ynh_print_info "Upgrading to Nextcloud $last_version"
+            if [[ "$version_to_follow" != "oldstable" ]]
+            then
+                source_id="main"
+            fi
+        else
+            ynh_print_info "Upgrading to Nextcloud $next_major_version"
+
+            # We don't apply patches if it's not the destination version
+            ynh_safe_rm "../patches/$source_id"
+        fi
+
+        # Create a temporary directory
+        tmpdir="${install_dir}__tmp_upgrade"
+
+        ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
+
+        # Backup the config file in the temp dir
+        cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
+
+        # Enable maintenance mode
+        exec_occ maintenance:mode --on
+
+        # Backup 3rd party applications from the current Nextcloud
+        # But do not overwrite if there is any upgrade
+        # (apps directory already exists in Nextcloud archive)
+        (
+        cd $install_dir/apps
+        for nc_app_dir in */
+        do
+        if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
+        then
+            cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
+        fi
+        done
+        )
+
+        # Replace the old Nextcloud by the new one
+        ynh_safe_rm "$install_dir"
+        mv "$tmpdir" "$install_dir"
+
+        # Set write access for the following commands
+        chown -R $app:www-data "$install_dir"
+        # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
+        exec_occ maintenance:mode --off
+        exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
+
+        # Get the new current version number
+        current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+        current_major_version=${current_version%%.*}
+        
+        # Print the current version number of Nextcloud
+        exec_occ -V
     done
-    )
-
-    # Replace the old Nextcloud by the new one
-    ynh_safe_rm "$install_dir"
-    mv "$tmpdir" "$install_dir"
-
-    # Set write access for the following commands
-    chown -R $app:www-data "$install_dir"
-    # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
-    exec_occ maintenance:mode --off
-    exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
-
-    # Get the new current version number
-    current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-    current_major_version=${current_version%%.*}
-    
-    # Print the current version number of Nextcloud
-    exec_occ -V
-done
-
+fi
 exec_occ db:add-missing-indices -n
 exec_occ db:add-missing-columns -n
 exec_occ db:add-missing-primary-keys -n

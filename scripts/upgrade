@@ -55,6 +55,12 @@ filter_boring_occ_warnings() {
     sed -E 's@\s*([0-9]+\/[0-9]+\s+\[(-|>|=)+\]\s+[0-9]+%|\s*Starting ...|Nextcloud or one of the apps require upgrade - only a limited number of commands are available|You may use your browser or the occ upgrade command to do the upgrade)@@g'
 }
 
+current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+current_major_version=${current_version%%.*}
+
+last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9][0-9]\.[0-9]\.[0-9]+')
+last_major_version=${last_version%%.*}
+
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
@@ -87,6 +93,35 @@ exec_occ() {
 (cd "$install_dir" && ynh_exec_as_app \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@") 2> >(filter_boring_occ_warnings >&2)
 }
+
+#=================================================
+# HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
+#=================================================
+
+# If we're moving through version 31.0.4~ynh2 (in which the switch to PostgreSQL is made)
+if ynh_app_upgrading_from_version_before 31.0.4~ynh2
+then
+    # Double-check the MySQL database is here
+    if ! mysql -e "USE $db_name" 2>/dev/null 
+    then
+        ynh_print_warn "Uhoh? The Nextcloud MySQL database doesn't exist? We are supposed to move it to PostgreSQL... Maybe it was already migrated?"
+        # Double check the psql is not empty, otherwise big whoops?
+        if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l 2>/dev/null | wc -l)" == 0 ]]
+        then
+                ynh_die "Apparently the PostgreSQL database is also empty, this is kind of worrying, what happened?!"
+        else
+                ynh_print_warn "Apparently the PostgreSQL database is not empty, so this is probably OK?"
+        fi
+    else
+        ynh_print_info "Migrating to PostgreSQL database..."
+        exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+        ynh_mysql_drop_db $db_name
+    fi
+fi
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
 
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing
@@ -163,15 +198,6 @@ chown -R $app:www-data "$install_dir"
 # Print the current version number of Nextcloud
 exec_occ -V
 
-if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
-    db_pwd=$(ynh_app_setting_get --key=db_pwd)
-    # Change your databases character set and collation
-    ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-    # Set the mysql.utf8mb4 config to true in config.php
-    exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
-    exec_occ maintenance:repair
-fi
-
 # Upgrade may fail if this app is enabled
 # Take all apps enabled, and check if mail is one of them
 # Then temporary disable the mail app
@@ -247,6 +273,7 @@ if [[ "$current_major_version" -le "$last_major_version" ]]; then
         exec_occ -V
     done
 fi
+
 exec_occ db:add-missing-indices -n
 exec_occ db:add-missing-columns -n
 exec_occ db:add-missing-primary-keys -n
@@ -403,7 +430,6 @@ then
     ynh_config_add --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
 
-# Create a dedicated NGINX config
 ynh_config_add_nginx
 
 #=================================================

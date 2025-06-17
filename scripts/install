@@ -23,13 +23,6 @@ system_addressbook_exposed="0"
 ynh_app_setting_set --key=system_addressbook_exposed --value=0
 
 #=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
-ynh_script_progression "Migrate MySQL database to utf8..."
-
-ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression "Setting up source files..."
@@ -92,7 +85,7 @@ admin_password="$(ynh_string_random --length=6)"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name $db_name \
+    --database "pgsql" --database-name $db_name \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$data_dir/data" \
@@ -102,9 +95,6 @@ exec_occ maintenance:install \
 # CONFIGURE NEXTCLOUD
 #=================================================
 ynh_script_progression "Configuring $app..."
-
-# Set the mysql.utf8mb4 config to true in config.php
-exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # move the logs from the data_dir to the standard /var/log
 exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
@@ -192,7 +182,7 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 #=================================================
 
 # Set the user as admin
-ynh_mysql_db_shell <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
+ynh_psql_db_shell <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 
 # And delete admin user
 exec_occ user:delete admin

@@ -139,7 +139,7 @@ ram.runtime = "512M"
         "tar",
         "smbclient",
         "at",
-        "mariadb-server",
+        "postgresql",
         "redis-server",
         "php8.3-apcu",
         "php8.3-bcmath",
@@ -155,6 +155,7 @@ ram.runtime = "512M"
         "php8.3-ldap",
         "php8.3-mbstring",
         "php8.3-mysql",
+        "php8.3-pgsql",
         "php8.3-redis",
         "php8.3-sqlite3",
         "php8.3-xml",
@@ -170,4 +171,5 @@ ram.runtime = "512M"
     """
 
     [resources.database]
-    type = "mysql"
+    type = "postgresql"
+    

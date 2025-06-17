@@ -64,7 +64,7 @@ last_major_version=${last_version%%.*}
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version = "$last_major_version" ]
+    if [ $current_major_version -ge 30 ]
     then
         NEXTCLOUD_PHP_VERSION="8.3"
     elif [ $current_major_version -ge 26 ]

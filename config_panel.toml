@@ -25,6 +25,19 @@ name.fr = "Configuration de Nextcloud"
         help.en = "This action sets permissions for all data. Beware, this action can take up to several hours if users have a lot of data."
         help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
+    [main.version]
+    name.en = "Upgrade channel"
+    name.fr = "Canal de mise à jour"
+    
+        [main.version.version_to_follow]
+        ask.en = "Upgrade channel to use"
+        ask.fr = "Canal de mise à jour à utiliser"
+        type = "select"
+        choices = ["stable", "oldstable"]
+        default = "stable"
+        help.en = "Stable releases (latest Nextcloud version available) sometimes contain annoying bugs or regressions. Using the oldstable channel (one version behind the latest) during this period can be useful if you need high stability."
+        help.fr = "Les versions stables (dernière version Nextcloud disponible) contiennent parfois des bugs ou des régressions gênants. Utiliser le canal oldstable (une version en retard sur la dernière) pendant cette période peut être utile si vous avez besoin d'une grande stabilité."
+
     [main.addressbook]
     name.en = "Address book configuration"
     name.fr = "Configuration du carnet d'adresses"

@@ -27,7 +27,16 @@ ynh_app_setting_set --key=system_addressbook_exposed --value=0
 #=================================================
 ynh_script_progression "Setting up source files..."
 
-ynh_setup_source --dest_dir="$install_dir"
+
+source_id="main"
+if [ "$version_to_follow" == "oldstable" ]; then
+    last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+    last_major_version=${last_version%%.*}
+    last_major_version=$(( $last_major_version - 1 ))
+    source_id="$last_major_version"
+fi
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$install_dir" --source_id="$source_id"
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -143,7 +152,7 @@ then
     create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
     done
 fi
 
@@ -199,6 +208,9 @@ if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
 
     case $YNH_ARCH in
         amd64) arch="x86_64";;

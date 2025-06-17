@@ -41,6 +41,7 @@ then
     ynh_die "Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
+
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
@@ -157,6 +158,27 @@ function list_installed_apps_not_compatible_with_future_version()
     comm -23 <(comm -23 $installed_apps $core_apps_in_current_version) $nextcloud_destination_appcatalog
 }
 
+current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+current_major_version=${current_version%%.*}
+
+last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+last_major_version=${last_version%%.*}
+
+if [ -z "${version_to_follow:-}" ]
+then
+    version_to_follow=oldstable
+    if [[ "$last_major_version" == "$current_major_version" ]]; then
+        version_to_follow=stable
+    fi
+    ynh_app_setting_set --key=version_to_follow --value="$version_to_follow"
+fi
+
+if [[ "$version_to_follow" == "oldstable" ]]
+then
+    last_major_version=$(( $last_major_version - 1 ))
+    last_version=$(ynh_read_manifest "resources.sources.${last_major_version}.url" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+fi
+
 if [[ "$last_major_version" != "$current_major_version" ]]
 then
     installed_apps_not_compatible_with_future_version="$(list_installed_apps_not_compatible_with_future_version $last_major_version)"
@@ -186,61 +208,71 @@ if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w 
     mail_app_must_be_reactived=1
 fi
 
-# While the current version is not the last version, do an upgrade
-while [ "$last_version" != "$current_version" ]
-do
+# Avoid to downgrade Nextcloud, if channel has changed from stable to oldstable.
+if [[ "$current_major_version" -le "$last_major_version" ]]; then
 
-    next_major_version="$(( $current_major_version + 1 ))"
-    if [[ "$next_major_version" -ge "$last_major_version" ]]; then
-        ynh_print_info "Upgrading to Nextcloud $last_version"
-        source_id="main"
-    else
-        ynh_print_info "Upgrading to Nextcloud $next_major_version"
-        source_id="$next_major_version"
-    fi
-
-    # Create a temporary directory
-    tmpdir="${install_dir}__tmp_upgrade"
-
-    ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
-
-    # Backup the config file in the temp dir
-    cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
-
-    # Enable maintenance mode
-    exec_occ maintenance:mode --on
-
-    # Backup 3rd party applications from the current Nextcloud
-    # But do not overwrite if there is any upgrade
-    # (apps directory already exists in Nextcloud archive)
-    (
-    cd $install_dir/apps
-    for nc_app_dir in */
+    # While the current version is not the last version, do an upgrade
+    while [ "$last_version" != "$current_version" ]
     do
-      if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
-      then
-        cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
-      fi
+
+        next_major_version="$(( $current_major_version + 1 ))"
+        source_id="$next_major_version"
+        if [[ "$next_major_version" -ge "$last_major_version" ]]; then
+            ynh_print_info "Upgrading to Nextcloud $last_version"
+            if [[ "$version_to_follow" != "oldstable" ]]
+            then
+                source_id="main"
+            fi
+        else
+            ynh_print_info "Upgrading to Nextcloud $next_major_version"
+
+            # We don't apply patches if it's not the destination version
+            ynh_safe_rm "../patches/$source_id"
+        fi
+
+        # Create a temporary directory
+        tmpdir="${install_dir}__tmp_upgrade"
+
+        ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
+
+        # Backup the config file in the temp dir
+        cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
+
+        # Enable maintenance mode
+        exec_occ maintenance:mode --on
+
+        # Backup 3rd party applications from the current Nextcloud
+        # But do not overwrite if there is any upgrade
+        # (apps directory already exists in Nextcloud archive)
+        (
+        cd $install_dir/apps
+        for nc_app_dir in */
+        do
+        if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
+        then
+            cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
+        fi
+        done
+        )
+
+        # Replace the old Nextcloud by the new one
+        ynh_safe_rm "$install_dir"
+        mv "$tmpdir" "$install_dir"
+
+        # Get the new current version number
+        current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+        current_major_version=${current_version%%.*}
+        
+        # Set write access for the following commands
+        chown -R $app:www-data "$install_dir"
+        # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
+        exec_occ maintenance:mode --off
+        exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
+        
+        # Print the current version number of Nextcloud
+        exec_occ -V
     done
-    )
-
-    # Replace the old Nextcloud by the new one
-    ynh_safe_rm "$install_dir"
-    mv "$tmpdir" "$install_dir"
-
-    # Set write access for the following commands
-    chown -R $app:www-data "$install_dir"
-    # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
-    exec_occ maintenance:mode --off
-    exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
-
-    # Get the new current version number
-    current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-    current_major_version=${current_version%%.*}
-
-    # Print the current version number of Nextcloud
-    exec_occ -V
-done
+fi
 
 exec_occ db:add-missing-indices -n
 exec_occ db:add-missing-columns -n
@@ -301,7 +333,7 @@ exec_occ maintenance:repair --include-expensive
 # Add dynamic logout URL to the config
 url_base64="$(echo -n "https://$domain$path" | base64)"
 old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
-current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
+current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null || echo '')"
 if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
 then
     echo "
@@ -414,6 +446,9 @@ then
         exec_occ app:install notify_push
     fi
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
 
     case $YNH_ARCH in
         amd64) arch="x86_64";;

@@ -98,23 +98,19 @@ exec_occ() {
 # HANDLE DATABASE MIGRATION FROM MYSL TO PSQL
 #=================================================
 
-# If we're moving through version 31.0.4~ynh2 (in which the switch to PostgreSQL is made)
-if ynh_app_upgrading_from_version_before 31.0.4~ynh2
+# If the MySQL database is here, we should migrate
+if mysql -e "USE $db_name" 2>/dev/null 
 then
-    # Double-check the MySQL database is here
-    if ! mysql -e "USE $db_name" 2>/dev/null 
+    # Migrate mysql db onto postgresql if the db is empty
+    if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l 2>/dev/null | wc -l)" == "0" ]]
     then
-        ynh_print_warn "Uhoh? The Nextcloud MySQL database doesn't exist? We are supposed to move it to PostgreSQL... Maybe it was already migrated?"
-        # Double check the psql is not empty, otherwise big whoops?
-        if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l 2>/dev/null | wc -l)" == 0 ]]
-        then
-                ynh_die "Apparently the PostgreSQL database is also empty, this is kind of worrying, what happened?!"
-        else
-                ynh_print_warn "Apparently the PostgreSQL database is not empty, so this is probably OK?"
-        fi
-    else
         ynh_print_info "Migrating to PostgreSQL database..."
         exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+    fi
+
+    # Remove mysql db if the postgresql db is not empty
+    if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l 2>/dev/null | wc -l)" != "0" ]]
+    then
         ynh_mysql_drop_db $db_name
     fi
 fi

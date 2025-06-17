@@ -130,6 +130,7 @@ ram.runtime = "512M"
         "smbclient",
         "at",
         "postgresql",
+        "mariadb-server",
         "redis-server",
         "php8.3-apcu",
         "php8.3-bcmath",

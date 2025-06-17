@@ -233,15 +233,15 @@ if [[ "$current_major_version" -le "$last_major_version" ]]; then
         ynh_safe_rm "$install_dir"
         mv "$tmpdir" "$install_dir"
 
+        # Get the new current version number
+        current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+        current_major_version=${current_version%%.*}
+        
         # Set write access for the following commands
         chown -R $app:www-data "$install_dir"
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
-
-        # Get the new current version number
-        current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-        current_major_version=${current_version%%.*}
         
         # Print the current version number of Nextcloud
         exec_occ -V

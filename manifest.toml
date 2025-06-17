@@ -62,7 +62,8 @@ ram.runtime = "512M"
     help.en = "Stable releases (latest Nextcloud version available) sometimes contain annoying bugs or regressions. Using the oldstable channel (one version behind the latest) during this period can be useful if you need high stability."
     help.fr = "Les versions stables (dernière version Nextcloud disponible) contiennent parfois des bugs ou des régressions gênants. Utiliser le canal oldstable (une version en retard sur la dernière) pendant cette période peut être utile si vous avez besoin d'une grande stabilité."
     type = "select"
-    choices = ["stable", "oldstable"]
+    choices.stable = "stable (latest version)"
+    choices.oldstable = "oldstable (previous major version, useful if you need high stability)"
     default = "stable"
     
 [resources]

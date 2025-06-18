@@ -55,16 +55,6 @@ ram.runtime = "512M"
     help.fr = "Si activé, le dossier `/home/$user` de chaque compte lui sera ajouté dans Nextcloud."
     type = "boolean"
     default = false
-
-    [install.version_to_follow]
-    ask.en = "Upgrade channel to use"
-    ask.fr = "Canal de mise à jour à utiliser"
-    help.en = "Stable releases (latest Nextcloud version available) sometimes contain annoying bugs or regressions. Using the oldstable channel (one version behind the latest) during this period can be useful if you need high stability."
-    help.fr = "Les versions stables (dernière version Nextcloud disponible) contiennent parfois des bugs ou des régressions gênants. Utiliser le canal oldstable (une version en retard sur la dernière) pendant cette période peut être utile si vous avez besoin d'une grande stabilité."
-    type = "select"
-    choices.stable = "Stable channel: latest version"
-    choices.oldstable = "Oldstable channel (recommended): previous major version, useful if you need high stability)"
-    default = "oldstable"
     
 [resources]
 

@@ -25,10 +25,6 @@ name.fr = "Configuration de Nextcloud"
         help.en = "This action sets permissions for all data. Beware, this action can take up to several hours if users have a lot of data."
         help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
-    [main.version]
-    name.en = "Upgrade channel"
-    name.fr = "Canal de mise à jour"
-    
     [main.addressbook]
     name.en = "Address book configuration"
     name.fr = "Configuration du carnet d'adresses"

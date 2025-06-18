@@ -164,21 +164,6 @@ current_major_version=${current_version%%.*}
 last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
 last_major_version=${last_version%%.*}
 
-if [ -z "${version_to_follow:-}" ]
-then
-    version_to_follow=oldstable
-    if [[ "$last_major_version" == "$current_major_version" ]]; then
-        version_to_follow=stable
-    fi
-    ynh_app_setting_set --key=version_to_follow --value="$version_to_follow"
-fi
-
-if [[ "$version_to_follow" == "oldstable" ]]
-then
-    last_major_version=$(( $last_major_version - 1 ))
-    last_version=$(ynh_read_manifest 'resources.sources["'${last_major_version}'"].url' | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-fi
-
 if [[ "$last_major_version" != "$current_major_version" ]]
 then
     installed_apps_not_compatible_with_future_version="$(list_installed_apps_not_compatible_with_future_version $last_major_version)"
@@ -219,15 +204,9 @@ if [[ "$current_major_version" -le "$last_major_version" ]]; then
         source_id="$next_major_version"
         if [[ "$next_major_version" -ge "$last_major_version" ]]; then
             ynh_print_info "Upgrading to Nextcloud $last_version"
-            if [[ "$version_to_follow" != "oldstable" ]]
-            then
-                source_id="main"
-            fi
+            source_id="main"
         else
             ynh_print_info "Upgrading to Nextcloud $next_major_version"
-
-            # We don't apply patches if it's not the destination version
-            ynh_safe_rm "../patches/$source_id"
         fi
 
         # Create a temporary directory

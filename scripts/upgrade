@@ -102,7 +102,6 @@ exec_occ() {
 if mysql -e "USE $db_name" 2>/dev/null 
 then
     # Migrate mysql db onto postgresql if the db is empty
-    ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null
     if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l)" == "0" ]]
     then
         ynh_print_info "Migrating to PostgreSQL database..."
@@ -114,9 +113,13 @@ then
     then
         ynh_mysql_drop_db $db_name
         nc_conf="${install_dir}/config/config.php"
+        # Verify the checksum and backup the file if it's different
+        ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
+        
         ynh_write_var_in_file --file="$nc_conf" --key="dbtype" --value="pgsql"
         ynh_write_var_in_file --file="$nc_conf" --key="dbuser" --value="$db_user"
         ynh_write_var_in_file --file="$nc_conf" --key="dbpassword" --value="$db_pwd"
+        ynh_store_file_checksum "$nc_conf"
     fi
 fi
 

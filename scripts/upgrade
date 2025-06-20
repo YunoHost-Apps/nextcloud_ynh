@@ -107,6 +107,7 @@ then
         mysql_size=$(du -bs /var/lib/mysql/$app | awk '{print $1}')
         mysql_size_human=$(du -hs /var/lib/mysql/$app | awk '{print $1}')
         free_space=$(df --output=avail /var/lib/postgresql/*/main | tail -n1)
+        free_space=$((free_space * 1024))
         [ $mysql_size -ge $free_space ] && ynh_die "Unable to migrate the database $app ($mysql_size_human) due to lack of free space."
         ynh_print_info "Migrating to PostgreSQL database..."
         ynh_hide_warnings exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n

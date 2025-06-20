@@ -104,8 +104,12 @@ then
     # Migrate mysql db onto postgresql if the db is empty
     if [[ "$(ynh_psql_db_shell "$db_name" <<< "\dt" 2>/dev/null | wc -l)" == "0" ]]
     then
+        mysql_size=$(du -bs /var/lib/mysql/$app | awk '{print $1}')
+        mysql_size_human=$(du -hs /var/lib/mysql/$app | awk '{print $1}')
+        free_space=$(df --output=avail /var/lib/postgresql/*/main | tail -n1)
+        [ $mysql_size -ge $free_space ] && ynh_die "Unable to migrate the database $app ($mysql_size_human) due to lack of free space."
         ynh_print_info "Migrating to PostgreSQL database..."
-        exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
+        ynh_hide_warnings exec_occ db:convert-type --all-apps --clear-schema pgsql $db_name 127.0.0.1 $db_name --password=$db_pwd -n
     fi
 
     # Remove mysql db if the postgresql db is not empty

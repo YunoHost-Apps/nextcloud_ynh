@@ -1,0 +1,30 @@
+diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php
+index d4d6a17db79..f587f805683 100644
+--- a/core/Controller/LoginController.php
++++ b/core/Controller/LoginController.php
+@@ -75,15 +75,21 @@ class LoginController extends Controller {
+ 	#[FrontpageRoute(verb: 'GET', url: '/logout')]
+ 	public function logout() {
+ 		$loginToken = $this->request->getCookie('nc_token');
++		$uuidUser = $this->userSession->getUser()->getUID();
++		$isLdapUser = $this->config->getUserValue($uuidUser, 'user_ldap', 'uid');
+ 		if (!is_null($loginToken)) {
+-			$this->config->deleteUserValue($this->userSession->getUser()->getUID(), 'login_token', $loginToken);
++			$this->config->deleteUserValue($uuidUser, 'login_token', $loginToken);
+ 		}
+ 		$this->userSession->logout();
+ 
+-		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
++		$redirectUrl = $this->urlGenerator->linkToRouteAbsolute(
+ 			'core.login.showLoginForm',
+-			['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
+-		));
++			['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers)
++		);
++		if (!is_null($isLdapUser)) {
++			$redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
++		}
++		$response = new RedirectResponse($redirectUrl);
+ 
+ 		$this->session->set('clearingExecutionContexts', '1');
+ 		$this->session->close();

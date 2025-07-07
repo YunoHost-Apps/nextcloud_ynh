@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "31.0.6~ynh1"
+version = "31.0.6~ynh2"
 
 maintainers = ["kay0u"]
 
@@ -55,7 +55,7 @@ ram.runtime = "512M"
     help.fr = "Si activé, le dossier `/home/$user` de chaque compte lui sera ajouté dans Nextcloud."
     type = "boolean"
     default = false
-
+    
 [resources]
 
     [resources.sources]

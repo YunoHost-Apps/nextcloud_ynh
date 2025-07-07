@@ -3,4 +3,4 @@
 user="$1"
 app="$(basename $0 | cut -d- -f 2-)" # Extract the app name from the script name, which is supposed to be something like "50-app_id"
 
-setfacl --modify g:$app:rwx /home/$user
+setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX /home/$user

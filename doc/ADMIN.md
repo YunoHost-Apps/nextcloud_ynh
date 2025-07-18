@@ -9,7 +9,7 @@ php occ ...
 ```
 Alternatively, you can run `sudo -u __APP__ php__PHP_VERSION__ --define apc.enable_cli=1 __INSTALL_DIR__/occ ...`
 
-## Promoting a user to admin
+### Promoting a user to admin
 
 In some cases, your user may not be a Nextcloud admin and therefore cannot access the admin panels from Nextcloud.
 

@@ -30,6 +30,20 @@ if [ -z ${enable_notify_push:-} ]; then
     enable_notify_push=0
 fi
 
+if [ -z ${enable_forward_email:-} ]; then
+    ynh_app_setting_set --key=enable_forward_email --value=0
+    enable_forward_email=0
+fi
+
+# Fix enable_forward_email as a boolean
+if [ "${enable_forward_email}" = "yes" ]; then
+    ynh_app_setting_set --key=enable_forward_email --value=1
+    enable_forward_email=1
+elif [ "${enable_forward_email}" = "no" ]; then
+    ynh_app_setting_set --key=enable_forward_email --value=0
+    enable_forward_email=0
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only
 

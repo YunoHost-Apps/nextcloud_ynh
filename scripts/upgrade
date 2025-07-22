@@ -152,6 +152,15 @@ then
     fi
 fi
 
+# Keep the atrribute choose for ldapEmailAttribute
+ldapEmail=$(exec_occ ldap:show-config "" | grep ldapEmailAttribute)
+if [ "$(echo $ldapEmail | grep -Po "maildrop")" = "maildrop" ]
+then
+    ldap_email_attr="maildrop"
+else
+    ldap_email_attr="mail"
+fi
+
 #=================================================
 # UPGRADE NEXTCLOUD
 #=================================================
@@ -281,11 +290,13 @@ if [ -f "$data_dir/data/nextcloud.log" ]; then
     exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
 fi
 
+
 # Load the config file in nextcloud
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
 ynh_safe_rm "$nc_conf"
+
 
 # Occasionally new mimetypes are added to better handle certain file types.
 # Migrating the mimetypes take a long time on larger instances

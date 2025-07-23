@@ -30,6 +30,11 @@ if [ -z ${enable_notify_push:-} ]; then
     enable_notify_push=0
 fi
 
+if [ -z ${enable_forward_email:-} ]; then
+    ynh_app_setting_set --key=enable_forward_email --value=0
+    enable_forward_email=0
+fi
+
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only
 
@@ -136,6 +141,15 @@ then
     then
         ynh_die "The following apps are not (yet?) compatible with Nextcloud $last_major_version. You should make sure to upgrade the app, or disable it, or wait for it to become compatible before running this upgrade : $installed_apps_not_compatible_with_future_version"
     fi
+fi
+
+# Keep the atrribute choose for ldapEmailAttribute
+ldapEmail=$(exec_occ ldap:show-config "" | grep ldapEmailAttribute)
+if [ "$(echo $ldapEmail | grep -Po "maildrop")" = "maildrop" ]
+then
+    ldap_email_attr="maildrop"
+else
+    ldap_email_attr="mail"
 fi
 
 #=================================================

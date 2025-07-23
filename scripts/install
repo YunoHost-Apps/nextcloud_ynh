@@ -22,6 +22,10 @@ ynh_app_setting_set --key=enable_notify_push --value=0
 system_addressbook_exposed="0"
 ynh_app_setting_set --key=system_addressbook_exposed --value=0
 
+enable_forward_email="0"
+ynh_app_setting_set --key=enable_forward_email --value=0
+ldap_email_attr="mail"
+
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================

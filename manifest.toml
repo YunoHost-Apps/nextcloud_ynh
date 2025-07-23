@@ -55,7 +55,7 @@ ram.runtime = "512M"
     help.fr = "Si activé, le dossier `/home/$user` de chaque compte lui sera ajouté dans Nextcloud."
     type = "boolean"
     default = false
-    
+
 [resources]
 
     [resources.sources]

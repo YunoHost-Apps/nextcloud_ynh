@@ -19,11 +19,6 @@ ynh_app_setting_set --key=phpflags --value="$phpflags"
 enable_notify_push="0"
 ynh_app_setting_set --key=enable_notify_push --value=0
 
-system_addressbook_exposed="0"
-ynh_app_setting_set --key=system_addressbook_exposed --value=0
-
-enable_forward_email="0"
-ynh_app_setting_set --key=enable_forward_email --value=0
 ldap_email_attr="mail"
 
 #=================================================
@@ -197,7 +192,8 @@ exec_occ user:delete admin
 # ENABLE OR DISABLE SYSTEM ADDRESS BOOK
 #=================================================
 
-exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed"
+# Disabled by default on install, can be enabled in config panel
+exec_occ config:app:set dav system_addressbook_exposed --value="0"
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE

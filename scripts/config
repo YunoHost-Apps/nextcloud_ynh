@@ -76,7 +76,7 @@ set__enable_notify_push() {
             exec_occ app:disable notify_push
         fi
 
-        ynh_config_remove_systemd"${app}-notify-push"
+        ynh_config_remove_systemd "${app}-notify-push"
         systemctl disable --now "${app}-notify-push-watcher.path"
         ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"
         ynh_config_remove_systemd"${app}-notify-push-watcher"

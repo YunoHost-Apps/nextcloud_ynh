@@ -1,0 +1,1 @@
+Avant de mettre à jour NextCloud, assurez-vous que vos applications sont compatibles avec la version de Nextcloud que vous êtes sur le point d'installer. Mettez également à jour l'ensemble de vos applications installées dans NextCloud avant d'effectuer la mise à jour.

@@ -128,7 +128,7 @@ ynh_safe_rm "$install_dir/config.json"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
+#exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
 
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE

@@ -106,6 +106,7 @@ exec_occ app:disable updatenotification
 # Enable LDAP plugin
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
+exec_occ ldap:set-config '' key value
 
 # Load the installation config file in Nextcloud
 ynh_config_add --template="config_install.json" --destination="$install_dir/config_install.json"
@@ -128,7 +129,7 @@ ynh_safe_rm "$install_dir/config.json"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-#exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
+exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
 
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE

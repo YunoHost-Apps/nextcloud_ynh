@@ -106,7 +106,6 @@ exec_occ app:disable updatenotification
 # Enable LDAP plugin
 exec_occ app:enable user_ldap
 exec_occ ldap:create-empty-config
-exec_occ ldap:set-config '' key value
 
 # Load the installation config file in Nextcloud
 ynh_config_add --template="config_install.json" --destination="$install_dir/config_install.json"

@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "31.0.11~ynh1"
+version = "32.0.2~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -61,6 +61,10 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.2.tar.bz2'
+        sha256 = '15ede19ad88ec724834dfad7fae306a72f932fd042f36b333fe2418155a937c5'
+
+        [resources.sources.31]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.11.tar.bz2'
         sha256 = '882f793aaba8b01e5982b64225226b32373152bbff1cd2c92e332e74970b7bc6'
 
@@ -129,35 +133,37 @@ ram.runtime = "512M"
         "tar",
         "smbclient",
         "at",
+        "postgresql",
         "mariadb-server",
         "redis-server",
-        "php8.3-apcu",
-        "php8.3-bcmath",
-        "php8.3-bz2",
-        "php8.3-curl",
-        "php8.3-fpm",
-        "php8.3-gd",
-        "php8.3-gmp",
-        "php8.3-igbinary",
-        "php8.3-imagick",
-        "php8.3-imap",
-        "php8.3-intl",
-        "php8.3-ldap",
-        "php8.3-mbstring",
-        "php8.3-mysql",
-        "php8.3-redis",
-        "php8.3-sqlite3",
-        "php8.3-xml",
-        "php8.3-zip",
+        "php8.4-apcu",
+        "php8.4-bcmath",
+        "php8.4-bz2",
+        "php8.4-curl",
+        "php8.4-fpm",
+        "php8.4-gd",
+        "php8.4-gmp",
+        "php8.4-igbinary",
+        "php8.4-imagick",
+        "php8.4-imap",
+        "php8.4-intl",
+        "php8.4-ldap",
+        "php8.4-mbstring",
+        "php8.4-mysql",
+        "php8.4-pgsql",
+        "php8.4-redis",
+        "php8.4-sqlite3",
+        "php8.4-xml",
+        "php8.4-zip",
     ]
 
     packages_from_raw_bash = """
         case $YNH_DEBIAN_VERSION in
-            bullseye)   echo libmagickcore-6.q16-6-extra ;;
             bookworm)   echo libmagickcore-6.q16-6-extra ;;
             trixie)     echo libmagickcore-7.q16-10-extra ;;
         esac
     """
 
     [resources.database]
-    type = "mysql"
+    type = "postgresql"
+    

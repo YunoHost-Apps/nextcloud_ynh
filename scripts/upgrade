@@ -125,8 +125,7 @@ then
 fi
 
 # Keep the attribute choose for ldapEmailAttribute
-ldap_config_prefix=$(ynh_app_setting_get --key=ldap_config_prefix)
-ldapEmail=$(exec_occ config:app:get user_ldap ${ldap_config_prefix}ldap_email_attr)
+ldapEmail=$(exec_occ config:app:get user_ldap "${ldap_config_prefix:-}"ldap_email_attr)
 if [ "$ldapEmail" = "maildrop" ]
 then
     ldap_email_attr="maildrop"
@@ -136,7 +135,7 @@ fi
 
 # Before NCv32, Yunohost was not using any prefix for the LDAP config.
 # This is now mandatory so we need to create a new config with a prefix.
-if [ "$ldap_config_prefix" = "" ]
+if [ "${ldap_config_prefix:-}" = "" ]
 then
     ldap_config_prefix=$(exec_occ ldap:create-empty-config --only-print-prefix)
     ynh_app_setting_set --key=ldap_config_prefix --value="$ldap_config_prefix"

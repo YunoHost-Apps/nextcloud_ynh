@@ -33,8 +33,7 @@ get__system_addressbook_exposed() {
 }
 
 get__enable_forward_email() {
-    ldap_config_prefix=$(ynh_app_setting_get --key=ldap_config_prefix)
-    ldapEmail=$(exec_occ config:app:get user_ldap ${ldap_config_prefix}ldap_email_attr)
+    ldapEmail=$(exec_occ config:app:get user_ldap "${ldap_config_prefix:-}"ldap_email_attr)
     if [ "$ldapEmail" = "maildrop" ]
     then
         echo "1"
@@ -133,12 +132,11 @@ set__enable_notify_push() {
 }
 
 set__enable_forward_email() {
-    ldap_config_prefix=$(ynh_app_setting_get --key=ldap_config_prefix)
 
     if [ "$enable_forward_email" -eq "0" ]; then
-        exec_occ ldap:set-config "$ldap_config_prefix" ldapEmailAttribute "mail"
+        exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "mail"
     elif [ "$enable_forward_email" -eq "1" ]; then
-        exec_occ ldap:set-config "$ldap_config_prefix" ldapEmailAttribute "maildrop"
+        exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "maildrop"
     fi
 }
 

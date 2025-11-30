@@ -166,4 +166,3 @@ ram.runtime = "512M"
 
     [resources.database]
     type = "postgresql"
-    

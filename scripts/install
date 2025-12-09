@@ -7,11 +7,11 @@ source /usr/share/yunohost/helpers
 # INITIALIZE AND STORE SETTINGS
 #=================================================
 
-ynh_app_setting_set --key=php_upload_max_filesize --value=10G
-ynh_app_setting_set --key=php_memory_limit --value=512M
+ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
+ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
-ynh_app_setting_set --key=fpm_footprint --value=high
-ynh_app_setting_set --key=fpm_usage --value=medium
+ynh_app_setting_set_default --key=fpm_footprint --value=high
+ynh_app_setting_set_default --key=fpm_usage --value=medium
 
 phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --key=phpflags --value="$phpflags"

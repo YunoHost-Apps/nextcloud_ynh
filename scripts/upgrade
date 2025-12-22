@@ -11,10 +11,7 @@ ynh_script_progression "Ensuring downward compatibility..."
 ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
-if [ -z ${enable_notify_push:-} ]; then
-    ynh_app_setting_set --key=enable_notify_push --value=0
-    enable_notify_push=0
-fi
+ynh_app_setting_set_default --key=enable_notify_push --value=0
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only

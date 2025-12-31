@@ -11,10 +11,7 @@ ynh_script_progression "Ensuring downward compatibility..."
 ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
-if [ -z ${enable_notify_push:-} ]; then
-    ynh_app_setting_set --key=enable_notify_push --value=0
-    enable_notify_push=0
-fi
+ynh_app_setting_set_default --key=enable_notify_push --value=0
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only
@@ -124,13 +121,21 @@ then
     fi
 fi
 
-# Keep the atrribute choose for ldapEmailAttribute
-ldapEmail=$(exec_occ ldap:show-config "" | grep ldapEmailAttribute)
-if [ "$(echo $ldapEmail | grep -Po "maildrop")" = "maildrop" ]
+# Keep the attribute choose for ldapEmailAttribute
+ldapEmail=$(exec_occ config:app:get user_ldap "${ldap_config_prefix:-}"ldap_email_attr)
+if [ "$ldapEmail" = "maildrop" ]
 then
     ldap_email_attr="maildrop"
 else
     ldap_email_attr="mail"
+fi
+
+# Before NCv32, Yunohost was not using any prefix for the LDAP config.
+# This is now mandatory so we need to create a new config with a prefix.
+if [ "${ldap_config_prefix:-}" = "" ]
+then
+    ldap_config_prefix=$(exec_occ ldap:create-empty-config --only-print-prefix)
+    ynh_app_setting_set --key=ldap_config_prefix --value="$ldap_config_prefix"
 fi
 
 #=================================================
@@ -210,13 +215,13 @@ if [[ "$current_major_version" -le "$last_major_version" ]]; then
         # Get the new current version number
         current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
         current_major_version=${current_version%%.*}
-        
+
         # Set write access for the following commands
         chown -R $app:www-data "$install_dir"
         # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
         exec_occ maintenance:mode --off
         exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
-        
+
         # Print the current version number of Nextcloud
         exec_occ -V
     done

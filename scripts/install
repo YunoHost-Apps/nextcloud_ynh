@@ -7,17 +7,13 @@ source /usr/share/yunohost/helpers
 # INITIALIZE AND STORE SETTINGS
 #=================================================
 
-ynh_app_setting_set --key=php_upload_max_filesize --value=10G
-ynh_app_setting_set --key=php_memory_limit --value=512M
+ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
+ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
-ynh_app_setting_set --key=fpm_footprint --value=high
-ynh_app_setting_set --key=fpm_usage --value=medium
+ynh_app_setting_set_default --key=enable_notify_push --value=0
 
 phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --key=phpflags --value="$phpflags"
-
-enable_notify_push="0"
-ynh_app_setting_set --key=enable_notify_push --value=0
 
 ldap_email_attr="mail"
 
@@ -105,7 +101,8 @@ exec_occ app:disable updatenotification
 
 # Enable LDAP plugin
 exec_occ app:enable user_ldap
-exec_occ ldap:create-empty-config
+ldap_config_prefix=$(exec_occ ldap:create-empty-config --only-print-prefix)
+ynh_app_setting_set --key=ldap_config_prefix --value="$ldap_config_prefix"
 
 # Load the installation config file in Nextcloud
 ynh_config_add --template="config_install.json" --destination="$install_dir/config_install.json"
@@ -128,7 +125,7 @@ ynh_safe_rm "$install_dir/config.json"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
+exec_occ ldap:test-config "$ldap_config_prefix" || ynh_die "An error occured during LDAP configuration"
 
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE

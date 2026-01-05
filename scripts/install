@@ -144,7 +144,7 @@ create_external_storage() {
 }
 
 # Enable External Storage and create local mount to home folder
-if [ $user_home -eq 1 ]
+if [[ "$user_home" == "true" ]]
 then
     exec_occ app:enable files_external
     create_external_storage "/home/\$user" "Home"

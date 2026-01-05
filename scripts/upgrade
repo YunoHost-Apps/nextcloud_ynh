@@ -310,15 +310,14 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 #=================================================
 
 # Enable External Storage and create local mount to home folder as needed
-if [[ "$user_home" == "true" ]]
-then
+if [ $user_home -eq 1 ]; then
     exec_occ app:enable files_external
     exec_occ files_external:list --output=json \
     | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
     || create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
+    setfacl --modify g:$app:rwx "/home/$u" || true
     done
 fi
 

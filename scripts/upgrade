@@ -24,7 +24,6 @@ then
     ynh_die "Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
@@ -70,6 +69,9 @@ exec_occ() {
 (cd "$install_dir" && ynh_exec_as_app \
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@") 2> >(filter_boring_occ_warnings >&2)
 }
+
+# Ensure maintenance mode is off
+exec_occ maintenance:mode --off
 
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing

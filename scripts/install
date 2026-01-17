@@ -10,19 +10,20 @@ source /usr/share/yunohost/helpers
 ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
+ynh_app_setting_set_default --key=fpm_footprint --value=high
+ynh_app_setting_set_default --key=fpm_usage --value=medium
+
 ynh_app_setting_set_default --key=enable_notify_push --value=0
+
 
 phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --key=phpflags --value="$phpflags"
 
 ldap_email_attr="mail"
 
-#=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
-ynh_script_progression "Migrate MySQL database to utf8..."
-
-ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+enable_forward_email="0"
+ynh_app_setting_set --key=enable_forward_email --value=0
+ldap_email_attr="mail"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -79,7 +80,7 @@ admin_password="$(ynh_string_random --length=6)"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name $db_name \
+    --database "pgsql" --database-name $db_name \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$data_dir/data" \
@@ -89,9 +90,6 @@ exec_occ maintenance:install \
 # CONFIGURE NEXTCLOUD
 #=================================================
 ynh_script_progression "Configuring $app..."
-
-# Set the mysql.utf8mb4 config to true in config.php
-exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
 
 # move the logs from the data_dir to the standard /var/log
 exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
@@ -180,7 +178,7 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 #=================================================
 
 # Set the user as admin
-ynh_mysql_db_shell <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
+ynh_psql_db_shell <<< "INSERT INTO oc_group_user VALUES ('admin','$admin');"
 
 # And delete admin user
 exec_occ user:delete admin

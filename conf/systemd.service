@@ -10,6 +10,8 @@ Group=__APP__
 Environment = PORT=__PORT__
 RuntimeDirectory=__APP__
 ExecStart=__INSTALL_DIR__/apps/notify_push/bin/__ARCH__/notify_push __INSTALL_DIR__/config/config.php
+Restart = always
+RestartSec = 60
 
 # Sandboxing options to harden security
 # Details for these options: https://www.freedesktop.org/software/systemd/man/systemd.exec.html

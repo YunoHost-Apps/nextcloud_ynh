@@ -1,14 +1,18 @@
 [Unit]
 Description=Push daemon for Nextcloud clients
+After=network.target nginx.service
+Documentation = https://github.com/nextcloud/notify_push
 
 [Service]
 Type=notify
 User=__APP__
 Group=__APP__
-Environment=SOCKET_PATH=/var/run/__APP__/notify-push.sock
+Environment=PORT=__PORT__
 Environment=ALLOW_SELF_SIGNED=true
 RuntimeDirectory=__APP__
 ExecStart=__INSTALL_DIR__/apps/notify_push/bin/__ARCH__/notify_push __INSTALL_DIR__/config/config.php
+Restart=always
+RestartSec=60
 
 # Sandboxing options to harden security
 # Details for these options: https://www.freedesktop.org/software/systemd/man/systemd.exec.html

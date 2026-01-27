@@ -126,6 +126,8 @@ ram.runtime = "512M"
     api.protected= true
     api.allowed = ["visitors", "all_users"]
 
+    [resources.ports]
+
     [resources.apt]
     packages = [
         "imagemagick",

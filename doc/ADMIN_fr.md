@@ -4,7 +4,9 @@ Vous pouvez lancer des commandes Nextcloud en ouvrant un "shell" Nextcloud et ut
 
 ```bash
 sudo yunohost app shell __APP__
-# Vous devriez voir que vous êtes dans un shell "__APP__@yourmachine"
+```
+Vous devriez voir que vous êtes dans un shell "__APP__@yourmachine"
+```
 php occ ...
 ```
 
@@ -18,6 +20,8 @@ Vous pouvez ajouter le comptes aux admins de Nextcloud avec:
 
 ```bash
 sudo yunohost app shell __APP__
-# Puis
+```
+Puis
+```
 php occ group:adduser admin <username>
 ```

@@ -1,6 +1,7 @@
-➜  Controller diff -u /Users/eric/Documents/nextcloud/core/Controller/LoginController\ 2.php /Users/eric/Documents/nextcloud/core/Controller/LoginController.php
---- /Users/eric/Documents/nextcloud/core/Controller/LoginController 2.php	2026-02-24 19:19:51
-+++ /Users/eric/Documents/nextcloud/core/Controller/LoginController.php	2026-02-17 18:36:43
+diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php--- /Users/eric/Documents/nextcloud/core/Controller/LoginController 2.php	2026-02-24 19:19:51
+index d4d6a17db79..f587f805683 100644
+--- a/core/Controller/LoginController.php
++++ b/core/Controller/LoginController.php
 @@ -79,22 +79,17 @@
  	#[FrontpageRoute(verb: 'GET', url: '/logout')]
  	public function logout() {

@@ -35,4 +35,3 @@ index d4d6a17db79..f587f805683 100644
 +			$redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
 +		}
 +		$response = new RedirectResponse($redirectUrl);
-*** End Patch

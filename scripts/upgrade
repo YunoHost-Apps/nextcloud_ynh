@@ -49,7 +49,7 @@ exec_occ() {
     # Backward compatibility to upgrade from older versions
     if [ $current_major_version -ge 30 ]
     then
-        NEXTCLOUD_PHP_VERSION="8.3"
+        NEXTCLOUD_PHP_VERSION="8.4"
     elif [ $current_major_version -ge 26 ]
     then
         NEXTCLOUD_PHP_VERSION="8.2"

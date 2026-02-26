@@ -11,24 +11,7 @@ ynh_script_progression "Ensuring downward compatibility..."
 ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
-if [ -z ${system_addressbook_exposed:-} ]; then
-    ynh_app_setting_set --key=system_addressbook_exposed --value=0
-    system_addressbook_exposed=0
-fi
-
-# Fix system_addressbook_exposed as a boolean
-if [ "${system_addressbook_exposed,,}" = "yes" ]; then
-    ynh_app_setting_set --key=system_addressbook_exposed --value=1
-    system_addressbook_exposed=1
-elif [ "${system_addressbook_exposed,,}" = "no" ]; then
-    ynh_app_setting_set --key=system_addressbook_exposed --value=0
-    system_addressbook_exposed=0
-fi
-
-if [ -z ${enable_notify_push:-} ]; then
-    ynh_app_setting_set --key=enable_notify_push --value=0
-    enable_notify_push=0
-fi
+ynh_app_setting_set_default --key=enable_notify_push --value=0
 
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete --key=backup_core_only
@@ -57,7 +40,7 @@ filter_boring_occ_warnings() {
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version = "$last_major_version" ]
+    if [ $current_major_version -ge 30 ]
     then
         NEXTCLOUD_PHP_VERSION="8.3"
     elif [ $current_major_version -ge 26 ]
@@ -125,7 +108,7 @@ function list_installed_apps_not_compatible_with_future_version()
 current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
 current_major_version=${current_version%%.*}
 
-last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9][0-9]\.[0-9]\.[0-9]+')
+last_version=$(ynh_read_manifest "resources.sources.main.url" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
 last_major_version=${last_version%%.*}
 
 if [[ "$last_major_version" != "$current_major_version" ]]
@@ -135,6 +118,23 @@ then
     then
         ynh_die "The following apps are not (yet?) compatible with Nextcloud $last_major_version. You should make sure to upgrade the app, or disable it, or wait for it to become compatible before running this upgrade : $installed_apps_not_compatible_with_future_version"
     fi
+fi
+
+# Keep the attribute choose for ldapEmailAttribute
+ldapEmail=$(exec_occ config:app:get user_ldap "${ldap_config_prefix:-}"ldap_email_attr)
+if [ "$ldapEmail" = "maildrop" ]
+then
+    ldap_email_attr="maildrop"
+else
+    ldap_email_attr="mail"
+fi
+
+# Before NCv32, Yunohost was not using any prefix for the LDAP config.
+# This is now mandatory so we need to create a new config with a prefix.
+if [ "${ldap_config_prefix:-}" = "" ]
+then
+    ldap_config_prefix=$(exec_occ ldap:create-empty-config --only-print-prefix)
+    ynh_app_setting_set --key=ldap_config_prefix --value="$ldap_config_prefix"
 fi
 
 #=================================================
@@ -166,62 +166,65 @@ if exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w 
     mail_app_must_be_reactived=1
 fi
 
-# While the current version is not the last version, do an upgrade
-while [ "$last_version" != "$current_version" ]
-do
+# Avoid to downgrade Nextcloud, if channel has changed from stable to oldstable.
+if [[ "$current_major_version" -le "$last_major_version" ]]; then
 
-    next_major_version="$(( $current_major_version + 1 ))"
-    if [[ "$next_major_version" -ge "$last_major_version" ]]; then
-        ynh_print_info "Upgrading to Nextcloud $last_version"
-        source_id="main"
-    else
-        ynh_print_info "Upgrading to Nextcloud $next_major_version"
-        source_id="$next_major_version"
-    fi
-
-    # Create a temporary directory
-    tmpdir="${install_dir}__tmp_upgrade"
-
-    ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
-
-    # Backup the config file in the temp dir
-    cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
-
-    # Enable maintenance mode
-    exec_occ maintenance:mode --on
-
-    # Backup 3rd party applications from the current Nextcloud
-    # But do not overwrite if there is any upgrade
-    # (apps directory already exists in Nextcloud archive)
-    (
-    cd $install_dir/apps
-    for nc_app_dir in */
+    # While the current version is not the last version, do an upgrade
+    while [ "$last_version" != "$current_version" ]
     do
-      if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
-      then
-        cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
-      fi
+
+        next_major_version="$(( $current_major_version + 1 ))"
+        source_id="$next_major_version"
+        if [[ "$next_major_version" -ge "$last_major_version" ]]; then
+            ynh_print_info "Upgrading to Nextcloud $last_version"
+            source_id="main"
+        else
+            ynh_print_info "Upgrading to Nextcloud $next_major_version"
+        fi
+
+        # Create a temporary directory
+        tmpdir="${install_dir}__tmp_upgrade"
+
+        ynh_setup_source --dest_dir="$tmpdir" --source_id="$source_id"
+
+        # Backup the config file in the temp dir
+        cp -a "$install_dir/config/config.php" "$tmpdir/config/config.php"
+
+        # Enable maintenance mode
+        exec_occ maintenance:mode --on
+
+        # Backup 3rd party applications from the current Nextcloud
+        # But do not overwrite if there is any upgrade
+        # (apps directory already exists in Nextcloud archive)
+        (
+        cd $install_dir/apps
+        for nc_app_dir in */
+        do
+        if [ ! -d "$tmpdir/apps/$nc_app_dir" ]
+        then
+            cp -a "$nc_app_dir" "$tmpdir/apps/$nc_app_dir"
+        fi
+        done
+        )
+
+        # Replace the old Nextcloud by the new one
+        ynh_safe_rm "$install_dir"
+        mv "$tmpdir" "$install_dir"
+
+        # Get the new current version number
+        current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+        current_major_version=${current_version%%.*}
+
+        # Set write access for the following commands
+        chown -R $app:www-data "$install_dir"
+        # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
+        exec_occ maintenance:mode --off
+        exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
+
+        # Print the current version number of Nextcloud
+        exec_occ -V
     done
-    )
-
-    # Replace the old Nextcloud by the new one
-    ynh_safe_rm "$install_dir"
-    mv "$tmpdir" "$install_dir"
-
-    # Set write access for the following commands
-    chown -R $app:www-data "$install_dir"
-    # Upgrade Nextcloud (SUCCESS = 0, UP_TO_DATE = 3)
-    exec_occ maintenance:mode --off
-    exec_occ upgrade || [ $? -eq 3 ] || ynh_die "Unable to upgrade $app"
-
-    # Get the new current version number
-    current_version=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
-    current_major_version=${current_version%%.*}
-    
-    # Print the current version number of Nextcloud
-    exec_occ -V
-done
-
+fi
 exec_occ db:add-missing-indices -n
 exec_occ db:add-missing-columns -n
 exec_occ db:add-missing-primary-keys -n
@@ -263,11 +266,13 @@ if [ -f "$data_dir/data/nextcloud.log" ]; then
     exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
 fi
 
+
 # Load the config file in nextcloud
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
 ynh_safe_rm "$nc_conf"
+
 
 # Occasionally new mimetypes are added to better handle certain file types.
 # Migrating the mimetypes take a long time on larger instances
@@ -281,7 +286,7 @@ exec_occ maintenance:repair --include-expensive
 # Add dynamic logout URL to the config
 url_base64="$(echo -n "https://$domain$path" | base64)"
 old_logout_url="https://$(cat /etc/yunohost/current_host)/yunohost/sso/?action=logout"
-current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null)"
+current_logout_url="$(exec_occ config:system:get logout_url 2> /dev/null || echo '')"
 if [[ "$current_logout_url" == "${old_logout_url}" ]] || [[ "$current_logout_url" == "" ]]
 then
     echo "
@@ -331,6 +336,7 @@ ynh_script_progression "Reapplying file permissions..."
 chown -R $app:www-data "$install_dir"
 find $install_dir/ -type f -print0 | xargs -r0 chmod 0644
 find $install_dir/ -type d -print0 | xargs -r0 chmod 0755
+find "$install_dir/apps/"*/{bin,bin-ext} -type d -print0 2>/dev/null | xargs -r0 chmod -R u+x
 chmod 600 "$install_dir/config/config.php"
 chmod 755 /home/yunohost.app
 chmod 750 $install_dir
@@ -396,6 +402,9 @@ then
     fi
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
+
     case $YNH_ARCH in
         amd64) arch="x86_64";;
         arm64) arch="aarch64";;
@@ -438,14 +447,14 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))
     done
 
     ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
-    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+    ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
     if ! exec_occ notify_push:self-test; then
         ynh_print_warn "The Notify Push service is still not working properly. Please log in with a user to your NextCloud instance, restart the Notify Push service with \"systemctl restart ${app}-notify-push.service\", and run \"ynh_exec_as_app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."

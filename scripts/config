@@ -15,8 +15,7 @@ php_version=$(ynh_app_setting_get --key=php_version)
 
 get__maintenance_mode() {
     # Maintenance mode status
-    maintenance_mode_status="$(cd "$install_dir" && ynh_exec_as_app \
-        php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode)" 2> /dev/null
+    maintenance_mode_status="$(cd "$install_dir" && exec_occ maintenance:mode 2> /dev/null)"
     if echo $maintenance_mode_status | grep -q "disabled"
     then
         echo "0"
@@ -34,8 +33,8 @@ get__system_addressbook_exposed() {
 }
 
 get__enable_forward_email() {
-    ldapEmail=$(exec_occ ldap:show-config "" | grep ldapEmailAttribute)
-    if [ "$(echo $ldapEmail | grep -Po "maildrop")" = "maildrop" ]
+    ldapEmail=$(exec_occ config:app:get user_ldap "${ldap_config_prefix:-}"ldap_email_attr)
+    if [ "$ldapEmail" = "maildrop" ]
     then
         echo "1"
     else
@@ -76,10 +75,10 @@ set__enable_notify_push() {
             exec_occ app:disable notify_push
         fi
 
-        ynh_config_remove_systemd"${app}-notify-push"
+        ynh_config_remove_systemd "${app}-notify-push"
         systemctl disable --now "${app}-notify-push-watcher.path"
         ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"
-        ynh_config_remove_systemd"${app}-notify-push-watcher"
+        ynh_config_remove_systemd "${app}-notify-push-watcher"
 
         ynh_print_info "Notify push disabled"
     elif [ "$enable_notify_push" -eq "1" ]; then
@@ -99,6 +98,9 @@ set__enable_notify_push() {
         fi
         exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 
+        mkdir -p /var/run/$app/
+        chown $app: /var/run/$app/
+
         case $YNH_ARCH in
             amd64) arch="x86_64";;
             arm64) arch="aarch64";;
@@ -111,14 +113,15 @@ set__enable_notify_push() {
         ynh_config_add_systemd --service="${app}-notify-push"
 
         count=0
-        while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+
+        while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
         do
             sleep 1
             count=$((count + 1))
         done
 
         ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
-        ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd"
+        ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
         if ! exec_occ notify_push:self-test; then
             ynh_print_warn "The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."
@@ -129,16 +132,12 @@ set__enable_notify_push() {
 }
 
 set__enable_forward_email() {
+
     if [ "$enable_forward_email" -eq "0" ]; then
-        exec_occ ldap:set-config "" ldapEmailAttribute "mail"
-        ynh_replace_string --match_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[1\]);" --replace_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[0\]);" --target_file="$install_dir/apps/user_ldap/lib/User/User.php"
-        ynh_store_file_checksum --file="$install_dir/apps/user_ldap/lib/User/User.php"
+        exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "mail"
     elif [ "$enable_forward_email" -eq "1" ]; then
-        exec_occ ldap:set-config "" ldapEmailAttribute "maildrop"
-        ynh_replace_string --match_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[0\]);" --replace_string="\$this->updateEmail(\$ldapEntry\[\$attr\]\[1\]);" --target_file="$install_dir/apps/user_ldap/lib/User/User.php"
-        ynh_store_file_checksum --file="$install_dir/apps/user_ldap/lib/User/User.php"
+        exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "maildrop"
     fi
-    ynh_app_setting_set --app=$app --key=enable_forward_email --value="$enable_forward_email"
 }
 
 #=================================================

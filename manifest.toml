@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "30.0.6~ynh2"
+version = "32.0.6~ynh2"
 
 maintainers = ["kay0u"]
 
@@ -19,7 +19,7 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 12.0.9"
+yunohost = ">= 12.1.38"
 helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
@@ -49,8 +49,10 @@ ram.runtime = "512M"
     default = "visitors"
 
     [install.user_home]
-    ask.en = "Access the users home folder from Nextcloud"
-    ask.fr = "Accéder au dossier personnel des utilisateurs depuis Nextcloud"
+    ask.en = "Add the users' home directory in Nextcloud?"
+    ask.fr = "Ajouter le dossier personnel des utilisateurs à Nextcloud ?"
+    help.en = "If enabled, each `/home/$user` directory will be added to their respective user's Nextcloud."
+    help.fr = "Si activé, le dossier `/home/$user` de chaque compte lui sera ajouté dans Nextcloud."
     type = "boolean"
     default = false
 
@@ -59,12 +61,21 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.6.tar.bz2'
-        sha256 = 'ac0e091be6920965dc0c82f149b632d6b5ade7adee84a7b3c8cfd847450a8ddc'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.6.tar.bz2'
+        sha256 = '44bc33fc0e31a650bb520bb123c0aaa6519b7f7b9386133d561ade77e53f7130'
+
+        [resources.sources.31]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.13.tar.bz2'
+        sha256 = '92df08369467e81c23d7fd997afb756eae44ce47eff0c85c5d4d27212ebe283e'
+
+        [resources.sources.30]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.15.tar.bz2'
+        sha256 = 'f33552d3185e97ad1a5fe57a49fe2b55a361dc8e4f925fb12b592047d1f0e6a5'
+        prefetch = false
 
         [resources.sources.29]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.12.tar.bz2'
-        sha256 = 'c020354ff3e1d2087370f70e058fe171713636ba0f073a5194adbdff3c1cafc6'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-29.0.16.tar.bz2'
+        sha256 = '499bf61ab19edcd4e542af86609243c5b4f440eb5bb06c2ba7da0c2faa525322'
         prefetch = false
 
         [resources.sources.28]
@@ -108,15 +119,51 @@ ram.runtime = "512M"
 
     [resources.permissions]
     main.url = "/"
-    
+
     api.url = "re:__DOMAIN__\\/.well-known\\/.*"
     api.auth_header = false
     api.show_tile = false
     api.protected= true
     api.allowed = ["visitors", "all_users"]
 
+    [resources.ports]
+    
     [resources.apt]
-    packages = "mariadb-server, imagemagick, libmagickcore-6.q16-6-extra, acl, tar, smbclient, at, redis-server, php8.3-fpm, php8.3-bz2, php8.3-imap, php8.3-gmp, php8.3-gd, php8.3-intl, php8.3-curl, php8.3-apcu, php8.3-redis, php8.3-ldap, php8.3-imagick, php8.3-zip, php8.3-mbstring, php8.3-xml, php8.3-mysql, php8.3-igbinary, php8.3-bcmath"
+    packages = [
+        "imagemagick",
+        "acl",
+        "tar",
+        "smbclient",
+        "at",
+        "mariadb-server",
+        "redis-server",
+        "php8.3-apcu",
+        "php8.3-bcmath",
+        "php8.3-bz2",
+        "php8.3-curl",
+        "php8.3-fpm",
+        "php8.3-gd",
+        "php8.3-gmp",
+        "php8.3-igbinary",
+        "php8.3-imagick",
+        "php8.3-imap",
+        "php8.3-intl",
+        "php8.3-ldap",
+        "php8.3-mbstring",
+        "php8.3-mysql",
+        "php8.3-redis",
+        "php8.3-sqlite3",
+        "php8.3-xml",
+        "php8.3-zip",
+    ]
+
+    packages_from_raw_bash = """
+        case $YNH_DEBIAN_VERSION in
+            bullseye)   echo libmagickcore-6.q16-6-extra ;;
+            bookworm)   echo libmagickcore-6.q16-6-extra ;;
+            trixie)     echo libmagickcore-7.q16-10-extra ;;
+        esac
+    """
 
     [resources.database]
     type = "mysql"

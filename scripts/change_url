@@ -73,7 +73,7 @@ then
         count=$((count + 1))
     done
 
-    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+    ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 

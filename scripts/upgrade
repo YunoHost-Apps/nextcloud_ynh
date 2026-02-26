@@ -448,7 +448,7 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))

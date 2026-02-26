@@ -40,7 +40,10 @@ filter_boring_occ_warnings() {
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version -ge 30 ]
+    if [ $current_major_version -ge 33 ]
+    then
+        NEXTCLOUD_PHP_VERSION="8.4"
+    elif [ $current_major_version -ge 30 ]
     then
         NEXTCLOUD_PHP_VERSION="8.3"
     elif [ $current_major_version -ge 26 ]
@@ -446,7 +449,7 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))

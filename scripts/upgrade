@@ -73,6 +73,9 @@ exec_occ() {
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@") 2> >(filter_boring_occ_warnings >&2)
 }
 
+# Ensure maintenance mode is off
+exec_occ maintenance:mode --off
+
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing
 create_external_storage() {

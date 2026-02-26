@@ -65,7 +65,7 @@ set__system_addressbook_exposed() {
 }
 
 set__enable_notify_push() {
-    if [ "$enable_notify_push" -eq "0" ]; then
+    if [ ${enable_notify_push:-0} -eq 0 ]; then
         nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
         ynh_safe_rm "$nginx_extra_conf_dir/notify_push.conf"
         ynh_systemctl --service="nginx" --action=reload
@@ -81,7 +81,7 @@ set__enable_notify_push() {
         ynh_config_remove_systemd "${app}-notify-push-watcher"
 
         ynh_print_info "Notify push disabled"
-    elif [ "$enable_notify_push" -eq "1" ]; then
+    elif [ ${enable_notify_push:-0} -eq 1 ]; then
         nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
         mkdir -p "$nginx_extra_conf_dir"
 
@@ -133,9 +133,9 @@ set__enable_notify_push() {
 
 set__enable_forward_email() {
 
-    if [ "$enable_forward_email" -eq "0" ]; then
+    if [ ${enable_forward_email:-0} -eq 0 ]; then
         exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "mail"
-    elif [ "$enable_forward_email" -eq "1" ]; then
+    elif [ ${enable_forward_email:-0} -eq 1 ]; then
         exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "maildrop"
     fi
 }

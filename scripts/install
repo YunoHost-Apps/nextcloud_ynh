@@ -203,7 +203,7 @@ ynh_store_file_checksum "$install_dir/config/config.php"
 # CONFIGURE NOTIFY_PUSH APP
 #=================================================
 
-if [ $enable_notify_push -eq 1 ]
+if [ ${enable_notify_push:-0} -eq 1 ]
 then
     exec_occ app:install notify_push
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
@@ -291,7 +291,7 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
 
-if [ $enable_notify_push -eq 1 ]
+if [ ${enable_notify_push:-0} -eq 1 ]
 then
     count=0
     while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]

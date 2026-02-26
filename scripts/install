@@ -7,20 +7,15 @@ source /usr/share/yunohost/helpers
 # INITIALIZE AND STORE SETTINGS
 #=================================================
 
-ynh_app_setting_set --key=php_upload_max_filesize --value=10G
-ynh_app_setting_set --key=php_memory_limit --value=512M
+ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
+ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
-ynh_app_setting_set --key=fpm_footprint --value=high
-ynh_app_setting_set --key=fpm_usage --value=medium
+ynh_app_setting_set_default --key=enable_notify_push --value=0
 
 phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --key=phpflags --value="$phpflags"
 
-enable_notify_push="0"
-ynh_app_setting_set --key=enable_notify_push --value=0
-
-system_addressbook_exposed="0"
-ynh_app_setting_set --key=system_addressbook_exposed --value=0
+ldap_email_attr="mail"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -34,6 +29,7 @@ ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE ut
 #=================================================
 ynh_script_progression "Setting up source files..."
 
+# Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
 #=================================================
@@ -105,7 +101,8 @@ exec_occ app:disable updatenotification
 
 # Enable LDAP plugin
 exec_occ app:enable user_ldap
-exec_occ ldap:create-empty-config
+ldap_config_prefix=$(exec_occ ldap:create-empty-config --only-print-prefix)
+ynh_app_setting_set --key=ldap_config_prefix --value="$ldap_config_prefix"
 
 # Load the installation config file in Nextcloud
 ynh_config_add --template="config_install.json" --destination="$install_dir/config_install.json"
@@ -128,7 +125,7 @@ ynh_safe_rm "$install_dir/config.json"
 #=================================================
 
 # Check LDAP configuration to see if everything worked well
-exec_occ ldap:test-config '' || ynh_die "An error occured during LDAP configuration"
+exec_occ ldap:test-config "$ldap_config_prefix" || ynh_die "An error occured during LDAP configuration"
 
 #=================================================
 # MOUNT HOME FOLDERS AS EXTERNAL STORAGE
@@ -153,7 +150,7 @@ then
     create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-        setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
     done
 fi
 
@@ -192,7 +189,8 @@ exec_occ user:delete admin
 # ENABLE OR DISABLE SYSTEM ADDRESS BOOK
 #=================================================
 
-exec_occ config:app:set dav system_addressbook_exposed --value="$system_addressbook_exposed"
+# Disabled by default on install, can be enabled in config panel
+exec_occ config:app:set dav system_addressbook_exposed --value="0"
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
@@ -209,6 +207,9 @@ if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+
+    mkdir -p /var/run/$app/
+    chown $app: /var/run/$app/
 
     case $YNH_ARCH in
         amd64) arch="x86_64";;
@@ -293,14 +294,14 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))
     done
 
     ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
-    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd"
+    ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
     if ! exec_occ notify_push:self-test; then
         ynh_print_warn "The Notify Push service is still not working properly. Please log in with a user to your NextCloud instance, restart the Notify Push service with \"systemctl restart ${app}-notify-push.service\", and run \"ynh_exec_as_app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."

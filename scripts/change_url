@@ -48,9 +48,6 @@ fi
 
 if [ $enable_notify_push -eq 1 ]
 then
-    domain="$new_domain"
-    path_url="$new_path"
-
     ynh_config_add --template="notify_push.conf" --destination="/etc/nginx/conf.d/$domain.d/$app.d/notify_push.conf"
 
     ynh_systemctl --service=nginx --action=reload
@@ -67,13 +64,13 @@ then
     ynh_config_add_systemd --service="${app}-notify-push"
 
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))
     done
 
-    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+    ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
     exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
 

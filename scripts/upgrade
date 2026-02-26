@@ -47,7 +47,10 @@ last_major_version=${last_version%%.*}
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version -ge 30 ]
+    if [ $current_major_version -ge 33 ]
+    then
+        NEXTCLOUD_PHP_VERSION="8.4"
+    elif [ $current_major_version -ge 30 ]
     then
         NEXTCLOUD_PHP_VERSION="8.3"
     elif [ $current_major_version -ge 26 ]
@@ -348,7 +351,7 @@ exec_occ config:system:set overwrite.cli.url --value="https://${domain}${path}"
 #=================================================
 
 # Enable External Storage and create local mount to home folder as needed
-if [ $user_home -eq 1 ]; then
+if [ ${user_home:-0} -eq 1 ]; then
     exec_occ app:enable files_external
     exec_occ files_external:list --output=json \
     | grep -q '"storage":"\\\\OC\\\\Files\\\\Storage\\\\Local"' \
@@ -418,7 +421,7 @@ fi
 nginx_extra_conf_dir="/etc/nginx/conf.d/$domain.d/$app.d"
 mkdir -p "$nginx_extra_conf_dir"
 
-if [ $enable_notify_push -eq 1 ]
+if [ ${enable_notify_push:-0} -eq 1 ]
 then
     ynh_config_add --template="notify_push.conf" --destination="$nginx_extra_conf_dir/notify_push.conf"
 fi
@@ -429,7 +432,7 @@ ynh_config_add_nginx
 # CONFIGURE NOTIFY_PUSH APP
 #=================================================
 
-if [ $enable_notify_push -eq 1 ]
+if [ ${enable_notify_push:-0} -eq 1 ]
 then
     # If notify_push is disabled, reenable it
     if exec_occ app:list | awk '/Disabled/{f=1;next} f' | grep -q -w notify_push; then
@@ -482,17 +485,17 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 # CHECK IF NOTIFY_PUSH WORKS
 #=================================================
 
-if [ $enable_notify_push -eq 1 ]
+if [ ${enable_notify_push:-0} -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))
     done
 
     ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
-    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+    ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
     if ! exec_occ notify_push:self-test; then
         ynh_print_warn "The Notify Push service is still not working properly. Please log in with a user to your NextCloud instance, restart the Notify Push service with \"systemctl restart ${app}-notify-push.service\", and run \"ynh_exec_as_app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."

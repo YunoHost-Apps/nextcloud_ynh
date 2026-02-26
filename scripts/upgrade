@@ -24,7 +24,6 @@ then
     ynh_die "Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
@@ -237,10 +236,10 @@ exec_occ db:convert-filecache-bigint -n
 ynh_script_progression "Reconfiguring $app..."
 
 # Verify the checksum and backup the file if it's different
-ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
+#ynh_backup_if_checksum_is_different "$install_dir/config/config.php"
 
-nc_conf="${install_dir}/config.json"
-ynh_config_add --template="config.json" --destination="$nc_conf"
+#nc_conf="${install_dir}/config.json"
+#ynh_config_add --template="config.json" --destination="$nc_conf"
 
 # Reneable the mail app
 if [ $mail_app_must_be_reactived -eq 1 ]; then
@@ -269,10 +268,10 @@ fi
 
 
 # Load the config file in nextcloud
-exec_occ config:import "$nc_conf"
+exec_occ config:import "${install_dir}/config.json"
 
 # Then remove the config file
-ynh_safe_rm "$nc_conf"
+ynh_safe_rm "${install_dir}/config.json"
 
 
 # Occasionally new mimetypes are added to better handle certain file types.

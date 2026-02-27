@@ -73,9 +73,6 @@ exec_occ() {
     php$NEXTCLOUD_PHP_VERSION --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@") 2> >(filter_boring_occ_warnings >&2)
 }
 
-# Ensure maintenance mode is off
-exec_occ maintenance:mode --off
-
 # Define a function to add an external storage
 # Create the external storage for the given folders and enable sharing
 create_external_storage() {
@@ -404,7 +401,7 @@ then
     elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
         exec_occ app:install notify_push
     fi
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+    exec_occ config:app:set notify_push base_endpoint --value=https://$domain${path_url%/}/push
 
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/

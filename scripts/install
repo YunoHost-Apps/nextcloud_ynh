@@ -91,7 +91,7 @@ exec_occ maintenance:install \
 ynh_script_progression "Configuring $app..."
 
 # Set the mysql.utf8mb4 config to true in config.php
-exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
+exec_occ config:system:set mysql.utf8mb4 --type=boolean --value="true"
 
 # move the logs from the data_dir to the standard /var/log
 exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
@@ -206,7 +206,7 @@ ynh_store_file_checksum "$install_dir/config/config.php"
 if [ $enable_notify_push -eq 1 ]
 then
     exec_occ app:install notify_push
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+    exec_occ config:app:set notify_push base_endpoint --value=https://$domain${path_url%/}/push
 
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/

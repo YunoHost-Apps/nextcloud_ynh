@@ -46,7 +46,7 @@ fi
 # CONFIGURE NOTIFY_PUSH APP
 #=================================================
 
-if [ ${enable_notify_push:-0} -eq 1 ]
+if [ $enable_notify_push -eq 1 ]
 then
     ynh_config_add --template="notify_push.conf" --destination="/etc/nginx/conf.d/$domain.d/$app.d/notify_push.conf"
 

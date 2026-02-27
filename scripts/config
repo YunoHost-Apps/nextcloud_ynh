@@ -15,8 +15,8 @@ php_version=$(ynh_app_setting_get --key=php_version)
 
 get__maintenance_mode() {
     # Maintenance mode status
-    maintenance_mode_status="$(cd "$install_dir" && ynh_exec_as_app php${php_version} --define apc.enable_cli=1 occ --no-interaction --no-ansi maintenance:mode 2> /dev/null)"
-    if echo "$maintenance_mode_status" | grep -q "disabled"
+    maintenance_mode_status="$(cd "$install_dir" && exec_occ maintenance:mode 2> /dev/null)"
+    if echo $maintenance_mode_status | grep -q "disabled"
     then
         echo "0"
     elif echo "$maintenance_mode_status" | grep -q "enabled"
@@ -96,7 +96,7 @@ set__enable_notify_push() {
         elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
             exec_occ app:install notify_push
         fi
-        exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+        exec_occ config:app:set notify_push base_endpoint --value=https://$domain${path_url%/}/push
 
         mkdir -p /var/run/$app/
         chown $app: /var/run/$app/
@@ -121,7 +121,7 @@ set__enable_notify_push() {
         done
 
         ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
-        ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd"
+        ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
         if ! exec_occ notify_push:self-test; then
             ynh_print_warn "The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."

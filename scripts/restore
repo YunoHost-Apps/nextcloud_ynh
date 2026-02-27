@@ -107,7 +107,7 @@ ynh_systemctl --action=restart --service=fail2ban
 # RESTORE THE NOTIFY_PUSH APP
 #=================================================
 
-if [ ${enable_notify_push:-0} -eq 1 ]
+if [ $enable_notify_push -eq 1 ]
 then
     ynh_restore "/etc/systemd/system/${app}-notify-push.service"
     ynh_restore "/etc/systemd/system/${app}-notify-push-watcher.service"

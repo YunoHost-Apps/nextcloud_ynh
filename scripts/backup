@@ -50,7 +50,7 @@ ynh_psql_dump_db > db.sql
 # BACKUP THE NOTIFY_PUSH APP
 #=================================================
 
-if [ ${enable_notify_push:-0} -eq 1 ]
+if [ $enable_notify_push -eq 1 ]
 then
     ynh_backup "/etc/systemd/system/${app}-notify-push.service"
     ynh_backup "/etc/systemd/system/${app}-notify-push-watcher.service"

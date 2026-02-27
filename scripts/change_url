@@ -8,7 +8,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression "Updating NGINX web server configuration..."
 
-if [ ${change_domain:-0} -eq 1 ]
+if [ $change_domain -eq 1 ]
 then
     # Check if .well-known is available for this domain
     if is_url_handled --domain="$new_domain" --path="/.well-known/caldav" || is_url_handled --domain="$new_domain" --path="/.well-known/carddav"
@@ -28,7 +28,7 @@ ynh_config_change_url_nginx
 #=================================================
 ynh_script_progression "Applying $app specific modifications..."
 
-if [ ${change_domain:-0} -eq 1 ]
+if [ $change_domain -eq 1 ]
 then
     # Change the trusted domain
     exec_occ config:system:set trusted_domains 1 --value=$new_domain
@@ -47,7 +47,7 @@ fi
 # CONFIGURE NOTIFY_PUSH APP
 #=================================================
 
-if [ ${enable_notify_push:-0} -eq 1 ]
+if [ $enable_notify_push -eq 1 ]
 then
     domain="$new_domain"
     path_url="$new_path"

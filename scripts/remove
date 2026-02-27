@@ -18,7 +18,7 @@ ynh_safe_rm "/etc/nginx/conf.d/$domain.d/$app.d"
 ynh_config_remove_phpfpm
 
 # Remove notify push
-if [ ${enable_notify_push:-0} -eq 1 ]; then
+if [ $enable_notify_push -eq 1 ]; then
   ynh_config_remove_systemd "${app}-notify-push"
   systemctl disable --now --quiet ${app}-notify-push-watcher.path
   ynh_safe_rm "/etc/systemd/system/${app}-notify-push-watcher.path"

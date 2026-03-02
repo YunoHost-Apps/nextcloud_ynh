@@ -24,7 +24,6 @@ then
     ynh_die "Upgrading from Nextcloud < 22.2 is not supported anymore. You should first upgrade to 22.2 using: yunohost app upgrade nextcloud -u https://github.com/YunoHost-Apps/nextcloud_ynh/tree/41f5f902e7c7cd3c30a6793020562ba98b9bf3e9"
 fi
 
-
 #=================================================
 # MAKE SEQUENTIAL UPGRADES FROM EACH MAJOR
 # VERSION TO THE NEXT ONE
@@ -401,7 +400,7 @@ then
     elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
         exec_occ app:install notify_push
     fi
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+    exec_occ config:app:set notify_push base_endpoint --value=https://$domain${path_url%/}/push
 
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/
@@ -448,14 +447,14 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))
     done
 
     ynh_systemctl --service="${app}-notify-push-watcher" --action=restart
-    ynh_systemctl --service="${app}-notify-push" --action=restart --wait_until="Push daemon for Nextcloud clients." --log_path="systemd" --action=restart
+    ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
     if ! exec_occ notify_push:self-test; then
         ynh_print_warn "The Notify Push service is still not working properly. Please log in with a user to your NextCloud instance, restart the Notify Push service with \"systemctl restart ${app}-notify-push.service\", and run \"ynh_exec_as_app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."

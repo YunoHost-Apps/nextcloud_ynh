@@ -6,6 +6,7 @@
     "memcache.local": "\\OC\\Memcache\\APCu",
     "integrity.check.disabled": true,
     "filelocking.enabled": true,
+    "lost_password_link": "disabled",
     "memcache.locking": "\\OC\\Memcache\\Redis",
     "redis": {
       "host": "localhost",

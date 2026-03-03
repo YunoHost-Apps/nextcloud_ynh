@@ -40,7 +40,10 @@ filter_boring_occ_warnings() {
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version -ge 30 ]
+    if [ $current_major_version -ge 33 ]
+    then
+        NEXTCLOUD_PHP_VERSION="8.4"
+    elif [ $current_major_version -ge 30 ]
     then
         NEXTCLOUD_PHP_VERSION="8.3"
     elif [ $current_major_version -ge 26 ]
@@ -266,13 +269,11 @@ if [ -f "$data_dir/data/nextcloud.log" ]; then
     exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
 fi
 
-
 # Load the config file in nextcloud
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
 ynh_safe_rm "$nc_conf"
-
 
 # Occasionally new mimetypes are added to better handle certain file types.
 # Migrating the mimetypes take a long time on larger instances

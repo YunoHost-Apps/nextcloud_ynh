@@ -8,8 +8,8 @@ index d4d6a17db79..f587f805683 100644
  		$loginToken = $this->request->getCookie('nc_token');
 +		$uuidUser = $this->userSession->getUser()->getUID();
 +		$isLdapUser = $this->config->getUserValue($uuidUser, 'user_ldap', 'uid');
- 		if (!is_null($loginToken)) {
--			$this->config->deleteUserValue($this->userSession->getUser()->getUID(), 'login_token', $loginToken);
+ 		if ($loginToken !== null && $uid !== null) {
+-			$this->config->deleteUserValue($uid, 'login_token', $loginToken);
 +			$this->config->deleteUserValue($uuidUser, 'login_token', $loginToken);
  		}
  		$this->userSession->logout();
@@ -25,6 +25,6 @@ index d4d6a17db79..f587f805683 100644
 +			$redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
 +		}
 +		$response = new RedirectResponse($redirectUrl);
- 
+
  		$this->session->set('clearingExecutionContexts', '1');
  		$this->session->close();

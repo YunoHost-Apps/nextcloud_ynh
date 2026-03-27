@@ -312,7 +312,6 @@ exec_occ config:import "$nc_conf"
 # Then remove the config file
 ynh_safe_rm "$nc_conf"
 
-
 # Occasionally new mimetypes are added to better handle certain file types.
 # Migrating the mimetypes take a long time on larger instances
 # so this is not done automatically during upgrades.
@@ -471,12 +470,14 @@ exec_occ background:cron
 #=================================================
 # LOGROTATE
 #=================================================
+ynh_script_progression "Configuring log rotation..."
 
 ynh_config_add_logrotate
 
 #=================================================
 # FAIL2BAN
 #=================================================
+ynh_script_progression "Configuring Fail2Ban..."
 
 # Create a dedicated Fail2Ban config
 ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"

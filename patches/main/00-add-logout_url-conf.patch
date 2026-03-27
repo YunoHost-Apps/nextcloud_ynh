@@ -3,29 +3,27 @@ index 1a105130..9a51f8d9 100644
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
 @@ -80,15 +80,22 @@ class LoginController extends Controller {
-        public function logout() {
-                $loginToken = $this->request->getCookie('nc_token');
-                $uid = $this->userSession->getUser()?->getUID();
-+               $isLdapUser = $this->config->getUserValue($uid, 'user_ldap', 'uid');
-                if ($loginToken !== null && $uid !== null) {
-                        $this->config->deleteUserValue($uid, 'login_token', $loginToken);
-                }
-                $this->userSession->logout();
-
--               $response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
-+               $redirectUrl = $this->urlGenerator->linkToRouteAbsolute(
-                        'core.login.showLoginForm',
-                        ['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
--               ));
-+               );
+ 	public function logout() {
+ 		$loginToken = $this->request->getCookie('nc_token');
+ 		$uid = $this->userSession->getUser()?->getUID();
++		$isLdapUser = $this->config->getUserValue($uid, 'user_ldap', 'uid');
+ 		if ($loginToken !== null && $uid !== null) {
+ 			$this->config->deleteUserValue($uid, 'login_token', $loginToken);
+ 		}
+ 		$this->userSession->logout();
+ 
+-		$response = new RedirectResponse($this->urlGenerator->linkToRouteAbsolute(
++		$redirectUrl = $this->urlGenerator->linkToRouteAbsolute(
+ 			'core.login.showLoginForm',
+ 			['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
+-		));	
++		);
 +
-+               if (!is_null($isLdapUser)) {
-+                       $redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
-+               }
++		if (!is_null($isLdapUser)) {
++			$redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
++		}
 +
-+               $response = new RedirectResponse($redirectUrl);
-
-                $this->session->set('clearingExecutionContexts', '1');
-                $this->session->close();
---
-2.43.0
++		$response = new RedirectResponse($redirectUrl);
+ 
+ 		$this->session->set('clearingExecutionContexts', '1');
+ 		$this->session->close();

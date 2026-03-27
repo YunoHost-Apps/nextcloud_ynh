@@ -16,7 +16,7 @@ index 1a105130..9a51f8d9 100644
 +		$redirectUrl = $this->urlGenerator->linkToRouteAbsolute(
  			'core.login.showLoginForm',
  			['clear' => true] // this param the code in login.js may be removed when the "Clear-Site-Data" is working in the browsers
--		));	
+-		));
 +		);
 +
 +		if (!is_null($isLdapUser)) {
@@ -27,3 +27,4 @@ index 1a105130..9a51f8d9 100644
  
  		$this->session->set('clearingExecutionContexts', '1');
  		$this->session->close();
+

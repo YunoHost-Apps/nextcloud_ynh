@@ -1,5 +1,5 @@
 diff --git a/core/Controller/LoginController.php b/core/Controller/LoginController.php
-index 1a105130..3cd8173d 100644
+index 1a105130..9a51f8d9 100644
 --- a/core/Controller/LoginController.php
 +++ b/core/Controller/LoginController.php
 @@ -80,15 +80,22 @@ class LoginController extends Controller {
@@ -23,7 +23,7 @@ index 1a105130..3cd8173d 100644
 +                       $redirectUrl = $this->config->getSystemValue('logout_url', $redirectUrl);
 +               }
 +
-+               $response = new RedirectResponse();
++               $response = new RedirectResponse($redirectUrl);
 
                 $this->session->set('clearingExecutionContexts', '1');
                 $this->session->close();

@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "32.0.7~ynh1"
+version = "33.0.1~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -61,12 +61,18 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.1.tar.bz2'
+        sha256 = 'd03f15de9dfa66ad738e37c50e77a4f017c2680cdcb98425c20dab4308d0f8cb'
+
+        [resources.sources.32]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.7.tar.bz2'
         sha256 = '450b4f2b26c83be4d7b8682229a7d868e2802fd54ae8f3ee6367618995637a76'
-
+        prefetch = false
+        
         [resources.sources.31]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.13.tar.bz2'
         sha256 = '92df08369467e81c23d7fd997afb756eae44ce47eff0c85c5d4d27212ebe283e'
+        prefetch = false
 
         [resources.sources.30]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-30.0.15.tar.bz2'
@@ -127,7 +133,7 @@ ram.runtime = "512M"
     api.allowed = ["visitors", "all_users"]
 
     [resources.ports]
-    
+
     [resources.apt]
     packages = [
         "imagemagick",
@@ -137,24 +143,25 @@ ram.runtime = "512M"
         "at",
         "mariadb-server",
         "redis-server",
-        "php8.3-apcu",
-        "php8.3-bcmath",
-        "php8.3-bz2",
-        "php8.3-curl",
-        "php8.3-fpm",
-        "php8.3-gd",
-        "php8.3-gmp",
-        "php8.3-igbinary",
-        "php8.3-imagick",
-        "php8.3-imap",
-        "php8.3-intl",
-        "php8.3-ldap",
-        "php8.3-mbstring",
-        "php8.3-mysql",
-        "php8.3-redis",
-        "php8.3-sqlite3",
-        "php8.3-xml",
-        "php8.3-zip",
+        "php8.4-apcu",
+        "php8.4-bcmath",
+        "php8.4-bz2",
+        "php8.4-curl",
+        "php8.4-fpm",
+        "php8.4-gd",
+        "php8.4-gmp",
+        "php8.4-igbinary",
+        "php8.4-imagick",
+        "php8.4-imap",
+        "php8.4-intl",
+        "php8.4-ldap",
+        "php8.4-mbstring",
+        "php8.4-mysql",
+        "php8.4-redis",
+        "php8.4-sqlite3",
+        "php8.4-xml",
+        "php8.4-zip",
+        "php8.4-smbclient",
     ]
 
     packages_from_raw_bash = """

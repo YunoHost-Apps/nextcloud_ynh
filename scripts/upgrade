@@ -40,7 +40,10 @@ filter_boring_occ_warnings() {
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version -ge 30 ]
+    if [ $current_major_version -ge 33 ]
+    then
+        NEXTCLOUD_PHP_VERSION="8.4"
+    elif [ $current_major_version -ge 30 ]
     then
         NEXTCLOUD_PHP_VERSION="8.3"
     elif [ $current_major_version -ge 26 ]
@@ -266,13 +269,11 @@ if [ -f "$data_dir/data/nextcloud.log" ]; then
     exec_occ config:system:set logfile --value="/var/log/$app/nextcloud.log"
 fi
 
-
 # Load the config file in nextcloud
 exec_occ config:import "$nc_conf"
 
 # Then remove the config file
 ynh_safe_rm "$nc_conf"
-
 
 # Occasionally new mimetypes are added to better handle certain file types.
 # Migrating the mimetypes take a long time on larger instances
@@ -400,7 +401,7 @@ then
     elif ! exec_occ app:list | awk '/Enabled/{f=1;next} /Disabled/{f=0} f' | grep -q -w notify_push; then
         exec_occ app:install notify_push
     fi
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+    exec_occ config:app:set notify_push base_endpoint --value=https://$domain${path_url%/}/push
 
     mkdir -p /var/run/$app/
     chown $app: /var/run/$app/
@@ -430,12 +431,14 @@ exec_occ background:cron
 #=================================================
 # LOGROTATE
 #=================================================
+ynh_script_progression "Configuring log rotation..."
 
 ynh_config_add_logrotate
 
 #=================================================
 # FAIL2BAN
 #=================================================
+ynh_script_progression "Configuring Fail2Ban..."
 
 # Create a dedicated Fail2Ban config
 ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"

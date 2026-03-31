@@ -48,7 +48,7 @@ fi
 
 if [ $enable_notify_push -eq 1 ]
 then
-    ynh_config_add --template="notify_push.conf" --destination="/etc/nginx/conf.d/$domain.d/$app.d/notify_push.conf"
+    ynh_config_add --template="notify_push.conf" --destination="/etc/nginx/conf.d/$new_domain.d/$app.d/notify_push.conf"
 
     ynh_systemctl --service=nginx --action=reload
 
@@ -72,7 +72,7 @@ then
 
     ynh_systemctl --service="${app}-notify-push" --action=restart --log_path="systemd" --wait_until="Push daemon for Nextcloud clients."
 
-    exec_occ config:app:set notify_push base_endpoint --value https://$domain${path_url%/}/push
+    exec_occ config:app:set notify_push base_endpoint --value=https://$new_domain${new_path%/}/push
 
     if ! exec_occ notify_push:self-test; then
         ynh_print_warn "The High Performance Backend service is still not working properly. Please log in with a user to your NextCloud instance, restart the High Performance Backend service with \"systemctl restart ${app}-notify-push.service\", and run \"sudo -u $app php${php_version} $install_dir/occ notify_push:self-test\" to verify that everything is green."

@@ -24,7 +24,6 @@ index 1a105130..9a51f8d9 100644
 +		}
 +
 +		$response = new RedirectResponse($redirectUrl);
- 
+
  		$this->session->set('clearingExecutionContexts', '1');
  		$this->session->close();
-

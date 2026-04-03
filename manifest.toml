@@ -65,13 +65,13 @@ ram.runtime = "512M"
         sha256 = '91257ab5002d5d09da8d09d80389983330351c5c00a7e3a25b177bcea81171cc'
 
         [resources.sources.32]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.7.tar.bz2'
-        sha256 = '450b4f2b26c83be4d7b8682229a7d868e2802fd54ae8f3ee6367618995637a76'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.8.tar.bz2'
+        sha256 = '58ad8ddf860d75a294b97a8e3e39562dec87ff650cb91c114589b3744ab1de0d'
         prefetch = false
         
         [resources.sources.31]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.13.tar.bz2'
-        sha256 = '92df08369467e81c23d7fd997afb756eae44ce47eff0c85c5d4d27212ebe283e'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.14.tar.bz2'
+        sha256 = 'd0965eb2cbf68105743cbbe6eef404c89092cf92c40daee2c9cb9cf6edf63613'
         prefetch = false
 
         [resources.sources.30]
@@ -141,6 +141,7 @@ ram.runtime = "512M"
         "tar",
         "smbclient",
         "at",
+        "postgresql",
         "mariadb-server",
         "redis-server",
         "php8.4-apcu",
@@ -157,6 +158,7 @@ ram.runtime = "512M"
         "php8.4-ldap",
         "php8.4-mbstring",
         "php8.4-mysql",
+        "php8.4-pgsql",
         "php8.4-redis",
         "php8.4-sqlite3",
         "php8.4-xml",
@@ -166,11 +168,10 @@ ram.runtime = "512M"
 
     packages_from_raw_bash = """
         case $YNH_DEBIAN_VERSION in
-            bullseye)   echo libmagickcore-6.q16-6-extra ;;
             bookworm)   echo libmagickcore-6.q16-6-extra ;;
             trixie)     echo libmagickcore-7.q16-10-extra ;;
         esac
     """
 
     [resources.database]
-    type = "mysql"
+    type = "postgresql"

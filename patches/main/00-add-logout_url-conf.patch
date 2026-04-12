@@ -27,4 +27,3 @@ index 1a105130..9a51f8d9 100644
  
  		$this->session->set('clearingExecutionContexts', '1');
  		$this->session->close();
-

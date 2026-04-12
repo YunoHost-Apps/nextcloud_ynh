@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "33.0.2~ynh1"
+version = "32.0.8~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -61,17 +61,13 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.2.tar.bz2'
-        sha256 = '91257ab5002d5d09da8d09d80389983330351c5c00a7e3a25b177bcea81171cc'
-
-        [resources.sources.32]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.7.tar.bz2'
-        sha256 = '450b4f2b26c83be4d7b8682229a7d868e2802fd54ae8f3ee6367618995637a76'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.8.tar.bz2'
+        sha256 = '58ad8ddf860d75a294b97a8e3e39562dec87ff650cb91c114589b3744ab1de0d'
         prefetch = false
-        
+
         [resources.sources.31]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.13.tar.bz2'
-        sha256 = '92df08369467e81c23d7fd997afb756eae44ce47eff0c85c5d4d27212ebe283e'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.14.tar.bz2'
+        sha256 = 'd0965eb2cbf68105743cbbe6eef404c89092cf92c40daee2c9cb9cf6edf63613'
         prefetch = false
 
         [resources.sources.30]
@@ -143,25 +139,25 @@ ram.runtime = "512M"
         "at",
         "mariadb-server",
         "redis-server",
-        "php8.4-apcu",
-        "php8.4-bcmath",
-        "php8.4-bz2",
-        "php8.4-curl",
-        "php8.4-fpm",
-        "php8.4-gd",
-        "php8.4-gmp",
-        "php8.4-igbinary",
-        "php8.4-imagick",
-        "php8.4-imap",
-        "php8.4-intl",
-        "php8.4-ldap",
-        "php8.4-mbstring",
-        "php8.4-mysql",
-        "php8.4-redis",
-        "php8.4-sqlite3",
-        "php8.4-xml",
-        "php8.4-zip",
-        "php8.4-smbclient",
+        "php8.3-apcu",
+        "php8.3-bcmath",
+        "php8.3-bz2",
+        "php8.3-curl",
+        "php8.3-fpm",
+        "php8.3-gd",
+        "php8.3-gmp",
+        "php8.3-igbinary",
+        "php8.3-imagick",
+        "php8.3-imap",
+        "php8.3-intl",
+        "php8.3-ldap",
+        "php8.3-mbstring",
+        "php8.3-mysql",
+        "php8.3-redis",
+        "php8.3-sqlite3",
+        "php8.3-xml",
+        "php8.3-zip",
+        "php8.3-smbclient",
     ]
 
     packages_from_raw_bash = """

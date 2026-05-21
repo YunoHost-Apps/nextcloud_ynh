@@ -233,6 +233,11 @@ chmod 644 "/etc/cron.d/$app"
 
 exec_occ background:cron
 
+# Add compatibilty check
+ynh_config_add --template="nc_compatibility_check" --destination="/etc/cron.weekly/$app-nc_compatibility_check"
+chown root: "/etc/cron.weekly/$app-nc_compatibility_check"
+chmod 644 "/etc/cron.weekly/$app-nc_compatibility_check"
+
 #=================================================
 # POST-INSTALL MAINTENANCE
 #=================================================

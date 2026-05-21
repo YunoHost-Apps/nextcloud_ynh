@@ -50,6 +50,7 @@ fi
 #=================================================
 
 ynh_restore "/etc/cron.d/$app"
+ynh_restore "/etc/cron.weekly/$app-nc_compatibility_check"
 
 ynh_restore "/var/log/$app"
 

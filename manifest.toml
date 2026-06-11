@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "33.0.4~ynh1"
+version = "34.0.0~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -61,17 +61,21 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.4.tar.bz2'
-        sha256 = 'f4b1cd6dd0525c6ba888f2cc1f0f1f53799d6d17cb0d7cf660542ec4cbcd7a72'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-34.0.0.tar.bz2'
+        sha256 = '36c557cedc2a1a12cd68cffe535f21350a02cbd4ff60dd7a9dae3959c7873be4'
+
+        [resources.sources.33]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.5.tar.bz2'
+        sha256 = 'ed46b91d8da4e1f0234d0188b25bee9448fa2f301887e5b28013e6b547d6dcca'
 
         [resources.sources.32]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.7.tar.bz2'
-        sha256 = '450b4f2b26c83be4d7b8682229a7d868e2802fd54ae8f3ee6367618995637a76'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.8.tar.bz2'
+        sha256 = '58ad8ddf860d75a294b97a8e3e39562dec87ff650cb91c114589b3744ab1de0d'
         prefetch = false
         
         [resources.sources.31]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.13.tar.bz2'
-        sha256 = '92df08369467e81c23d7fd997afb756eae44ce47eff0c85c5d4d27212ebe283e'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.14.tar.bz2'
+        sha256 = 'd0965eb2cbf68105743cbbe6eef404c89092cf92c40daee2c9cb9cf6edf63613'
         prefetch = false
 
         [resources.sources.30]
@@ -166,7 +170,6 @@ ram.runtime = "512M"
 
     packages_from_raw_bash = """
         case $YNH_DEBIAN_VERSION in
-            bullseye)   echo libmagickcore-6.q16-6-extra ;;
             bookworm)   echo libmagickcore-6.q16-6-extra ;;
             trixie)     echo libmagickcore-7.q16-10-extra ;;
         esac

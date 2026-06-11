@@ -18,11 +18,11 @@ ynh_script_progression "Restoring data directory..."
 ynh_restore "$data_dir"
 
 #=================================================
-# RESTORE THE MYSQL DATABASE
+# RESTORE THE POSTGRESQL DATABASE
 #=================================================
-ynh_script_progression "Restoring the MySQL database..."
+ynh_script_progression "Restoring the PostgreSQL database..."
 
-ynh_mysql_db_shell < ./db.sql
+ynh_psql_db_shell < ./db.sql
 
 #=================================================
 # RESTORE SYSTEM CONFIGURATIONS
@@ -83,6 +83,7 @@ ynh_script_progression "Adding multimedia directories..."
 
 # Build YunoHost multimedia directories
 ynh_multimedia_build_main_dir
+
 # Allow nextcloud to write into these directories
 ynh_multimedia_addaccess $app
 
@@ -97,8 +98,8 @@ ynh_restore "/etc/fail2ban/filter.d/$app.conf"
 # Make sure a log file exists (mostly for CI tests)
 logfile="/var/log/$app/nextcloud.log"
 if [ ! -f "$logfile" ]; then
-	touch "$logfile"
-	chown "$app:" "$logfile"
+    touch "$logfile"
+    chown "$app:" "$logfile"
 fi
 
 ynh_systemctl --action=restart --service=fail2ban

@@ -75,6 +75,8 @@ chmod 750 $install_dir
 if [ $user_home -eq 1 ]; then 
     for u in $(ynh_user_list); do
         setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
+        # Avoid leaving acl on .ssh, which could prevent users from connecting
+        setfacl --recursive -bn "/home/$u/.ssh" || true
     done
 fi
 

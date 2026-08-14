@@ -40,11 +40,11 @@ ynh_backup "/etc/cron.d/$app"
 ynh_backup "/var/log/$app"
 
 #=================================================
-# BACKUP THE MYSQL DATABASE
+# BACKUP THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info "Backing up the MySQL database..."
+ynh_print_info "Backing up the PostgreSQL database..."
 
-ynh_mysql_dump_db > db.sql
+ynh_psql_dump_db > db.sql
 
 #=================================================
 # BACKUP THE NOTIFY_PUSH APP

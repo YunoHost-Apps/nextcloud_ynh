@@ -26,7 +26,6 @@ if [ $enable_notify_push -eq 1 ]; then
 fi
 
 # Remove a cron file
-# TODO: Ensure that cron job is not running (How !?)
 ynh_safe_rm "/etc/cron.d/$app"
 
 # Cleaning ACL in home directories

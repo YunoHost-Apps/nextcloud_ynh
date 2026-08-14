@@ -39,6 +39,7 @@ then
     # Reload PHP-FPM, necessary for force Nextcloud to re-read config.php, cf opcache.revalidate_freq
     ynh_systemctl --service=php${php_version}-fpm --action=reload
 
+    mkdir -p /etc/nginx/conf.d/$new_domain.d/$app.d
     mv /etc/nginx/conf.d/$old_domain.d/$app.d /etc/nginx/conf.d/$new_domain.d/$app.d
 fi
 

@@ -317,7 +317,9 @@ if [ $user_home -eq 1 ]; then
     || create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-    setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --modify g:$app:rwx "/home/$u" || true
+        # Avoid leaving acl on .ssh, which could prevent users from connecting
+        setfacl --recursive -bn "/home/$u/.ssh" || true
     done
 fi
 

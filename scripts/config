@@ -19,7 +19,7 @@ get__maintenance_mode() {
     if echo $maintenance_mode_status | grep -q "disabled"
     then
         echo "0"
-    elif echo $maintenance_mode_status | grep -q "enabled"
+    elif echo "$maintenance_mode_status" | grep -q "enabled"
     then
         echo "1"
     else

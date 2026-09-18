@@ -72,7 +72,7 @@ admin_password="$(ynh_string_random --length=6)"
 
 # Install Nextcloud using a temporary admin user
 exec_occ maintenance:install \
-    --database "mysql" --database-name $db_name \
+    --database "mysql" --database-port "3306" --database-name $db_name \
     --database-user $db_user --database-pass "$db_pwd" \
     --admin-user "admin" --admin-pass "$admin_password" \
     --data-dir "$data_dir/data" \

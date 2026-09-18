@@ -18,13 +18,6 @@ ynh_app_setting_set --key=phpflags --value="$phpflags"
 ldap_email_attr="mail"
 
 #=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
-ynh_script_progression "Migrate MySQL database to utf8..."
-
-ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression "Setting up source files..."
@@ -119,6 +112,13 @@ exec_occ config:import "$install_dir/config.json"
 
 # Then remove the config file
 ynh_safe_rm "$install_dir/config.json"
+
+#=================================================
+# CREATE A MYSQL DATABASE
+#=================================================
+ynh_script_progression "Migrate MySQL database to utf8..."
+
+exec_occ db:convert-mysql-charset
 
 #=================================================
 # CHECK THE LDAP CONFIG

@@ -114,13 +114,6 @@ exec_occ config:import "$install_dir/config.json"
 ynh_safe_rm "$install_dir/config.json"
 
 #=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
-ynh_script_progression "Migrate MySQL database to utf8..."
-
-exec_occ db:convert-mysql-charset
-
-#=================================================
 # CHECK THE LDAP CONFIG
 #=================================================
 
@@ -239,6 +232,7 @@ exec_occ background:cron
 # POST-INSTALL MAINTENANCE
 #=================================================
 
+exec_occ db:convert-mysql-charset
 exec_occ db:add-missing-indices
 exec_occ db:add-missing-columns
 exec_occ db:convert-filecache-bigint -n

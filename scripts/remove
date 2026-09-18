@@ -28,6 +28,7 @@ fi
 # Remove a cron file
 # TODO: Ensure that cron job is not running (How !?)
 ynh_safe_rm "/etc/cron.d/$app"
+ynh_safe_rm "/etc/cron.weekly/$app-nc_compatibility_check"
 
 # Cleaning ACL in home directories
 for path in /home/*; do

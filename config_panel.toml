@@ -25,14 +25,6 @@ name.fr = "Configuration de Nextcloud"
         help.en = "This action sets permissions for all data. Beware, this action can take up to several hours if users have a lot of data."
         help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
-        [main.permissions.move_user_home_files_button]
-        ask.en = "Move files from user's home directory to the new path"
-        ask.fr = "Déplace les fichiers des dossiers personnels des utilisateurs vers le nouveau chemin"
-        type = "button"
-        style = "success"
-        help.en = "This action moves all files in every user's home directory in a subfolder and fixes permissions. Beware, this action can take up to several hours if users have a lot of data."
-        help.fr = "Cette action déplace tous les fichiers des dossiers utilisateurs dans un sous-répertoire et corrige les autorisations. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
-
     [main.addressbook]
     name.en = "Address book configuration"
     name.fr = "Configuration du carnet d'adresses"
@@ -65,3 +57,26 @@ name.fr = "Configuration de Nextcloud"
         type = "boolean"
         help.en = "If all your users have set a forward email and aren't using YunoHost emails, you may choose to set their forward email as their Nextcloud email setting."
         help.fr = "Si tous vos utilisateurs ont paramétré un e-mail de transfert et n'utilise pas du tout les e-mails de leur compte YunoHost, vous pouvez paramétrer Nextcloud d'utiliser les e-mails de transfert."
+
+    [main.user_home]
+    name.en = "Forward Email?"
+    name.fr = "E-mails de transfert?"
+
+        [main.user_home.enable_user_home]
+        ask.en = "Add the users' home directory in Nextcloud?"
+        ask.fr = "Ajouter le dossier personnel des utilisateurs à Nextcloud ?"
+        help.en = "If enabled, each `/home/$user/nextcloud_home` directory will be added to their respective user's Nextcloud."
+        help.fr = "Si activé, le dossier `/home/$user/nextcloud_home` de chaque compte lui sera ajouté dans Nextcloud."
+        type = "boolean"
+
+        [main.user_home.user_home_migration_pending]
+        type="boolean"
+        visible="false"
+
+        [main.user_home.move_user_home_files_button]
+        ask.en = "Move files from user's home directory to the new path"
+        ask.fr = "Déplace les fichiers des dossiers personnels des utilisateurs vers le nouveau chemin"
+        type = "button"
+        style = "success"
+        help.en = "This action moves all files in every user's home directory in a subfolder and fixes permissions. Beware, this action can take up to several hours if users have a lot of data."
+        help.fr = "Cette action déplace tous les fichiers des dossiers utilisateurs dans un sous-répertoire et corrige les autorisations. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."

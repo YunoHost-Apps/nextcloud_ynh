@@ -143,20 +143,6 @@ create_external_storage() {
       || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 
-# Enable External Storage and create local mount to nextcloud_home folder
-if [ $user_home -eq 1 ]
-then
-    exec_occ app:enable files_external
-    create_external_storage "/home/\$user/nextcloud_home" "Home"
-
-
-    for user in $(ynh_user_list); do
-        mkdir -p /home/$user/nextcloud_home
-        chown "$user:$user" /home/$user/nextcloud_home
-        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$user/nextcloud_home" || true
-    done
-fi
-
 #=================================================
 # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
 #=================================================

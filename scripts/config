@@ -42,6 +42,15 @@ get__enable_forward_email() {
     fi
 }
 
+get__enable_user_home() {
+    home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
+    if [ -n "$home_mount_ids" ]; then
+        echo "1"
+    else
+        echo "0"
+    fi
+}
+
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
@@ -138,6 +147,35 @@ set__enable_forward_email() {
     elif [ $enable_forward_email -eq 1 ]; then
         exec_occ ldap:set-config "${ldap_config_prefix:-}" ldapEmailAttribute "maildrop"
     fi
+}
+
+set__enable_user_home() {
+    if [ $enable_user_home -eq 0 ]; then
+        home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
+        if [ -n "$home_mount_ids" ]; then
+            for mount_id in $home_mount_ids; do
+                exec_occ files_external:delete "$mount_id"
+            done
+        fi
+    elif [ $enable_user_home -eq 1 ]; then
+        exec_occ app:enable files_external
+
+        for user in $(ynh_user_list); do
+            mkdir -p "/home/$user/nextcloud_home"
+            chown "$user:$user" "/home/$user/nextcloud_home"
+            setfacl --modify g:$app:rwX,d:g:$app:rwX "/home/$user/nextcloud_home" || true
+        done
+
+        home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
+        if [ -n "$home_mount_ids" ]; then
+            for mount_id in $home_mount_ids; do
+                exec_occ files_external:config "$mount_id" datadir '/home/$user/nextcloud_home'
+            done
+        else
+            create_external_storage '/home/$user/nextcloud_home' "Home"
+        fi
+    fi
+    ynh_app_setting_set --key=enable_user_home --value="$enable_user_home"
 }
 
 #=================================================

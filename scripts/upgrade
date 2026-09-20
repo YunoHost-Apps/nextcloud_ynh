@@ -321,6 +321,7 @@ if ynh_app_upgrading_from_version_before 35.0.0~ynh2; then
     # Enable External Storage and create local mount to nextcloud_home folder as needed
     if [ $user_home -eq 1 ]; then
         ynh_app_setting_set --key=user_home_migration_pending --value=1
+        ynh_app_setting_set --key=enable_user_home --value=1
 
         exec_occ app:enable files_external
 
@@ -338,7 +339,12 @@ if ynh_app_upgrading_from_version_before 35.0.0~ynh2; then
         else
             create_external_storage '/home/$user/nextcloud_home' "Home"
         fi
+    else
+        ynh_app_setting_set --key=user_home_migration_pending --value=0
+        ynh_app_setting_set --key=enable_user_home --value=0
     fi
+
+    ynh_app_setting_delete --key=user_home
 fi
 
 #=================================================

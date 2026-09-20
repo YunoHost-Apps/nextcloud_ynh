@@ -48,14 +48,6 @@ ram.runtime = "512M"
     type = "group"
     default = "visitors"
 
-    [install.user_home]
-    ask.en = "Add the users' home directory in Nextcloud?"
-    ask.fr = "Ajouter le dossier personnel des utilisateurs à Nextcloud ?"
-    help.en = "If enabled, each `/home/$user/nextcloud_home` directory will be added to their respective user's Nextcloud."
-    help.fr = "Si activé, le dossier `/home/$user/nextcloud_home` de chaque compte lui sera ajouté dans Nextcloud."
-    type = "boolean"
-    default = false
-
 [resources]
 
     [resources.sources]

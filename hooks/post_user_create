@@ -1,6 +1,14 @@
 #!/bin/bash
 
+YNH_HELPERS_VERSION=2.1
+source /usr/share/yunohost/helpers
+
 user="$1"
 app="$(basename $0 | cut -d- -f 2-)" # Extract the app name from the script name, which is supposed to be something like "50-app_id"
+user_home=$(ynh_app_setting_get --app="$app" --key="user_home")
 
-setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX /home/$user
+if [ $user_home -eq 1 ]; then
+    mkdir -p /home/$user/nextcloud_home
+    chown "$user:$user" /home/$user/nextcloud_home
+    setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$user/nextcloud_home" || true
+fi

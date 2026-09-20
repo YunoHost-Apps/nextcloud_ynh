@@ -25,6 +25,14 @@ name.fr = "Configuration de Nextcloud"
         help.en = "This action sets permissions for all data. Beware, this action can take up to several hours if users have a lot of data."
         help.fr = "Cette action définit les autorisations pour toutes les données. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
 
+        [main.permissions.move_user_home_files_button]
+        ask.en = "Move files from user's home directory to the new path"
+        ask.fr = "Déplace les fichiers des dossiers personnels des utilisateurs vers le nouveau chemin"
+        type = "button"
+        style = "success"
+        help.en = "This action moves all files in every user's home directory in a subfolder and fixes permissions. Beware, this action can take up to several hours if users have a lot of data."
+        help.fr = "Cette action déplace tous les fichiers des dossiers utilisateurs dans un sous-répertoire et corrige les autorisations. Attention, cette action peut prendre jusqu'à plusieurs heures si les utilisateurs ont beaucoup de données."
+
     [main.addressbook]
     name.en = "Address book configuration"
     name.fr = "Configuration du carnet d'adresses"

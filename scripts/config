@@ -158,6 +158,29 @@ function run__set_permissions_button() {
     chmod 750 $install_dir
 }
 
+function run__move_user_home_files_button() {
+    local pending=$(ynh_app_setting_get --key=user_home_migration_pending)
+    if [ "${pending:-0}" -ne 1 ]; then
+        ynh_die "Nothing to do: users' files have already been moved, or this install never used the old home directory layout"
+    fi
+
+    exec_occ maintenance:mode --on
+    ynh_print_info "Maintenance mode enabled"
+
+    ynh_print_info "Move files and set permissions..."
+    for user in $(ynh_user_list); do
+        mkdir -p "/home/$user/nextcloud_home"
+        chown "$user:$user" "/home/$user/nextcloud_home"
+        find /home/$user -mindepth 1 -maxdepth 1 ! -name '.*' ! -name nextcloud_home ! -name Multimedia -exec mv -t /home/$user/nextcloud_home -- {} +
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$user/nextcloud_home" || true
+    done
+
+    ynh_app_setting_delete --key=user_home_migration_pending
+
+    exec_occ maintenance:mode --off
+    ynh_print_info "Maintenance mode disabled"
+}
+
 #=================================================
 
 ynh_app_config_apply() {

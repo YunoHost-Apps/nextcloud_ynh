@@ -59,8 +59,8 @@ name.fr = "Configuration de Nextcloud"
         help.fr = "Si tous vos utilisateurs ont paramétré un e-mail de transfert et n'utilise pas du tout les e-mails de leur compte YunoHost, vous pouvez paramétrer Nextcloud d'utiliser les e-mails de transfert."
 
     [main.user_home]
-    name.en = "Forward Email?"
-    name.fr = "E-mails de transfert?"
+    name.en = "Users' home directory in Nextcloud"
+    name.fr = "Dossier personnel des utilisateurs à Nextcloud"
 
         [main.user_home.enable_user_home]
         ask.en = "Add the users' home directory in Nextcloud?"

@@ -43,7 +43,7 @@ get__enable_forward_email() {
 }
 
 get__enable_user_home() {
-    home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
+    home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user/nextcloud_home") | .mount_id')
     if [ -n "$home_mount_ids" ]; then
         echo "1"
     else
@@ -163,7 +163,7 @@ set__enable_user_home() {
         for user in $(ynh_user_list); do
             mkdir -p "/home/$user/nextcloud_home"
             chown "$user:$user" "/home/$user/nextcloud_home"
-            setfacl --modify g:$app:rwX,d:g:$app:rwX "/home/$user/nextcloud_home" || true
+            setfacl --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/nextcloud_home" || true
         done
 
         home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
@@ -210,7 +210,7 @@ function run__move_user_home_files_button() {
         mkdir -p "/home/$user/nextcloud_home"
         chown "$user:$user" "/home/$user/nextcloud_home"
         find /home/$user -mindepth 1 -maxdepth 1 ! -name '.*' ! -name nextcloud_home ! -name Multimedia -exec mv -t /home/$user/nextcloud_home -- {} +
-        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$user/nextcloud_home" || true
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/nextcloud_home" || true
     done
 
     ynh_app_setting_delete --key=user_home_migration_pending

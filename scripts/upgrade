@@ -318,7 +318,7 @@ if ynh_app_upgrading_from_version_before 35.0.0~ynh2; then
         setfacl --recursive --remove g:$app,d:g:$app "/home/$user/" || true
     done
 
-    # Enable External Storage and create local mount to nextcloud_home folder as needed
+    # Enable External Storage and create local mount to $app_home folder as needed
     if [ $user_home -eq 1 ]; then
         ynh_app_setting_set --key=user_home_migration_pending --value=1
         ynh_app_setting_set --key=enable_user_home --value=1
@@ -326,18 +326,18 @@ if ynh_app_upgrading_from_version_before 35.0.0~ynh2; then
         exec_occ app:enable files_external
 
         for user in $(ynh_user_list); do
-            mkdir -p "/home/$user/nextcloud_home"
-            chown "$user:$user" "/home/$user/nextcloud_home"
-            setfacl --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/nextcloud_home" || true
+            mkdir -p "/home/$user/$app_home"
+            chown "$user:$user" "/home/$user/$app_home"
+            setfacl --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/$app_home" || true
         done
 
         home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
         if [ -n "$home_mount_ids" ]; then
             for mount_id in $home_mount_ids; do
-                exec_occ files_external:config "$mount_id" datadir '/home/$user/nextcloud_home'
+                exec_occ files_external:config "$mount_id" datadir '/home/$user/$app_home'
             done
         else
-            create_external_storage '/home/$user/nextcloud_home' "Home"
+            create_external_storage '/home/$user/$app_home' "Home"
         fi
     else
         ynh_app_setting_set --key=user_home_migration_pending --value=0

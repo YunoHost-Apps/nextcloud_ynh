@@ -43,7 +43,7 @@ get__enable_forward_email() {
 }
 
 get__enable_user_home() {
-    home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user/nextcloud_home") | .mount_id')
+    home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user/$app_home") | .mount_id')
     if [ -n "$home_mount_ids" ]; then
         echo "1"
     else
@@ -161,18 +161,18 @@ set__enable_user_home() {
         exec_occ app:enable files_external
 
         for user in $(ynh_user_list); do
-            mkdir -p "/home/$user/nextcloud_home"
-            chown "$user:$user" "/home/$user/nextcloud_home"
-            setfacl --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/nextcloud_home" || true
+            mkdir -p "/home/$user/$app_home"
+            chown "$user:$user" "/home/$user/$app_home"
+            setfacl --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/$app_home" || true
         done
 
         home_mount_ids=$(exec_occ files_external:export | jq -r '.[] | select(.configuration.datadir == "/home/$user") | .mount_id')
         if [ -n "$home_mount_ids" ]; then
             for mount_id in $home_mount_ids; do
-                exec_occ files_external:config "$mount_id" datadir '/home/$user/nextcloud_home'
+                exec_occ files_external:config "$mount_id" datadir '/home/$user/$app_home'
             done
         else
-            create_external_storage '/home/$user/nextcloud_home' "Home"
+            create_external_storage '/home/$user/$app_home' "Home"
         fi
     fi
     ynh_app_setting_set --key=enable_user_home --value="$enable_user_home"
@@ -207,10 +207,10 @@ function run__move_user_home_files_button() {
 
     ynh_print_info "Move files and set permissions..."
     for user in $(ynh_user_list); do
-        mkdir -p "/home/$user/nextcloud_home"
-        chown "$user:$user" "/home/$user/nextcloud_home"
-        find /home/$user -mindepth 1 -maxdepth 1 ! -name '.*' ! -name nextcloud_home ! -name Multimedia -exec mv -t /home/$user/nextcloud_home -- {} +
-        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/nextcloud_home" || true
+        mkdir -p "/home/$user/$app_home"
+        chown "$user:$user" "/home/$user/$app_home"
+        find /home/$user -mindepth 1 -maxdepth 1 ! -name '.*' ! -regex '.*/nextcloud\(__[0-9]+\)\?_home' ! -name Multimedia -exec mv -t /home/$user/$app_home -- {} +
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/$app_home" || true
     done
 
     ynh_app_setting_delete --key=user_home_migration_pending

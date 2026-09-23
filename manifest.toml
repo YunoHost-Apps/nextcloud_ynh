@@ -170,6 +170,7 @@ ram.runtime = "512M"
         "php8.5-xml",
         "php8.5-zip",
         "php8.5-smbclient",
+        "php8.5-cli",
     ]
 
     packages_from_raw_bash = """

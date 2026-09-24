@@ -10,5 +10,5 @@ enable_user_home=$(ynh_app_setting_get --app="$app" --key="enable_user_home")
 if [ $enable_user_home -eq 1 ]; then
     mkdir -p /home/$user/$app_home
     chown "$user:$user" /home/$user/$app_home
-    setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/$app_home" || true
+    setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/${app}_home" || true
 fi

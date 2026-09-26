@@ -143,19 +143,6 @@ create_external_storage() {
       || exec_occ files_external:option "$mount_id" enable_sharing true
 }
 
-# Enable External Storage and create local mount to home folder
-if [ $user_home -eq 1 ]
-then
-    exec_occ app:enable files_external
-    create_external_storage "/home/\$user" "Home"
-    # Iterate over users to extend their home folder permissions
-    for u in $(ynh_user_list); do
-        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
-        # Avoid leaving acl on .ssh, which could prevent users from connecting
-        setfacl --recursive -bn "/home/$u/.ssh" || true
-    done
-fi
-
 #=================================================
 # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD
 #=================================================

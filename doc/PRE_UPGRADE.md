@@ -1,0 +1,1 @@
+Before updating NextCloud, make sure that your applications are compatible with the Nextcloud version you are about to install. Also update all your applications installed in NextCloud before updating.

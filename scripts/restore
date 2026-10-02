@@ -74,7 +74,7 @@ chmod 750 $install_dir
 # storage plugin usage - and create relevant Nextcloud directories
 if [ $enable_user_home -eq 1 ]; then 
     for user in $(ynh_user_list); do
-        mkdir -p "/home/$user/${app}_home"
+        mkdir -p "/home/$user/Documents"
         setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/${app}_home" || true
     done
 fi

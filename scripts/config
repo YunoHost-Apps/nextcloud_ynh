@@ -123,7 +123,7 @@ set__enable_notify_push() {
 
         count=0
 
-        while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
+        while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
         do
             sleep 1
             count=$((count + 1))

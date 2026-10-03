@@ -156,7 +156,7 @@ exec_occ -V
 if [ "$(exec_occ config:system:get mysql.utf8mb4)" != "true" ]; then
     db_pwd=$(ynh_app_setting_get --key=db_pwd)
     # Change your databases character set and collation
-    ynh_mysql_db_shell <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+    exec_occ db:convert-mysql-charset
     # Set the mysql.utf8mb4 config to true in config.php
     exec_occ config:system:set mysql.utf8mb4 --type boolean --value="true"
     exec_occ maintenance:repair

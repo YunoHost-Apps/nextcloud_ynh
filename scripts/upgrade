@@ -40,7 +40,10 @@ filter_boring_occ_warnings() {
 # Define a function to execute commands with `occ`
 exec_occ() {
     # Backward compatibility to upgrade from older versions
-    if [ $current_major_version -ge 33 ]
+    if [ $current_major_version -ge 35 ]
+    then
+        NEXTCLOUD_PHP_VERSION="8.5"
+    elif [ $current_major_version -ge 33 ]
     then
         NEXTCLOUD_PHP_VERSION="8.4"
     elif [ $current_major_version -ge 30 ]
@@ -132,7 +135,7 @@ else
     ldap_email_attr="mail"
 fi
 
-# Before NCv32, Yunohost was not using any prefix for the LDAP config.
+# Before NCv32, YunoHost was not using any prefix for the LDAP config.
 # This is now mandatory so we need to create a new config with a prefix.
 if [ "${ldap_config_prefix:-}" = "" ]
 then
@@ -317,7 +320,9 @@ if [ $user_home -eq 1 ]; then
     || create_external_storage "/home/\$user" "Home"
     # Iterate over users to extend their home folder permissions
     for u in $(ynh_user_list); do
-    setfacl --modify g:$app:rwx "/home/$u" || true
+        setfacl --modify g:$app:rwx "/home/$u" || true
+        # Avoid leaving acl on .ssh, which could prevent users from connecting
+        setfacl --recursive -bn "/home/$u/.ssh" || true
     done
 fi
 
@@ -450,7 +455,7 @@ ynh_config_add_fail2ban --logpath="/var/log/$app/nextcloud.log"
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))

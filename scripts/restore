@@ -73,9 +73,13 @@ chmod 750 $install_dir
 
 # Iterate over users to extend their home folder permissions - for the external
 # storage plugin usage - and create relevant Nextcloud directories
-for u in $(ynh_user_list); do
-    setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
-done
+if [ $user_home -eq 1 ]; then 
+    for u in $(ynh_user_list); do
+        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
+        # Avoid leaving acl on .ssh, which could prevent users from connecting
+        setfacl --recursive -bn "/home/$u/.ssh" || true
+    done
+fi
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
@@ -133,7 +137,7 @@ ynh_systemctl --service=nginx --action=reload
 if [ $enable_notify_push -eq 1 ]
 then
     count=0
-    while ! exec_occ $install_dir/cron.php && [[ $count -lt 30 ]]
+    while ! ynh_exec_as_app php${php_version} --define apc.enable_cli=1 $install_dir/cron.php && [[ $count -lt 30 ]]
     do
         sleep 1
         count=$((count + 1))

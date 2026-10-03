@@ -24,8 +24,8 @@ name.fr = "Configuration de Nextcloud"
         type = "select"
         choices = ["BE", "BR", "CN", "DE", "GB", "ES", "FR", "PL", "PT", "RU", "UA", "US"]
         bind = ":__INSTALL_DIR__/config/config.php"
-        help.en = "It is required to allow inserting phone numbers in the user profiles starting without the country code (e.g. +49 for Germany)."
-        help.fr = "Il est nécessaire de permettre l'insertion, dans les profils utilisateur, de numéros de téléphone commençant sans l'indicatif du pays (par exemple, +49 pour l'Allemagne)."
+        help.en = "Default phone region is required to allow inserting phone numbers in the user profiles starting without the country code (e.g. +49 for Germany)."
+        help.fr = "Région par défaut du téléphone est nécessaire pour permettre l'insertion, dans les profils utilisateur, de numéros de téléphone commençant sans l'indicatif du pays (par exemple, +49 pour l'Allemagne)."
         
     [main.permissions]
     name.en = "Permissions"

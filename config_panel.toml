@@ -22,18 +22,11 @@ name.fr = "Configuration de Nextcloud"
         ask.en = "Default phone region"
         ask.fr = "Région par défaut du téléphone"
         type = "select"
+        choices = ["BE", "BR", "CN", "DE", "GB", "ES", "FR", "PL", "PT", "RU", "UA", "US"]
         bind = ":__INSTALL_DIR__/config/config.php"
         help.en = "It is required to allow inserting phone numbers in the user profiles starting without the country code (e.g. +49 for Germany)."
         help.fr = "Il est nécessaire de permettre l'insertion, dans les profils utilisateur, de numéros de téléphone commençant sans l'indicatif du pays (par exemple, +49 pour l'Allemagne)."
         
-        [main.localization.default_timezone]
-        ask.en = "Default timezone"
-        ask.fr = "Fuseau horaire par défaut"
-        type = "select"
-        bind = ":__INSTALL_DIR__/config/config.php"
-        help.en = "The default timezone parameter is only used when the timezone of the user can’t be determined."
-        help.fr = "Le paramètre de fuseau horaire par défaut n'est utilisé que lorsque le fuseau horaire de l'utilisateur ne peut pas être déterminé."
-
     [main.permissions]
     name.en = "Permissions"
     name.fr = "Autorisations"

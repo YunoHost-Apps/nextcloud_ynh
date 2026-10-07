@@ -327,7 +327,7 @@ if ynh_app_upgrading_from_version_before 35.0.1~ynh2; then
         # Create the folder and move files
         for user in $(ynh_user_list); do
             mkdir -p "/home/$user/Documents"
-            find /home/$user -mindepth 1 -maxdepth 1 ! -name '.*' ! -regex bin ! -regex Documents ! -name Multimedia -exec mv -t /home/$user/Documents -- {} +
+            find /home/$user -mindepth 1 -maxdepth 1 ! -name '.*' ! -name bin ! -name Documents ! -name Multimedia -exec mv -t /home/$user/Documents -- {} +
             chown "$user:$user" "/home/$user/Documents"
             setfacl --modify g:$app:rwX,d:g:$app:rwX,u:$user:rwX,d:u:$user:rwX "/home/$user/Documents" || true
         done

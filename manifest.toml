@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "33.0.9~ynh1"
+version = "34.0.4~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -19,7 +19,7 @@ code = "https://github.com/nextcloud/server"
 cpe = "cpe:2.3:a:nextcloud:nextcloud"
 
 [integration]
-yunohost = ">= 12.1.39"
+yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = ["amd64", "arm64", "armhf"]
 multi_instance = true
@@ -61,14 +61,18 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-34.0.4.tar.bz2'
+        sha256 = '00f226e6364f96e0918ab06157158f66601b8cedc25af777f5ee5a3056f42b83'
+
+        [resources.sources.33]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.9.tar.bz2'
         sha256 = 'f331c1041d027e6588526d2a00ce42bc70a9622eab5871c0be9177252cf77423'
 
         [resources.sources.32]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.15.tar.bz2'
-        sha256 = '6974ac1195025f13643df176d456acf4523790d5488c205b57539f642c7d164c'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.14.tar.bz2'
+        sha256 = '7fb7a1a04b89f652be23a9409b37f76af6cb7220fd97618dfd6db275407e9625'
         prefetch = false
-
+        
         [resources.sources.31]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-31.0.14.tar.bz2'
         sha256 = 'd0965eb2cbf68105743cbbe6eef404c89092cf92c40daee2c9cb9cf6edf63613'
@@ -166,7 +170,6 @@ ram.runtime = "512M"
 
     packages_from_raw_bash = """
         case $YNH_DEBIAN_VERSION in
-            bullseye)   echo libmagickcore-6.q16-6-extra ;;
             bookworm)   echo libmagickcore-6.q16-6-extra ;;
             trixie)     echo libmagickcore-7.q16-10-extra ;;
         esac

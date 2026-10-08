@@ -23,7 +23,7 @@ test_format = 1.0
 
     admin.path = "/settings/admin"
     admin.logged_on_sso = true
-    admin.expect_title = "Administration settings - Nextcloud"
+    admin.expect_title = "Basic settings - Nextcloud"
 
     asset.path = "/core/img/logo/logo.svg"
 

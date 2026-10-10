@@ -16,7 +16,7 @@ Autrement, vous pouvez exécuter `sudo -u __APP__ php__PHP_VERSION__ --define ap
 
 Dans certains cas, votre compte n'est peut-être pas un admin de Nextcloud et ne peut donc pas accéder aux fonctionnalités admin.
 
-Vous pouvez ajouter le comptes aux admins de Nextcloud avec:
+Vous pouvez ajouter le comptes aux admins de Nextcloud avec :
 
 ```bash
 sudo yunohost app shell __APP__

@@ -15,7 +15,7 @@ Alternatively, you can run `sudo -u __APP__ php__PHP_VERSION__ --define apc.enab
 
 In some cases, your user may not be a Nextcloud admin and therefore cannot access the admin panels from Nextcloud.
 
-This user can be added to the Nextcloud admin group with : 
+This user can be added to the Nextcloud admin group with: 
 
 ```bash
 sudo yunohost app shell __APP__

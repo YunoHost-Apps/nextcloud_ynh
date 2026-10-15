@@ -15,6 +15,8 @@ ynh_restore "$install_dir"
 #=================================================
 ynh_script_progression "Restoring data directory..."
 
+set_datadir
+
 ynh_restore "$data_dir"
 
 #=================================================

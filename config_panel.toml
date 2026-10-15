@@ -57,3 +57,14 @@ name.fr = "Configuration de Nextcloud"
         type = "boolean"
         help.en = "If all your users have set a forward email and aren't using YunoHost emails, you may choose to set their forward email as their Nextcloud email setting."
         help.fr = "Si tous vos utilisateurs ont paramétré un e-mail de transfert et n'utilise pas du tout les e-mails de leur compte YunoHost, vous pouvez paramétrer Nextcloud d'utiliser les e-mails de transfert."
+
+    [main.user_home]
+    name.en = "Users' home directory in Nextcloud"
+    name.fr = "Dossier personnel des utilisateurs à Nextcloud"
+
+        [main.user_home.enable_user_home]
+        ask.en = "Add the users' home directory in Nextcloud?"
+        ask.fr = "Ajouter le dossier personnel des utilisateurs à Nextcloud ?"
+        help.en = "If enabled, each `/home/$user/Documents` directory will be added to their respective user's Nextcloud."
+        help.fr = "Si activé, le dossier `/home/$user/Documents` de chaque compte lui sera ajouté dans Nextcloud."
+        type = "boolean"

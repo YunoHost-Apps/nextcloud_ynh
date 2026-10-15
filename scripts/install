@@ -11,6 +11,7 @@ ynh_app_setting_set_default --key=php_upload_max_filesize --value=10G
 ynh_app_setting_set_default --key=php_memory_limit --value=512M
 
 ynh_app_setting_set_default --key=enable_notify_push --value=0
+ynh_app_setting_set_default --key=enable_user_home --value=0
 
 phpflags="--define apc.enable_cli=1"
 ynh_app_setting_set --key=phpflags --value="$phpflags"
@@ -142,19 +143,6 @@ create_external_storage() {
       && ynh_print_warn "Unable to create external storage" \
       || exec_occ files_external:option "$mount_id" enable_sharing true
 }
-
-# Enable External Storage and create local mount to home folder
-if [ $user_home -eq 1 ]
-then
-    exec_occ app:enable files_external
-    create_external_storage "/home/\$user" "Home"
-    # Iterate over users to extend their home folder permissions
-    for u in $(ynh_user_list); do
-        setfacl --recursive --modify g:$app:rwX,d:g:$app:rwX "/home/$u" || true
-        # Avoid leaving acl on .ssh, which could prevent users from connecting
-        setfacl --recursive -bn "/home/$u/.ssh" || true
-    done
-fi
 
 #=================================================
 # ALLOW USERS TO DISCONNECT FROM NEXTCLOUD

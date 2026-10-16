@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Source YunoHost helpers
+YNH_HELPERS_VERSION=2.1
+source /usr/share/yunohost/helpers
+
+# --- Configuration ---
+app="__APP__"
+install_dir="/var/www/$app"
+EMAIL_TO="root"
+SUBJECT="[YunoHost] __APP__'s Apps Health Report"
+
+# --- Global Info ---
+# Get PHP version from YunoHost settings
+php_version=$(ynh_app_setting_get --app=$app --key=php_version)
+
+# Get current Nextcloud version (e.g. "28.0.1")
+CURRENT_VER_STR=$(grep OC_VersionString "$install_dir/version.php" | cut -d\' -f2)
+CURRENT_MAJOR=${CURRENT_VER_STR%%.*}
+
+# --- Functions ---
+
+exec_occ() {
+    # Run occ commands as the app user with the correct PHP version
+    (cd "$install_dir" && ynh_exec_as_app \
+        php$php_version --define apc.enable_cli=1 occ --no-interaction --no-ansi "$@")
+}
+
+check_incompatibility() {
+    local target_major="$1"
+
+    # 1. Installed Apps (Enabled only)
+    local list_installed=$(exec_occ app:list --output json | jq -r ".enabled | keys[]" | sort)
+
+    # 2. Core Apps (Shipped with CURRENT version)
+    local list_core=$(curl -s "https://raw.githubusercontent.com/nextcloud/server/v$CURRENT_VER_STR/core/shipped.json" | jq -r '.shippedApps[]' | sort)
+
+    # 3. Target Catalog (Apps compatible with TARGET version)
+    local list_target_catalog=$(curl -s "https://apps.nextcloud.com/api/v1/platform/$target_major.0.0/apps.json" | jq -r '.[] | .id' | sort)
+
+    # Basic math : (Installed - Core) - Target_Catalog = Incompatible
+    comm -23 <(comm -23 <(echo "$list_installed") <(echo "$list_core")) <(echo "$list_target_catalog")
+}
+
+# --- Main Script ---
+
+# 1. Determine Target Version (Check YunoHost updates first, fallback to N+1)
+YNH_UPDATE_JSON=$(yunohost tools update --json --quiet 2>/dev/null)
+# Extract new version for Nextcloud if available
+NEXT_VER_YNH=$(echo "$YNH_UPDATE_JSON" | jq -r ".apps[] | select(.id == \"$app\") | .upgrade.new_version // empty")
+
+if [ -n "$NEXT_VER_YNH" ]; then
+    TARGET_MAJOR=$(echo "$NEXT_VER_YNH" | cut -d. -f1)
+else
+    TARGET_MAJOR=$((CURRENT_MAJOR + 1))
+fi
+
+# 2. Run Checks : Checking available updates for NC apps
+INTERNAL_UPDATE_OUTPUT=$(exec_occ app:update --showonly 2>&1)
+
+# Checking incompatible NC apps with next version of NC
+INCOMPATIBLE_APPS=$(check_incompatibility "$TARGET_MAJOR")
+
+# 3. Notification
+TRIGGER_EMAIL=false
+
+# Trigger if text "new version available" is found OR if incompatible list is not empty
+echo "$INTERNAL_UPDATE_OUTPUT" | grep -q "new version available" && TRIGGER_EMAIL=true
+[ -n "$INCOMPATIBLE_APPS" ] && TRIGGER_EMAIL=true
+
+if [ "$TRIGGER_EMAIL" = true ]; then
+    {
+        echo "Nextcloud Health Report (Host: $(hostname))"
+        echo "=========================================="
+        echo "Current Version: $CURRENT_VER_STR (PHP $php_version)"
+        echo "Target Version : $TARGET_MAJOR"
+        echo ""
+
+        # Report Updates
+        if echo "$INTERNAL_UPDATE_OUTPUT" | grep -q "new version available"; then
+            echo " [!] APP UPDATES AVAILABLE"
+            echo "--------------------------"
+            echo "$INTERNAL_UPDATE_OUTPUT"
+            echo ""
+        else
+            echo " [OK] All apps up to date."
+            echo ""
+        fi
+
+        # Report Compatibility
+        if [ -n "$INCOMPATIBLE_APPS" ]; then
+            echo " [!] INCOMPATIBILITY WARNING (Target: v$TARGET_MAJOR)"
+            echo "--------------------------------------------------"
+            echo "Apps installed but NOT marked compatible with v$TARGET_MAJOR:"
+            echo ""
+            echo "$INCOMPATIBLE_APPS"
+        else
+            echo " [OK] Non-core apps compatible with v$TARGET_MAJOR."
+        fi
+
+    } | mail -s "$SUBJECT" "$EMAIL_TO"
+fi

@@ -1,6 +1,6 @@
 ### Exécuter manuellement des commandes Nextcloud
 
-Vous pouvez lancer des commandes Nextcloud en ouvrant un "shell" Nextcloud et utiliser `php occ` directement:
+Vous pouvez lancer des commandes Nextcloud en ouvrant un "shell" Nextcloud et utiliser `php occ` directement :
 
 ```bash
 sudo yunohost app shell __APP__

@@ -5,7 +5,7 @@ name = "Nextcloud"
 description.en = "Online storage, file sharing platform and various other applications"
 description.fr = "Stockage en ligne, plateforme de partage de fichiers et diverses autres applications"
 
-version = "33.0.9~ynh1"
+version = "33.0.10~ynh1"
 
 maintainers = ["kay0u"]
 
@@ -61,8 +61,8 @@ ram.runtime = "512M"
     [resources.sources]
 
         [resources.sources.main]
-        url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.9.tar.bz2'
-        sha256 = 'f331c1041d027e6588526d2a00ce42bc70a9622eab5871c0be9177252cf77423'
+        url = 'https://download.nextcloud.com/server/releases/nextcloud-33.0.10.tar.bz2'
+        sha256 = '427110b96fd8580d8feb23a40a41d00657e975f945e0848485a6a26d777d7cae'
 
         [resources.sources.32]
         url = 'https://download.nextcloud.com/server/releases/nextcloud-32.0.15.tar.bz2'

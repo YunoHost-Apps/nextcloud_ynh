@@ -25,6 +25,14 @@ wait_nginx_reload() {
     sleep 2
 }
 
+set_datadir() {
+  if [[ -f $install_dir/config/config.php ]]; then
+    data_dir=$(grep datadirectory < $install_dir/config/config.php | sed "s/.*=>.'\([^']*\)'.*/\1/")
+  else
+    data_dir="/home/yunohost.app/$app/data"
+  fi
+}
+
 # Check if an URL is already handled
 # usage: is_url_handled --domain=DOMAIN --path=PATH_URI
 is_url_handled() {
